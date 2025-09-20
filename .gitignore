@@ -1,0 +1,46 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# build output
+dist/
+dist-ssr/
+build/
+
+# Vite / CRA
+.vite/
+
+# dotenv environment variables
+.env
+.env.local
+.env.*.local
+*.local
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+
+# Editors & IDEs
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Optional npm cache
+.npm
