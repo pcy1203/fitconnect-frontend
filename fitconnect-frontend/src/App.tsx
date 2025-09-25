@@ -1,30 +1,39 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-
+import Layout from "./components/Layout";
 import Main from "./pages/Main";
 import Login from "./pages/Main/Login";
 import Register from "./pages/Main/Register";
 
-// import SetProfile from "./pages/profile/SetProfile";
-// import ViewProfile from "./pages/profile/ViewProfile";
-
-// import Matching from "./pages/search/Matching"
-// import Archive from "./pages/search/Archive"
+import Profile from "./pages/profile";
+import SetProfile from "./pages/profile/SetProfile";
 
 function App() {
   return (
     <Router>
-      <nav style={{ display: "flex", gap: "1rem" }}>
-        <Link to="/">홈</Link>
-        <Link to="/login">로그인</Link>
-        <Link to="/register">회원가입</Link>
-      </nav>
-
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<Main />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/setprofile" element={<SetProfile />} />
+        </Route>
       </Routes>
     </Router>
+    // <Router>
+    //   <nav style={{ display: "flex", gap: "1rem" }}>
+    //     <Link to="/">홈</Link>
+    //     <Link to="/login">로그인</Link>
+    //     <Link to="/register">회원가입</Link>
+    //   </nav>
+
+    //   <Routes>
+    //     <Route path="/" element={<Main />} />
+    //     <Route path="/login" element={<Login />} />
+    //     <Route path="/register" element={<Register />} />
+    //   </Routes>
+    // </Router>
   );
 }
 
