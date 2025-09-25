@@ -1,3 +1,12 @@
+import styled from "styled-components";
+
+const Container = styled.div`
+    width: 1200px;
+    min-height: calc(100vh - 80px);
+    margin: 0 auto;
+    background: black;
+`;
+
 export default function Login() {
-    return <h1>Login Page</h1>;
+    return <Container>Login Page</Container>;
 }

@@ -17,17 +17,18 @@ a {
     color: #000000;
 }
 a:hover {
-  color: #535bf2;
+    font-weight: 500;
+    color: #6399FB;
 }
 
 body {
-  /* margin: 0;
+  margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
+  /* min-width: 320px;
   min-height: 100vh; */
 }
-
+/* 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
@@ -63,4 +64,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */

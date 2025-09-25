@@ -62,15 +62,6 @@ const SubMenu = styled.li`
     } 
 `;
 
-const Line = styled.hr`
-    width: 100%;
-    position: absolute;
-    top: 71px;
-    border: none;
-    height: 1px;
-    background-color: rgba(0,0,0,0.1);
-`;
-
 export default function NavigationBar() {
   return (
     <nav className="navigation">
@@ -104,7 +95,6 @@ export default function NavigationBar() {
           </SubBar>
         </Menu>
       </MainBar>
-      <Line></Line>
     </nav>
   );
 }
