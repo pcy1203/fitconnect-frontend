@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { act, useState } from "react";
 import React from "react";
 import styled from "styled-components";
 
@@ -135,14 +135,36 @@ const Input = styled.input<{ width?: string }>`
 //     }
 // `;
 
+const AddButton = styled.button`
+    all: unset;
+    width: 120px;
+    height: 30px;
+    position: relative;
+    left: 830px;
+    background: #9e9e9eff;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #9E9E9E;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease;
+    &:hover {
+      background-color: #b2b2b2ff;
+    }
+    &:active {
+      transform: scale(0.95);
+    }
+`;
+
 const Button = styled.button`
     all: unset;
     width: 200px;
     height: 40px;
-    position: relative;
-    top: 30px;
-    left: 900px;
     background: #6399FB;
+    margin-top: 30px;
+    margin-left: 900px;
+    margin-bottom: 150px;
     color: #FFFFFF;
     text-align: center;
     font-size: 16px;
@@ -172,7 +194,9 @@ export default function SetProfile() {
     const [page, setPage] = useState(1);
     const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: "" }]);
     const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: ""}]);
-    
+    const [activityList, setActivityList] = useState([{ name: "", type: "", description: "" }]);
+    const [certificateList, setCertificateList] = useState([{ name: "", score: "", date: "" }]);
+
     const getNextPage = () => {
         if (page < 5) setPage(page + 1);
     };
@@ -239,7 +263,7 @@ export default function SetProfile() {
                 </InputContainer>
               </React.Fragment>
             ))}
-            <Button onClick={() => setEducationList([...educationList, { school: "", major: "", entrance: "", graduation: "", status: ""}])}>+ 학력 추가</Button>
+            <AddButton onClick={() => setEducationList([...educationList, { school: "", major: "", entrance: "", graduation: "", status: ""}])}>+ 학력 추가</AddButton>
 
             <FormTitle>경력사항 입력</FormTitle>
             {careerList.map((career, idx) => (
@@ -271,15 +295,106 @@ export default function SetProfile() {
                 </InputContainer>
               </React.Fragment>
             ))}
-            <Button onClick={() => setCareerList([...careerList, { company: "", role: "", join: "", leave: "", reason: "", description: "" }])}>+ 경력 추가</Button>
+            <AddButton onClick={() => setCareerList([...careerList, { company: "", role: "", join: "", leave: "", reason: "", description: "" }])}>+ 경력 추가</AddButton>
           </Form>
         )}
-        
-        
-        
-        
-        
-        <Button onClick={getNextPage}>다음으로</Button>
+
+        {page == 3 && (
+          <Form>
+            <FormTitle>활동내역 입력</FormTitle>
+            {activityList.map((activity, idx) => (
+              <React.Fragment key={idx}>
+                {idx >= 1 && <Line></Line>}
+                <InputContainer>
+                  <Label>활동명</Label>
+                  <Input placeholder="활동명"></Input>
+                </InputContainer>
+                <InputContainer>
+                  <Label>구분</Label>
+                  <Input placeholder="봉사활동, 동아리활동 등"></Input>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label>내용</Label>
+                  <Input type="month" width="800px"></Input>
+                </InputContainer>
+              </React.Fragment>
+            ))}
+            <AddButton onClick={() => setActivityList([...activityList, { name: "", type: "", description: "" }])}>+ 활동 추가</AddButton>
+
+            <FormTitle>자격사항 입력</FormTitle>
+            {certificateList.map((certificate, idx) => (
+              <React.Fragment key={idx}>
+                {idx >= 1 && <Line></Line>}
+                <InputContainer width="325px">
+                  <Label>자격증</Label>
+                  <Input placeholder="자격증 이름" width="150px"></Input>
+                </InputContainer>
+                <InputContainer width="325px">
+                  <Label>점수/급수</Label>
+                  <Input width="150px"></Input>
+                </InputContainer>
+                <InputContainer width="300px">
+                  <Label>취득일</Label>
+                  <Input type="month" width="150px"></Input>
+                </InputContainer>
+              </React.Fragment>
+            ))}
+            <AddButton onClick={() => setCertificateList([...certificateList, { name: "", score: "", date: "" }])}>+ 자격 추가</AddButton>
+          </Form>
+        )}
+
+        {page == 4 && (
+          <Form>
+            <FormTitle>파일 업로드</FormTitle>
+            <InputContainer width="1000px">
+              <Label>경력기술서</Label>
+              <Input type="file" placeholder="경력기술서 파일을 업로드 해주세요." width="800px"></Input>
+            </InputContainer>
+            <InputContainer width="1000px">
+              <Label>자기소개서</Label>
+              <Input type="file" placeholder="자기소개서 파일을 업로드 해주세요." width="800px"></Input>
+            </InputContainer>
+            <InputContainer width="1000px">
+              <Label>포트폴리오</Label>
+              <Input type="file" placeholder="포트폴리오 파일을 업로드 해주세요." width="800px"></Input>
+            </InputContainer>
+          </Form>
+        )}
+
+        {page == 5 && (
+          <Form>
+            <FormTitle>관심내용 입력</FormTitle>
+            <InputContainer>
+              <Label>희망 직무</Label>
+              <Input placeholder="직무명"></Input>
+            </InputContainer>
+            <InputContainer>
+              <Label>희망 연봉</Label>
+              <Input placeholder=""></Input>
+            </InputContainer>
+            <InputContainer>
+              <Label>희망 업종</Label>
+              <Input placeholder=""></Input>
+            </InputContainer>
+            <InputContainer>
+              <Label>희망 규모</Label>
+              <Input placeholder="010-0000-0000"></Input>
+            </InputContainer>
+            <InputContainer>
+              <Label>주거지</Label>
+              <Input placeholder="010-0000-0000"></Input>
+            </InputContainer>
+            <InputContainer>
+              <Label>희망 근무지</Label>
+              <Input placeholder="010-0000-0000"></Input>
+            </InputContainer>
+            <InputContainer width="1000px">
+              <Label>기타 사항</Label>
+              <Input placeholder="나를 한 줄로 표현해주세요!" width="800px"></Input>
+            </InputContainer>
+          </Form>
+        )}
+        <Button onClick={getNextPage}>{page <= 4 ? "다음으로" : "작성 완료"}</Button>
 
 {/* 
 
