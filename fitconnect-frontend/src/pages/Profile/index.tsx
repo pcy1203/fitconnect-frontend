@@ -7,6 +7,6 @@ const Container = styled.div`
     background: black;
 `;
 
-export default function Register() {
-    return <Container>Register Page</Container>;
+export default function Profile() {
+    return <Container>Profile Page</Container>;
 }
