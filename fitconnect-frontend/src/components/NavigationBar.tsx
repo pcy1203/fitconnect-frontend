@@ -94,6 +94,8 @@ export default function NavigationBar() {
             <SubMenu><Link to="/jobinterview/feedback">받은 피드백</Link></SubMenu>
           </SubBar>
         </Menu>
+        <Menu><Link to="/auth/login">로그인</Link>
+        </Menu>
       </MainBar>
     </nav>
   );
