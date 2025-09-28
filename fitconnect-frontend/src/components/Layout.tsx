@@ -3,7 +3,7 @@ import styled from "styled-components";
 import NavigationBar from "./NavigationBar";
 
 const HTMLContainer = styled.div`
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     position: relative;
     background: #ffffff;
@@ -14,13 +14,13 @@ const NavContainer = styled.div`
     height: 80px;
     position: fixed;
     top: 0;
-    left: calc(50% - 600px);
+    left: calc(50vw - 600px);
     z-index: 10;
     background: #ffffff;
 `;
 
 const Line = styled.hr`
-    width: 100vw;
+    width: 100%;
     position: fixed;
     top: 71px;
     z-index: 11;
@@ -30,8 +30,8 @@ const Line = styled.hr`
 `;
 
 const BodyContainer = styled.div`
-    width: 100%;
-    min-height: calc(100vh - 80px);
+    width: 100vw;
+    min-height: calc(100% - 80px);
     position: relative;
     top: 80px;
     background: #ffffff;

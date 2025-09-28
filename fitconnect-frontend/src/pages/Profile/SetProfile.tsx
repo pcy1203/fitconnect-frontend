@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import React from "react";
 import styled from "styled-components";
 
@@ -83,14 +84,6 @@ const InputContainer = styled.div<{ width?: string }>`
     gap: 10px;
 `
 
-// const LongInputContainer = styled.div`
-//     width: 1000px;
-//     display: flex;
-//     flex-direction: row;
-//     align-items: center;
-//     gap: 10px;
-// `
-
 const Label = styled.div`
     width: 80px;
     height: 70px;
@@ -101,9 +94,41 @@ const Label = styled.div`
     line-height: 70px;
 `;
 
-const Input = styled.input<{ width?: string }>`
+const Input = styled.input.withConfig({
+    shouldForwardProp: (prop) => prop !== "hasError"
+})<{ width?: string, hasError?: boolean }>`
     width: ${(props) => props.width || "300px"};
     height: 30px;
+    background: #FFFFFF;
+    color: #000000;
+    border: 1px solid #9E9E9E;
+    padding: 2px 10px;
+    &:focus {
+        outline: none;
+        border: 2px solid ${(props) => (props.hasError ? "#FB8565" : "#6399fb")};
+        box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
+    }
+    &::placeholder {
+        color: #dbdbdb;
+    }
+    &::file-selector-button {
+        width: 80px;
+        padding: 5.5px;
+        margin-right: 10px;
+        background-color: #6399FB;
+        border: none;
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+    }
+    &::file-selector-button:hover {
+        background-color: #87B2FF;
+    }
+`;
+
+const Select = styled.select<{ width?: string }>`
+    width: ${(props) => props.width || "322px"};
+    height: 36px;
     background: #FFFFFF;
     color: #000000;
     border: 1px solid #9E9E9E;
@@ -113,27 +138,15 @@ const Input = styled.input<{ width?: string }>`
         border: 2px solid #6399fb;
         box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
     }
-    &::placeholder {
-        color: #dbdbdb;
-    }
 `;
 
-// const LongInput = styled.input`
-//     width: 800px;
-//     height: 30px;
-//     background: #FFFFFF;
-//     color: #000000;
-//     border: 1px solid #9E9E9E;
-//     padding: 2px 10px;
-//     &:focus {
-//         outline: none;
-//         border: 2px solid #6399fb;
-//         box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
-//     }
-//     &::placeholder {
-//         color: #dbdbdb;
-//     }
-// `;
+const ErrorText = styled.div`
+    position: absolute;
+    color: red;
+    font-size: 12px;
+    margin-left: 135px;
+    margin-top: 60px;
+`;
 
 const AddButton = styled.button`
     all: unset;
@@ -156,6 +169,11 @@ const AddButton = styled.button`
       transform: scale(0.95);
     }
 `;
+
+const Padding = styled.div`
+  width: 1000px;
+  height: 80px;
+`
 
 const Button = styled.button`
     all: unset;
@@ -187,18 +205,60 @@ const Line = styled.hr`
     height: 1px;
     margin-top: 20px;
     margin-bottom: 20px;
-    background-color: #bcbcbcff;
+    background-color: #9E9E9E;
 `;
 
 export default function SetProfile() {
     const [page, setPage] = useState(1);
+    const [primaryInfo, setPrimaryInfo] = useState({ name: "", birth: "", email: "", phone: "", intro: ""});
     const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: "" }]);
     const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: ""}]);
     const [activityList, setActivityList] = useState([{ name: "", type: "", description: "" }]);
     const [certificateList, setCertificateList] = useState([{ name: "", score: "", date: "" }]);
 
+    const [errors, setErrors] = useState<{ birth?: string; email?: string; phone?: string }>({});
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!primaryInfo.birth || /^\d{4}-\d{2}-\d{2}$/.test(primaryInfo.birth)) {
+          setErrors((prev) => ({ ...prev, birth: undefined }));
+        } else {
+          setErrors((prev) => ({ ...prev, birth: "YYYY-MM-DD 형식으로 입력해주세요." }));
+        }
+    }, [primaryInfo.birth]);
+
+    useEffect(() => {
+        if (!primaryInfo.email || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(primaryInfo.email)) {
+          setErrors((prev) => ({ ...prev, email: undefined }));
+        } else {
+          setErrors((prev) => ({ ...prev, email: "이메일 형식으로 입력해주세요." }));
+        }
+    }, [primaryInfo.email]);
+    
+    useEffect(() => {
+        if (!primaryInfo.phone || /^010-\d{4}-\d{4}$/.test(primaryInfo.phone)) {
+          setErrors((prev) => ({ ...prev, phone: undefined }));
+        } else {
+          setErrors((prev) => ({ ...prev, phone: "010-0000-0000 형식으로 입력해주세요." }));
+        }
+    }, [primaryInfo.phone]);
+
+    const status = ["재학","휴학","졸업 예정","졸업 유예","졸업","중퇴"]
+    const desiredJobs = ["직무 무관","고객지원/CX","개발/엔지니어","기획/PM","디자인","데이터 분석","마케팅","연구개발","영업","인사","재무/회계","전략/비즈니스","콘텐츠 제작","QA","기타"];
+    const desiredSalary = ["연봉 무관","2000만 ~ 3000만","3000만 ~ 4000만","4000만 ~ 5000만","5000만 ~ 6000만","6000만 ~ 7000만","7000만 ~ 8000만","8000만 ~ 9000만","9000만 ~ 1억","1억 ~ 1.2억","1.2억 ~ 1.5억","1.5억 이상"];
+    const desiredIndustry = ["산업 무관","IT/소프트웨어","게임","핀테크/금융","제조/공장","교육/연구","헬스케어/의료","미디어/콘텐츠","광고","유통/리테일","물류/운송","공공/정부","법률/회계","스타트업/벤처","외국계"];
+    const desiredCompanySize = ["규모 무관","1 ~ 10명","10 ~ 50명","50 ~ 100명","100 ~ 200명","200 ~ 500명","500 ~ 1000명","1000명 이상"];
+    const residence = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
+    const desiredWorkplace = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
+
     const getNextPage = () => {
-        if (page < 5) setPage(page + 1);
+        if (errors.birth || errors.email || errors.phone) {
+            alert("입력하신 정보를 다시 한 번 확인해주세요!");
+        } else if (page < 5) {
+            setPage(page + 1);
+        } else {
+            navigate("/assessment/interview");
+        }
     };
 
     return (
@@ -218,15 +278,18 @@ export default function SetProfile() {
             </InputContainer>
             <InputContainer>
               <Label>생년월일</Label>
-              <Input placeholder="2025-01-01"></Input>
+              <Input placeholder="2025-01-01" value={primaryInfo.birth} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, birth: e.target.value }))} hasError={!!errors.birth}></Input>
+              {errors.birth && <ErrorText>{errors.birth}</ErrorText>}
             </InputContainer>
             <InputContainer>
               <Label>이메일</Label>
-              <Input placeholder="fitconnect@gmail.com"></Input>
+              <Input placeholder="fitconnect@gmail.com" value={primaryInfo.email} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, email: e.target.value }))} hasError={!!errors.email}></Input>
+              {errors.email && <ErrorText>{errors.email}</ErrorText>}
             </InputContainer>
             <InputContainer>
               <Label>휴대전화</Label>
-              <Input placeholder="010-0000-0000"></Input>
+              <Input placeholder="010-0000-0000" value={primaryInfo.phone} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, phone: e.target.value }))} hasError={!!errors.phone}></Input>
+              {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
             </InputContainer>
             <InputContainer width="1000px">
               <Label>한 줄 소개</Label>
@@ -259,12 +322,14 @@ export default function SetProfile() {
                 </InputContainer>
                 <InputContainer width="300px">
                   <Label>재학/졸업</Label>
-                  <Input width="150px"></Input>
+                  <Select width="174px">
+                    {status.map((value) => (<option key={value} value={value}>{value}</option>))}
+                  </Select>
                 </InputContainer>
               </React.Fragment>
             ))}
             <AddButton onClick={() => setEducationList([...educationList, { school: "", major: "", entrance: "", graduation: "", status: ""}])}>+ 학력 추가</AddButton>
-
+            <Padding></Padding>
             <FormTitle>경력사항 입력</FormTitle>
             {careerList.map((career, idx) => (
               <React.Fragment key={idx}>
@@ -315,12 +380,12 @@ export default function SetProfile() {
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>내용</Label>
-                  <Input type="month" width="800px"></Input>
+                  <Input placeholder="진행했던 핵심 활동 내용" width="800px"></Input>
                 </InputContainer>
               </React.Fragment>
             ))}
             <AddButton onClick={() => setActivityList([...activityList, { name: "", type: "", description: "" }])}>+ 활동 추가</AddButton>
-
+            <Padding></Padding>
             <FormTitle>자격사항 입력</FormTitle>
             {certificateList.map((certificate, idx) => (
               <React.Fragment key={idx}>
@@ -331,10 +396,10 @@ export default function SetProfile() {
                 </InputContainer>
                 <InputContainer width="325px">
                   <Label>점수/급수</Label>
-                  <Input width="150px"></Input>
+                  <Input placeholder="990 / 1급" width="150px"></Input>
                 </InputContainer>
                 <InputContainer width="300px">
-                  <Label>취득일</Label>
+                  <Label>취득 시기</Label>
                   <Input type="month" width="150px"></Input>
                 </InputContainer>
               </React.Fragment>
@@ -366,115 +431,47 @@ export default function SetProfile() {
             <FormTitle>관심내용 입력</FormTitle>
             <InputContainer>
               <Label>희망 직무</Label>
-              <Input placeholder="직무명"></Input>
+              <Select>
+                {desiredJobs.map((value) => (<option key={value} value={value}>{value}</option>))}
+              </Select>
             </InputContainer>
             <InputContainer>
               <Label>희망 연봉</Label>
-              <Input placeholder=""></Input>
+              <Select>
+                {desiredSalary.map((value) => (<option key={value} value={value}>{value}</option>))}
+              </Select>
             </InputContainer>
             <InputContainer>
               <Label>희망 업종</Label>
-              <Input placeholder=""></Input>
+              <Select>
+                {desiredIndustry.map((value) => (<option key={value} value={value}>{value}</option>))}
+              </Select>
             </InputContainer>
             <InputContainer>
               <Label>희망 규모</Label>
-              <Input placeholder="010-0000-0000"></Input>
+              <Select>
+                {desiredCompanySize.map((value) => (<option key={value} value={value}>{value}</option>))}
+              </Select>
             </InputContainer>
             <InputContainer>
               <Label>주거지</Label>
-              <Input placeholder="010-0000-0000"></Input>
+              <Select>
+                {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
+              </Select>
             </InputContainer>
             <InputContainer>
               <Label>희망 근무지</Label>
-              <Input placeholder="010-0000-0000"></Input>
+              <Select>
+                {desiredWorkplace.map((value) => (<option key={value} value={value}>{value}</option>))}
+              </Select>
             </InputContainer>
             <InputContainer width="1000px">
               <Label>기타 사항</Label>
-              <Input placeholder="나를 한 줄로 표현해주세요!" width="800px"></Input>
+              <Input placeholder="희망하는 기업/포지션에 대해 자유롭게 이야기해주세요." width="800px"></Input>
             </InputContainer>
           </Form>
         )}
         <Button onClick={getNextPage}>{page <= 4 ? "다음으로" : "작성 완료"}</Button>
-
-{/* 
-
-        <Form>
-          <FormTitle>학력사항 입력</FormTitle>
-          <InputContainer>
-            <Label>학교</Label>
-            <Input placeholder="이름"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>전공</Label>
-            <Input placeholder="2025-01-01"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>사명</Label>
-            <Input placeholder="fitconnect@gmail.com"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>직무</Label>
-            <Input placeholder="010-0000-0000"></Input>
-          </InputContainer>
-          <LongInputContainer>
-            <Label>활동 내용</Label>
-            <LongInput placeholder="나를 한 줄로 표현해주세요!"></LongInput>
-          </LongInputContainer>
-        </Form>
-        <Button>다음으로</Button>
-
-        <Form>
-          <FormTitle>기본정보 입력</FormTitle>
-          <InputContainer>
-            <Label>이름</Label>
-            <Input placeholder="이름"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>생년월일</Label>
-            <Input placeholder="2025-01-01"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>이메일</Label>
-            <Input placeholder="fitconnect@gmail.com"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>휴대전화</Label>
-            <Input placeholder="010-0000-0000"></Input>
-          </InputContainer>
-          <LongInputContainer>
-            <Label>한 줄 소개</Label>
-            <LongInput placeholder="나를 한 줄로 표현해주세요!"></LongInput>
-          </LongInputContainer>
-        </Form>
-        <Button>다음으로</Button>
-
-
-        <Form>
-          <FormTitle>기본정보 입력</FormTitle>
-          <InputContainer>
-            <Label>이름</Label>
-            <Input placeholder="이름"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>생년월일</Label>
-            <Input placeholder="2025-01-01"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>이메일</Label>
-            <Input placeholder="fitconnect@gmail.com"></Input>
-          </InputContainer>
-          <InputContainer>
-            <Label>휴대전화</Label>
-            <Input placeholder="010-0000-0000"></Input>
-          </InputContainer>
-          <LongInputContainer>
-            <Label>한 줄 소개</Label>
-            <LongInput placeholder="나를 한 줄로 표현해주세요!"></LongInput>
-          </LongInputContainer>
-        </Form>
-        <Button>다음으로</Button> */}
-
-
       </Container>
     );
 }

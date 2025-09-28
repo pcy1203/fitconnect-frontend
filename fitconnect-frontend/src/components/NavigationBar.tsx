@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useAuth } from "./AuthContext";  // 경로 맞게 수정
+import { useAuth } from "./AuthContext";
 
 import axios from "axios";
 import styled from "styled-components";
@@ -32,6 +32,12 @@ const Menu = styled.li`
     justify-content: center;
     font-size: 18px;
     text-align: center;
+    & > a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        line-height: 80px;
+    }
     &:hover > a {
         font-weight: 500;
         color: #6399FB;
@@ -98,7 +104,7 @@ export default function NavigationBar() {
         <Link to="/"><Logo className="logo"><img src={logo} alt="Logo" width={200} height={55}></img></Logo></Link>
         
         {/* 상단 메뉴 */}
-        <Menu><Link to="/profile">프로필 설정</Link>
+        <Menu><Link to="/profile/setprofile">프로필 설정</Link>
           <SubBar>
             <SubMenu>
               <Link to="/profile/setprofile">프로필 입력</Link>

@@ -6,7 +6,6 @@ import Main from "./pages/Main";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Main/Register";
 
-import Profile from "./pages/profile";
 import SetProfile from "./pages/profile/SetProfile";
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
               <Route path="/auth/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              <Route path="/profile" element={<Profile />} />
               <Route path="/profile/setprofile" element={<SetProfile />} />
             </Route>
           </Routes>
