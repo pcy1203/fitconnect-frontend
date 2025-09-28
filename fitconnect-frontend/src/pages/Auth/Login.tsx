@@ -1,5 +1,10 @@
-import React from "react";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../components/AuthContext";
 import styled from "styled-components";
+import axios from "axios";
+
+const baseURL = "http://127.0.0.1:8000";
 
 const Container = styled.div`
     width: 1200px;
@@ -120,6 +125,27 @@ const SignupButton = styled.button`
 `;
 
 export default function Login() {
+    const { setToken } = useAuth();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+
+    const handleLogin = async () => {
+        try {
+            const res = await axios.post(`${baseURL}/auth/login/`, { email, password });
+            if (res.data.code === 200) {
+                const token = res.data.data.access_token;
+                localStorage.setItem("jwt_token", token);
+                setToken(token);
+                console.log("로그인 성공 : " + token);
+                navigate("/");
+            } else {
+                console.log("로그인 실패");
+            }
+        } catch (err) {
+            console.error("로그인 오류 : ", err);
+        }
+    };
 
     return (
       <Container>
@@ -127,15 +153,15 @@ export default function Login() {
           <Form>
             <InputContainer>
               <Label>아이디</Label>
-              <Input placeholder="아이디"></Input>
+              <Input placeholder="아이디" value={email} onChange={(e) => setEmail(e.target.value)}></Input>
             </InputContainer>
             <InputContainer>
               <Label>비밀번호</Label>
-              <Input placeholder="비밀번호"></Input>
+              <Input placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)}></Input>
             </InputContainer>
             <ButtonContainer>
-                <LoginButton>로그인</LoginButton>
-                <SignupButton>회원가입</SignupButton>
+                <LoginButton onClick={handleLogin}>로그인</LoginButton>
+                <Link to="/profile/setprofile"><SignupButton>회원가입</SignupButton></Link>
             </ButtonContainer>
           </Form>
       </Container>

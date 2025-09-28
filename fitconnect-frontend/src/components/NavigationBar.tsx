@@ -1,6 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from "./AuthContext";  // 경로 맞게 수정
+
+import axios from "axios";
 import styled from "styled-components";
 import logo from '../assets/logo.png';
+
+const baseURL = "http://127.0.0.1:8000";  // Backend FastAPI
 
 const MainBar = styled.ul`
     margin: 0;
@@ -63,6 +69,28 @@ const SubMenu = styled.li`
 `;
 
 export default function NavigationBar() {
+    const { token, setToken } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const savedToken = localStorage.getItem("jwt_token");
+        if (savedToken) {
+          setToken(savedToken);
+          console.log(1);
+        }
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await axios.post(`${baseURL}/auth/logout`, {}, {});  // TO-DO
+        } catch (err) {
+            console.error("로그아웃 오류 :", err);
+        }
+        localStorage.removeItem("jwt_token");
+        setToken(null);
+        navigate("/");
+    };
+
   return (
     <nav className="navigation">
       <MainBar className="navbar">
@@ -94,8 +122,8 @@ export default function NavigationBar() {
             <SubMenu><Link to="/jobinterview/feedback">받은 피드백</Link></SubMenu>
           </SubBar>
         </Menu>
-        <Menu><Link to="/auth/login">로그인</Link>
-        </Menu>
+        {token ? <Menu><Link onClick={handleLogout}>로그아웃</Link></Menu>
+          : <Menu><Link to="/auth/login">로그인</Link></Menu>}
       </MainBar>
     </nav>
   );
