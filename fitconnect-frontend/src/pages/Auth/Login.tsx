@@ -125,7 +125,7 @@ const SignupButton = styled.button`
 `;
 
 export default function Login() {
-    const { setToken } = useAuth();
+    const { setToken, setRole } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -134,10 +134,13 @@ export default function Login() {
         try {
             const res = await axios.post(`${baseURL}/auth/login/`, { email, password });
             if (res.data.code === 200) {
-                const token = res.data.data.access_token;
+                const token = res.data.data?.access_token;
                 localStorage.setItem("jwt_token", token);
                 setToken(token);
-                console.log("로그인 성공 : " + token);
+                const role = res.data.data?.role;
+                localStorage.setItem("user_role", role);
+                setRole(role);
+                console.log("로그인 성공 : " + role + " (" + token + ")");
                 navigate("/");
             } else {
                 console.log("로그인 실패");
