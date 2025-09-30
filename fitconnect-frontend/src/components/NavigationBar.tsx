@@ -146,22 +146,34 @@ export default function NavigationBar() {
             <SubMenu role={role}><Link to="/assessment/result">분석 결과 확인</Link></SubMenu>
           </SubBar>
         </Menu>
-        <Menu role={role}><Link to="/search">공고 탐색</Link>
+        <Menu role={role}><Link to="/search">{role === "company" ? "인재 탐색" : "공고 탐색"}</Link>
           <SubBar role={role}>
-            <SubMenu role={role}><Link to="/search/recommendation">추천 공고 확인</Link></SubMenu>
-            <SubMenu role={role}><Link to="/search/like">공고 보관함</Link></SubMenu>
+            <SubMenu role={role}><Link to="/search/recommendation">{role === "company" ? "추천 인재 확인" : "추천 공고 확인"}</Link></SubMenu>
+            <SubMenu role={role}><Link to="/search/like">{role === "company" ? "인재 보관함" : "공고 보관함"}</Link></SubMenu>
           </SubBar>
         </Menu>
         <Menu role={role}><Link to="/jobinterview">면접 도우미</Link>
-          <SubBar role={role}>
-            <SubMenu role={role}><Link to="/jobinterview/feedback">받은 피드백</Link></SubMenu>
-          </SubBar>
+          {role === "company" ? 
+            <SubBar role={role}>
+              <SubMenu role={role}><Link to="/jobinterview/interview">면접 준비/진행</Link></SubMenu>
+              <SubMenu role={role}><Link to="/jobinterview/debriefing">디브리핑 진행</Link></SubMenu>
+            </SubBar>
+            :
+            <SubBar role={role}>
+              <SubMenu role={role}><Link to="/jobinterview/feedback">받은 피드백</Link></SubMenu>
+            </SubBar>
+          }
         </Menu>
         {token ? 
           <Menu role={role}>
             <span><img src={role === "company" ? company : talent} alt="Logo" width={24} height={27}></img></span>
             <span style={{ paddingLeft: "8px", fontSize: "15px", lineHeight: "18px", color: "#000" }}>김커넥 님</span>
             <SubBar role={role}>
+              {role === "company" ?
+                <SubMenu role={role}><Link to="/jobs">등록된 공고 목록</Link></SubMenu>
+                :
+                <SubMenu role={role}><Link to="/myprofile">내 프로필</Link></SubMenu>
+              }
               <SubMenu role={role}><Link onClick={handleLogout}>로그아웃</Link></SubMenu>
             </SubBar>
           </Menu>

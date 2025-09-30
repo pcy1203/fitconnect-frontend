@@ -6,7 +6,10 @@ import Main from "./pages/Main";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Main/Register";
 
-import SetProfile from "./pages/profile/SetProfile";
+import SetProfile from "./pages/Profile/SetProfile";
+import JobProfile from "./pages/Profile/JobProfile";
+
+import Interview from "./pages/Assessment/Interview";
 
 function App() {
     return (
@@ -19,6 +22,9 @@ function App() {
               <Route path="/register" element={<Register />} />
 
               <Route path="/profile/setprofile" element={<SetProfile />} />
+              <Route path="/profile/jobprofile" element={<JobProfile />} />
+
+              <Route path="/assessment/interview" element={<Interview />} />
             </Route>
           </Routes>
         </Router>
