@@ -91,11 +91,11 @@ const ProgressText = styled.div`
   color: #000000;
 `;
 
-const RecordButton = styled.button`
+const RecordButton = styled.button<{ role?: string }>`
   all: unset;
   width: 200px;
   height: 40px;
-  background: #6399FB;
+  background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
   color: #FFFFFF;
   text-align: center;
   font-size: 16px;
@@ -105,18 +105,18 @@ const RecordButton = styled.button`
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease;
   &:hover {
-    background-color: #87B2FF;
+    background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
   }
   &:active {
     transform: scale(0.95);
   }
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ role?: string }>`
   all: unset;
   width: 200px;
   height: 40px;
-  background: #6399FB;
+  background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
   margin-top: 30px;
   margin-left: 900px;
   margin-bottom: 150px;
@@ -129,7 +129,7 @@ const Button = styled.button`
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease;
   &:hover {
-    background-color: #87B2FF;
+    background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
   }
   &:active {
     transform: scale(0.95);
@@ -172,12 +172,19 @@ export default function Interview() {
 
     const navigate = useNavigate();
 
-    const questionList = [
+    const talentQuestionList = [
       "1️⃣ 간단한 자기소개와 함께, 최근 6개월 동안 가장 몰입했던 경험을 이야기해 주세요.",
       "2️⃣ 가장 의미 있었던 프로젝트나 업무 경험을 말씀해 주세요. 맡으신 역할과 결과도 함께 알려주세요.",
       "3️⃣ 팀원들과 협업할 때 본인만의 강점은 무엇이라고 생각하시나요?",
       "4️⃣ 일을 할 때 가장 중요하게 생각하는 가치는 무엇인가요?",
       "5️⃣ 앞으로 어떤 커리어를 그리고 계신가요?"]
+
+    const companyQuestionList = [
+      "1️⃣ 이번 포지션에서 가장 중요한 역할과 기대하는 역량은 무엇인가요?",
+      "2️⃣ 이 포지션에서 뛰어난 성과를 낸 직원은 어떤 특징을 가지고 있었나요?\n(새롭게 만들어진 포지션이라면, 해당 포지션이 만들어진 이유를 알려주세요.)",
+      "3️⃣ 팀에서 잘 맞는 성향이나 협업 스타일은 어떤 것인가요?",
+      "4️⃣ 이 포지션에서 예상되는 어려움이나 도전 과제는 무엇인가요?",
+      "5️⃣ 이 포지션에서 가장 중요하게 생각하는 인재상이나 가치관은 무엇인가요?"]
 
     const getNextPage = () => {
         if (page >= 6) {
@@ -218,7 +225,7 @@ export default function Interview() {
 
             const barHeight = displayedRms * canvas.height * 5;
 
-            ctx.fillStyle = "#6399FB";
+            ctx.fillStyle = role == "company" ? colors.company : colors.talent;
             ctx.fillRect(canvas.width / 2 - 25, canvas.height - barHeight, 50, barHeight);
         };
 
@@ -323,15 +330,15 @@ export default function Interview() {
             
             {page >= 2 && page <= 6 && (
               <Form>
-                <FormTitle>{questionList[page - 2]}</FormTitle>
+                <FormTitle>{talentQuestionList[page - 2]}</FormTitle>
                   <CanvasWrapper>
                     {recording && (
                       <StyledCanvas ref={canvasRef} width={200} height={140} />
                     )}
                   </CanvasWrapper>
                   {!recording ? 
-                    <RecordButton onClick={startRecording}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
-                    : <RecordButton onClick={stopRecording}>⏹️ 녹음 종료</RecordButton>
+                    <RecordButton onClick={startRecording} role={role}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role}>⏹️ 녹음 종료</RecordButton>
                   }
                   {audioUrls[page] && (
                   <div style={{ marginTop: "20px" }}>
@@ -342,11 +349,61 @@ export default function Interview() {
             )}
 
             {(page == 1 || audioUrls[page]) && 
-              <Button onClick={getNextPage}>{page == 1 ? "시작하기" : (page <= 5 ? "다음으로" : "작성 완료")}</Button>
+              <Button onClick={getNextPage} role={role}>{page == 1 ? "시작하기" : (page <= 5 ? "다음으로" : "인터뷰 종료")}</Button>
             }
           </Container>
         )
     } else if (role === "company") {
-        // To-Do
+        return (
+          <Container>
+            <Title>🎤 AI 분석 인터뷰</Title>
+            <ProgressBarContainer>
+              <Progress progress={page * 16.67} role={role}></Progress>
+              <ProgressText>{page} / 6</ProgressText>
+            </ProgressBarContainer>
+
+            {page == 1 && (
+              <Form>
+                <FormTitle>시작 전 안내사항</FormTitle>
+                <FormContent>
+                  <FormParagraph>
+                  <b>'딱 맞는 매칭'</b>을 위해, 어떤 인재가 $공고$ 포지션에 적합한지 구체적으로 파악해 볼게요.<br/>
+                  <br/>
+                  ✔️ AI 분석 인터뷰는 <b>총 5개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 15분</b> 정도로 예상돼요.<br/>
+                  ✔️ 인터뷰 내용은 공개되지 않으며, 포지션에서 <b>요구하는 역량과 기대하는 역할</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ <b>실무진 팀원들, 영입 담당자</b>가 함께 참여해 의견을 나누는 걸 권장드려요.<br/>
+                  ✔️ 시작 전, <b>마이크 상태와 주변 소음</b>을 한 번 확인해 주세요.<br/>
+                  <br/>
+                  모든 준비가 되었다면, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러주세요!
+                  </FormParagraph>  
+                </FormContent>
+              </Form>
+            )}
+            
+            {page >= 2 && page <= 6 && (
+              <Form>
+                <FormTitle style={{ whiteSpace: 'pre-line' }}>{companyQuestionList[page - 2]}</FormTitle>
+                  <CanvasWrapper>
+                    {recording && (
+                      <StyledCanvas ref={canvasRef} width={200} height={140} />
+                    )}
+                  </CanvasWrapper>
+                  {!recording ? 
+                    <RecordButton onClick={startRecording} role={role}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role}>⏹️ 녹음 종료</RecordButton>
+                  }
+                  {audioUrls[page] && (
+                  <div style={{ marginTop: "20px" }}>
+                      <audio controls src={audioUrls[page]}></audio>
+                  </div>
+                  )}
+              </Form>
+            )}
+
+            {(page == 1 || audioUrls[page]) && 
+              <Button onClick={getNextPage} role={role}>{page == 1 ? "시작하기" : (page <= 5 ? "다음으로" : "인터뷰 종료")}</Button>
+            }
+          </Container>
+        )
     }
 }

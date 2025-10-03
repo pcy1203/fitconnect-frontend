@@ -97,7 +97,7 @@ const Label = styled.div`
 
 const Input = styled.input.withConfig({
     shouldForwardProp: (prop) => prop !== "hasError"
-})<{ width?: string, hasError?: boolean }>`
+})<{ width?: string, hasError?: boolean, role?: string }>`
     width: ${(props) => props.width || "300px"};
     height: 30px;
     background: #FFFFFF;
@@ -116,14 +116,14 @@ const Input = styled.input.withConfig({
         width: 80px;
         padding: 5.5px;
         margin-right: 10px;
-        background-color: #6399FB;
+        background-color: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
         border: none;
         border-radius: 20px;
         color: white;
         cursor: pointer;
     }
     &::file-selector-button:hover {
-        background-color: #87B2FF;
+        background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
     }
 `;
 
@@ -176,11 +176,11 @@ const Padding = styled.div`
   height: 80px;
 `
 
-const Button = styled.button`
+const Button = styled.button<{ role?: string }>`
     all: unset;
     width: 200px;
     height: 40px;
-    background: #6399FB;
+    background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
     margin-top: 30px;
     margin-left: 900px;
     margin-bottom: 150px;
@@ -193,7 +193,7 @@ const Button = styled.button`
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.1s ease;
     &:hover {
-      background-color: #87B2FF;
+      background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
     }
     &:active {
       transform: scale(0.95);
@@ -367,15 +367,15 @@ export default function JobProfile() {
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>직무기술서</Label>
-                  <Input type="file" width="800px"></Input>
+                  <Input type="file" role={role} width="800px"></Input>
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>공고 자료</Label>
-                  <Input type="file" width="800px"></Input>
+                  <Input type="file" role={role} width="800px"></Input>
                 </InputContainer>
               </Form>
             )}
-            <Button onClick={getNextPage}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
+            <Button onClick={getNextPage} role={role}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
           </Container>
         )
     }

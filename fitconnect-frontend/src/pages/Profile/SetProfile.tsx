@@ -178,11 +178,11 @@ const Padding = styled.div`
   height: 80px;
 `
 
-const Button = styled.button`
+const Button = styled.button<{ role?: string }>`
     all: unset;
     width: 200px;
     height: 40px;
-    background: #6399FB;
+    background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
     margin-top: 30px;
     margin-left: 900px;
     margin-bottom: 150px;
@@ -195,7 +195,7 @@ const Button = styled.button`
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.1s ease;
     &:hover {
-      background-color: #87B2FF;
+      background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
     }
     &:active {
       transform: scale(0.95);
@@ -556,7 +556,7 @@ export default function SetProfile() {
                   </InputContainer>
               </Form>
             )}
-            <Button onClick={getNextPage}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
+            <Button onClick={getNextPage} role={role}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
           </Container>
         )
     } else {
