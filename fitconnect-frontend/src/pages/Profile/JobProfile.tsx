@@ -266,7 +266,7 @@ export default function JobProfile() {
     } else if (role === "company") {
         return (
           <Container>
-            <Title>공고 등록</Title>
+            <Title>📰 공고 등록</Title>
             <ProgressBarContainer>
               <Progress progress={page * 50} role={role}></Progress>
               <ProgressText>{page} / 2</ProgressText>

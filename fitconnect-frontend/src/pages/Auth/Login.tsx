@@ -152,7 +152,7 @@ export default function Login() {
 
     return (
       <Container>
-        <Title>로그인</Title>
+        <Title>🖱️ 로그인</Title>
           <Form>
             <InputContainer>
               <Label>아이디</Label>

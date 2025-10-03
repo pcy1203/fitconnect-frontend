@@ -140,7 +140,7 @@ export default function NavigationBar() {
             </SubBar>
           }
         </Menu>
-        <Menu role={role}><Link to="/assessment">AI 분석 인터뷰</Link>
+        <Menu role={role}><Link to="/assessment/interview">AI 분석 인터뷰</Link>
           <SubBar role={role}>
             <SubMenu role={role}><Link to="/assessment/interview">분석 인터뷰 진행</Link></SubMenu>
             <SubMenu role={role}><Link to="/assessment/result">분석 결과 확인</Link></SubMenu>

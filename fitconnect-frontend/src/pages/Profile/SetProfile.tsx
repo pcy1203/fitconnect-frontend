@@ -271,7 +271,7 @@ export default function SetProfile() {
     if (role === "talent") {
         return (
           <Container>
-            <Title>인재 프로필 입력</Title>
+            <Title>✏️ 인재 프로필 입력</Title>
             <ProgressBarContainer>
               <Progress progress={page * 20} role={role}></Progress>
               <ProgressText>{page} / 5</ProgressText>
@@ -485,7 +485,7 @@ export default function SetProfile() {
     } else if (role === "company") {
         return (
           <Container>
-            <Title>기업 정보 입력</Title>
+            <Title>✏️ 기업 정보 입력</Title>
             <ProgressBarContainer>
               <Progress progress={page * 50} role={role}></Progress>
               <ProgressText>{page} / 2</ProgressText>
@@ -559,5 +559,7 @@ export default function SetProfile() {
             <Button onClick={getNextPage}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
           </Container>
         )
+    } else {
+      navigate("/auth/login");
     }
 }
