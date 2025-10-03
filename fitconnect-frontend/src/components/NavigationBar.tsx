@@ -146,7 +146,7 @@ export default function NavigationBar() {
             <SubMenu role={role}><Link to="/assessment/result">분석 결과 확인</Link></SubMenu>
           </SubBar>
         </Menu>
-        <Menu role={role}><Link to="/search">{role === "company" ? "인재 탐색" : "공고 탐색"}</Link>
+        <Menu role={role}><Link to="/search/recommendation">{role === "company" ? "인재 탐색" : "공고 탐색"}</Link>
           <SubBar role={role}>
             <SubMenu role={role}><Link to="/search/recommendation">{role === "company" ? "추천 인재 확인" : "추천 공고 확인"}</Link></SubMenu>
             <SubMenu role={role}><Link to="/search/like">{role === "company" ? "인재 보관함" : "공고 보관함"}</Link></SubMenu>

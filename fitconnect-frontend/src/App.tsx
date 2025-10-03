@@ -10,6 +10,9 @@ import SetProfile from "./pages/Profile/SetProfile";
 import JobProfile from "./pages/Profile/JobProfile";
 
 import Interview from "./pages/Assessment/Interview";
+import Result from "./pages/Assessment/Result";
+
+import Recommendation from "./pages/Search/Recommendation";
 
 function App() {
     return (
@@ -25,6 +28,9 @@ function App() {
               <Route path="/profile/jobprofile" element={<JobProfile />} />
 
               <Route path="/assessment/interview" element={<Interview />} />
+              <Route path="/assessment/result" element={<Result />} />
+              
+              <Route path="/search/recommendation" element={<Recommendation />} />
             </Route>
           </Routes>
         </Router>
