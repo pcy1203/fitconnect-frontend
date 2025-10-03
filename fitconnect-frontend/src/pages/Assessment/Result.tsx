@@ -41,7 +41,7 @@ const Card = styled.div.withConfig({
   height: 640px;
   left: 350px;
   position: relative;
-  background: linear-gradient(180deg, #ffffffff 0%, #dce3f1ff 100%);
+  background: ${({ role }) => (role === "company" ? "linear-gradient(180deg, #ffffffff 0%, #f1dcdcff 100%)" : "linear-gradient(180deg, #ffffffff 0%, #dce3f1ff 100%)" )};
   transform-style: preserve-3d;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   transform: ${({ flipped }) => (flipped ? "rotateY(180deg)" : "rotateY(0deg)")};
@@ -70,11 +70,11 @@ const CardBack = styled(CardFace)`
   justify-content: center;
 `;
 
-const ProfileContainer = styled.div`
-  width: 100%;
+const ProfileContainer = styled.div<{ role?: string }>`
+  width: calc(100% + 2px);
   height: 90px;
   margin-top: -1px;
-  background: #87B2FF;
+  background: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
   border-radius: 15px 15px 0 0;
 `;
 
@@ -132,11 +132,11 @@ const ContentContainer = styled.div`
   justify-content: center;
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ role?: string }>`
   width: 200px;
   margin-top: 10px;
   color: black;
-  background: #dde6f3ff;
+  background: ${({ role }) => (role === "company" ? "#f7e7e7ff" : "#dde6f3ff" )};
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
 `;
 
@@ -181,30 +181,6 @@ const Tag = styled.span`
     top: -1px;
 `;
 
-const Button = styled.button<{ role?: string }>`
-  all: unset;
-  width: 200px;
-  height: 40px;
-  background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
-  margin-top: 30px;
-  margin-left: 900px;
-  margin-bottom: 150px;
-  color: #FFFFFF;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid #9E9E9E;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s ease;
-  &:hover {
-    background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
-  }
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
 const ButtonContainer = styled.div`
     display: flex;
     gap: 20px;
@@ -213,11 +189,11 @@ const ButtonContainer = styled.div`
     padding-bottom: 50px;
 `;
 
-const SearchButton = styled.button`
+const SearchButton = styled.button<{ role?: string }>`
     all: unset;
     width: 200px;
     height: 40px;
-    background: #6399FB;
+    background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
     color: #FFFFFF;
     text-align: center;
     font-size: 16px;
@@ -227,7 +203,7 @@ const SearchButton = styled.button`
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.1s ease;
     &:hover {
-      background-color: #87B2FF;
+      background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
     }
     &:active {
       transform: scale(0.95);
@@ -267,7 +243,7 @@ export default function Result() {
             <CardContainer>
               <Card role={role} flipped={flipped} onClick={() => setFlipped(!flipped)}>
                 <CardFace role={role}>
-                  <ProfileContainer>
+                  <ProfileContainer role={role}>
                     <ProfileImage><img src={role === "company" ? company : talent} alt="Logo" width={32} height={36}></img></ProfileImage>
                     <ProfileName>김커넥</ProfileName>
                     <ProfileContent>🌠 백엔드 개발자 (경력 5년)</ProfileContent>
@@ -275,21 +251,21 @@ export default function Result() {
                   </ProfileContainer>
                   <Introduction>"안녕하세요, 백엔드 개발자입니다."</Introduction>
                   <ContentContainer>
-                    <Content style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📂 주요 경험/경력</ContentTitle>
                       <ContentParagraph>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요</ContentParagraph>
                     </Content>
-                    <Content style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🎯 강점</ContentTitle>
                       <ContentParagraph>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요</ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🚀 핵심 일반 역량</ContentTitle>
                       <ContentParagraph>· 역량1<Tag>높음</Tag><br/>· 역량2<Tag>높음</Tag><br/>· 역량3<Tag>높음</Tag><br/>· 역량4<Tag>높음</Tag></ContentParagraph>
                     </Content>
-                    <Content style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 핵심 직무 역량/기술</ContentTitle>
                       <ContentParagraph>· 직무 역량1<Tag>높음</Tag><br/>· 직무 역량.....2<Tag>높음</Tag><br/>· 직무 역량3<Tag>높음</Tag><br/>· 직무 역량............4<Tag>높음</Tag></ContentParagraph>
                     </Content>
@@ -309,7 +285,56 @@ export default function Result() {
               </ButtonContainer>
             </CardContainer>
           </Container>
-        )
+        );
     } else if (role === "company") {
+        return (
+          <Container>
+            <Title>📊 분석 결과: 공고 카드</Title>
+            <CardContainer>
+              <Card role={role} flipped={flipped} onClick={() => setFlipped(!flipped)}>
+                <CardFace role={role}>
+                  <ProfileContainer role={role}>
+                    <ProfileImage><img src={role === "company" ? company : talent} alt="Logo" width={32} height={36}></img></ProfileImage>
+                    <ProfileName>김커넥</ProfileName>
+                    <ProfileContent>🌠 백엔드 개발자</ProfileContent>
+                    <ProfileContent>🗓️ 2025.10.04 마감</ProfileContent>
+                  </ProfileContainer>
+                  <Introduction>"백엔드 개발자를 찾습니다."</Introduction>
+                  <ContentContainer>
+                    <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
+                      <ContentTitle>📜 공고 정보</ContentTitle>
+                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                    </Content>
+                    <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
+                      <ContentTitle>📋 주요 역할/업무</ContentTitle>
+                      <ContentParagraph>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요</ContentParagraph>
+                    </Content>
+                  </ContentContainer>
+                  <ContentContainer>
+                    <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
+                      <ContentTitle>💡 자격 요건</ContentTitle>
+                      <ContentParagraph>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요</ContentParagraph>
+                    </Content>
+                    <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
+                      <ContentTitle>✏️ 요구 역량</ContentTitle>
+                      <ContentParagraph>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?</ContentParagraph>
+                    </Content>
+                  </ContentContainer>
+                  <Analysis>
+                    💼 <b>기업 정보</b> : 조직문화, 복리후생<br/>
+                    🎤 <b>인재상</b> : 이런 인재를 원해요<br/>
+                    💪 <b>도전 과제</b> : 이런 도전 과제가 있어요
+                  </Analysis>
+                </CardFace>
+                <CardBack role={role}>
+                </CardBack>
+              </Card>
+              <ButtonContainer>
+                <Link to="/search/recommendation"><SearchButton role={role}>인재 탐색하기</SearchButton></Link>
+                <Link to="/assessment/interview"><InterviewButton>인터뷰 다시 하기</InterviewButton></Link>
+              </ButtonContainer>
+            </CardContainer>
+          </Container>
+        );
     }
 }
