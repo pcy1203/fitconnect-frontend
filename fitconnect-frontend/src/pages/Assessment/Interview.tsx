@@ -158,6 +158,12 @@ const StyledCanvas = styled.canvas`
 
 export default function Interview() {
     const { token, setToken, role, setRole } = useAuth();
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        if (!token || !role) navigate("/auth/login");
+    }, []);
+
     const [page, setPage] = useState(1);
 
     const [recording, setRecording] = useState(false);
@@ -170,7 +176,6 @@ export default function Interview() {
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationRef = useRef<number | null>(null);
 
-    const navigate = useNavigate();
 
     const talentQuestionList = [
       "1️⃣ 간단한 자기소개와 함께, 최근 6개월 동안 가장 몰입했던 경험을 이야기해 주세요.",

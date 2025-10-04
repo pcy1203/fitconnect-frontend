@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -233,9 +233,12 @@ const InterviewButton = styled.button`
 
 export default function Result() {
     const { token, setToken, role, setRole } = useAuth();
-    const [flipped, setFlipped] = useState(false);
     const navigate = useNavigate();
+    useEffect(() => {
+        if (!token || !role) navigate("/auth/login");
+    }, []);
 
+    const [flipped, setFlipped] = useState(false);
     if (role === "talent") {
         return (
           <Container>

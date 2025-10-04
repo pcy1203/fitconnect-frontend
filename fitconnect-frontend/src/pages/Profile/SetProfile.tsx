@@ -261,14 +261,14 @@ export default function SetProfile() {
             alert("입력하신 정보를 다시 한 번 확인해주세요!");
         } else if (role === 'company' && page >= 2) {
             navigate("/profile/jobprofile");
-        } else if (role === 'talent' && page >= 5) {
+        } else if ((role === 'talent' || !role) && page >= 5) {
             navigate("/assessment/interview");
         } else {
             setPage(page + 1);
         }
     };
 
-    if (role === "talent") {
+    if (role === "talent" || !role) {
         return (
           <Container>
             <Title>✏️ 인재 프로필 입력</Title>
@@ -559,7 +559,5 @@ export default function SetProfile() {
             <Button onClick={getNextPage} role={role}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
           </Container>
         )
-    } else {
-      navigate("/auth/login");
     }
 }
