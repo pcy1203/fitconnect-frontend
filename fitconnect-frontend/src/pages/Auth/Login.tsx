@@ -4,7 +4,7 @@ import { useAuth } from "../../components/AuthContext";
 import styled from "styled-components";
 import axios from "axios";
 
-const baseURL = "http://54.89.71.175:8000";
+import { baseURL } from "../../env";
 
 const Container = styled.div`
     width: 1200px;
@@ -164,7 +164,7 @@ export default function Login() {
             </InputContainer>
             <ButtonContainer>
                 <LoginButton onClick={handleLogin}>로그인</LoginButton>
-                <Link to="/profile/setprofile"><SignupButton>회원가입</SignupButton></Link>
+                <Link to="/auth/register"><SignupButton>회원가입</SignupButton></Link>
             </ButtonContainer>
           </Form>
       </Container>
