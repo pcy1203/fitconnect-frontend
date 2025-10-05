@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../components/AuthContext";
 import styled from "styled-components";
@@ -125,10 +125,14 @@ const SignupButton = styled.button`
 `;
 
 export default function Login() {
-    const { setToken, setRole } = useAuth();
+    const { token, setToken, role, setRole } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    
+    useEffect(() => {
+        if (token && role) navigate("/");
+    }, []);
 
     const handleLogin = async () => {
         try {

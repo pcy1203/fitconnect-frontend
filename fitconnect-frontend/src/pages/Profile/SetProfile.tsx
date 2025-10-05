@@ -7,6 +7,7 @@ import styled from "styled-components";
 import axios from "axios";
 
 import { baseURL } from "../../env";
+import { add } from "date-fns";
 
 const Container = styled.div`
     width: 1200px;
@@ -214,26 +215,36 @@ const Line = styled.hr`
 export default function SetProfile() {
     const { token, setToken, role, setRole } = useAuth();
     const [page, setPage] = useState(1);
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        if (!token || !role) navigate("/auth/login");
+    }, []);
+
+    // Select Options
     const status = ["재학","휴학","졸업 예정","졸업 유예","졸업","중퇴"]
-    const desiredJobs = ["직무 무관","고객지원/CX","개발/엔지니어","기획/PM","디자인","데이터 분석","마케팅","연구개발","영업","인사","재무/회계","전략/비즈니스","콘텐츠 제작","QA","기타"];
-    const desiredSalary = ["연봉 무관","2000만 ~ 3000만","3000만 ~ 4000만","4000만 ~ 5000만","5000만 ~ 6000만","6000만 ~ 7000만","7000만 ~ 8000만","8000만 ~ 9000만","9000만 ~ 1억","1억 ~ 1.2억","1.2억 ~ 1.5억","1.5억 이상"];
-    const desiredIndustry = ["산업 무관","IT/소프트웨어","게임","핀테크/금융","제조/공장","교육/연구","헬스케어/의료","미디어/콘텐츠","광고","유통/리테일","물류/운송","공공/정부","법률/회계","스타트업/벤처","외국계"];
-    const desiredCompanySize = ["규모 무관","1 ~ 10명","10 ~ 50명","50 ~ 100명","100 ~ 200명","200 ~ 500명","500 ~ 1000명","1000명 이상"];
-    const residence = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
-    const desiredWorkplace = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
-
-    const [primaryInfo, setPrimaryInfo] = useState({ name: "", birth: "", email: "", phone: "", intro: ""});
+    const jobs = ["직무 무관","고객지원/CX","개발/엔지니어","기획/PM","디자인","데이터 분석","마케팅","연구개발","영업","인사","재무/회계","전략/비즈니스","콘텐츠 제작","QA","기타"];
+    const salary = ["연봉 무관","2000만 ~ 3000만","3000만 ~ 4000만","4000만 ~ 5000만","5000만 ~ 6000만","6000만 ~ 7000만","7000만 ~ 8000만","8000만 ~ 9000만","9000만 ~ 1억","1억 ~ 1.2억","1.2억 ~ 1.5억","1.5억 이상"];
+    const industry = ["산업 무관","IT/소프트웨어","게임","핀테크/금융","제조/공장","교육/연구","헬스케어/의료","미디어/콘텐츠","광고","유통/리테일","물류/운송","공공/정부","법률/회계","스타트업/벤처","외국계"];
+    const companySize = ["규모 무관","1 ~ 10명","11 ~ 50명","51 ~ 100명","101 ~ 200명","201 ~ 500명","501 ~ 1000명","> 1000명"];
+    const residence = ["지역 무관","서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
+    
+    // Talent
+    const [primaryInfo, setPrimaryInfo] = useState({ name: "", birth: "", email: "", phone: "", intro: "" });
     const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: status[0] }]);
-    const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: ""}]);
+    const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: "" }]);
     const [activityList, setActivityList] = useState([{ name: "", type: "", description: "" }]);
     const [certificateList, setCertificateList] = useState([{ name: "", score: "", date: "" }]);
     const [resumeFile, setResumeFile] = useState<File | null>(null);
     const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
     const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
 
+    // Company
+    const [basicInfo, setBasicInfo] = useState({ name: "", industry: industry[1], size: companySize[1], location: residence[1], homepage: "", recruit: "", intro: "" });
+    const [additionalInfo, setAdditionalInfo] = useState({ vision: "", business: "", talent: "", culture: "", benefits: "" });
+    
+    // Validation
     const [errors, setErrors] = useState<{ birth?: string; email?: string; phone?: string }>({});
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (!primaryInfo.birth || /^\d{4}-\d{2}-\d{2}$/.test(primaryInfo.birth)) {
@@ -262,57 +273,7 @@ export default function SetProfile() {
     const getNextPage = async () => {
         if (errors.birth || errors.email || errors.phone) {
             alert("입력하신 정보를 다시 한 번 확인해주세요!");
-        } else if (role === 'company' && page >= 2) {
-            try {
-                // POST /api/me/company/full
-                const res = await axios.post(`${baseURL}/api/me/company/full`, {
-                    basic: {
-                        name: primaryInfo.name,
-                        birth_date: primaryInfo.birth,
-                        phone: primaryInfo.phone,
-                        tagline: primaryInfo.intro,
-                        is_submitted: true,
-                    },
-                    educations: educationList.map((edu) => ({
-                        school_name: edu.school,
-                        major: edu.major,
-                        start_ym: edu.entrance ? `${edu.entrance}-01` : null,  // Back 통일
-                        end_ym: edu.graduation ? `${edu.graduation}-01` : null,  // Back 통일
-                        status: edu.status,
-                    })),
-                    experiences: careerList.map((career) => ({
-                        company_name: career.company,
-                        title: career.role,
-                        start_ym: career.join ? `${career.join}-01` : null,  // Back 통일
-                        end_ym: career.leave ? `${career.leave}-01` : null,  // Back 통일
-                        reason: career.reason,
-                        summary: career.description,
-                    })),
-                    activities: activityList.map((act) => ({
-                        name: act.name,
-                        category: act.type,
-                        description: act.description,
-                        period_ym: null, // Front 없음
-                    })),
-                    certifications: certificateList.map((cert) => ({
-                        name: cert.name,
-                        score_or_grade: cert.score,
-                        acquired_ym: cert.date ? `${cert.date}-01` : null,
-                    })),
-                        documents: [], // 파일 업로드 구현 전이므로 빈 배열로
-                        submit: true,
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (res.status === 200) {
-                    navigate("/profile/jobprofile");
-                }
-            } catch (err) {
-                alert("프로필 설정에 실패했습니다.");
-            }
-        } else if ((role === 'talent' || !role) && page >= 5) {
+        } else if (role === 'talent' && page >= 5) {
             try {
                 // POST /api/me/talent/full
                 // const formData = new FormData();
@@ -412,6 +373,38 @@ export default function SetProfile() {
             } catch (err) {
                 alert("프로필 설정에 실패했습니다.");
             }
+        } else if (role === 'company' && page >= 2) {
+            try {
+                // POST /api/me/company/full
+                const res = await axios.post(`${baseURL}/api/me/company/full`, {
+                    basic: {
+                        name: basicInfo.name,  // 필수
+                        industry: basicInfo.industry,
+                        size: basicInfo.size,
+                        location_city: basicInfo.location,
+                        homepage_url: basicInfo.homepage,  // URL 형식 준수
+                        career_page_url: basicInfo.recruit,  // URL 형식 준수
+                        one_liner: basicInfo.intro,
+                    },
+                    about: {
+                        vision_mission: additionalInfo.vision,
+                        business_domains: additionalInfo.business,
+                        ideal_talent: additionalInfo.talent,
+                        culture: additionalInfo.culture,
+                        benefits: additionalInfo.benefits,
+                    },
+                    submit: true,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (res.status === 201) {
+                    navigate("/profile/jobprofile");
+                }
+            } catch (err) {
+                alert("프로필 설정에 실패했습니다.");
+            }
         } else {
             setPage(page + 1);
         }
@@ -431,7 +424,7 @@ export default function SetProfile() {
                 <FormTitle>기본정보 입력</FormTitle>
                 <InputContainer>
                   <Label>이름</Label>
-                  <Input placeholder="이름" value={primaryInfo.name} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, name: e.target.value }))} ></Input>
+                  <Input placeholder="이름" value={primaryInfo.name} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, name: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>생년월일</Label>
@@ -589,37 +582,37 @@ export default function SetProfile() {
                 <InputContainer>
                   <Label>희망 직무</Label>
                   <Select>
-                    {desiredJobs.map((value) => (<option key={value} value={value}>{value}</option>))}
+                    {jobs.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>희망 연봉</Label>
                   <Select>
-                    {desiredSalary.map((value) => (<option key={value} value={value}>{value}</option>))}
+                    {salary.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>희망 업종</Label>
                   <Select>
-                    {desiredIndustry.map((value) => (<option key={value} value={value}>{value}</option>))}
+                    {industry.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>희망 규모</Label>
                   <Select>
-                    {desiredCompanySize.map((value) => (<option key={value} value={value}>{value}</option>))}
+                    {companySize.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>주거지</Label>
                   <Select>
-                    {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
+                    {residence.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>희망 근무지</Label>
                   <Select>
-                    {desiredWorkplace.map((value) => (<option key={value} value={value}>{value}</option>))}
+                    {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer width="1000px">
@@ -645,37 +638,37 @@ export default function SetProfile() {
                 <FormTitle>기본정보 입력</FormTitle>
                 <InputContainer>
                   <Label>회사명</Label>
-                  <Input placeholder="회사명"></Input>
+                  <Input placeholder="회사명" value={basicInfo.name} onChange={(e) => setBasicInfo((prev) => ({ ...prev, name: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>업종</Label>
-                  <Select>
-                    {desiredIndustry.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
+                  <Select value={basicInfo.industry} onChange={(e) => setBasicInfo((prev) => ({ ...prev, industry: e.target.value }))}>
+                    {industry.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>회사 규모</Label>
-                  <Select>
-                    {desiredCompanySize.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
+                  <Select value={basicInfo.size} onChange={(e) => setBasicInfo((prev) => ({ ...prev, size: e.target.value }))}>
+                    {companySize.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>회사 위치</Label>
-                  <Select>
-                    {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
+                  <Select value={basicInfo.location} onChange={(e) => setBasicInfo((prev) => ({ ...prev, location: e.target.value }))}>
+                    {residence.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>대표 사이트</Label>
-                  <Input placeholder="https://fitconnect.com"></Input>
+                  <Input placeholder="https://fitconnect.com" value={basicInfo.homepage} onChange={(e) => setBasicInfo((prev) => ({ ...prev, homepage: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>채용 사이트</Label>
-                  <Input placeholder="https://fitconnect.com/recruit"></Input>
+                  <Input placeholder="https://fitconnect.com/recruit" value={basicInfo.recruit} onChange={(e) => setBasicInfo((prev) => ({ ...prev, recruit: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>한 줄 소개</Label>
-                  <Input placeholder="회사를 한 줄로 소개해주세요!" width="800px"></Input>
+                  <Input placeholder="회사를 한 줄로 소개해주세요!" value={basicInfo.intro} onChange={(e) => setBasicInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
                 </InputContainer>
               </Form>
             )}
@@ -685,23 +678,23 @@ export default function SetProfile() {
                 <FormTitle>회사 소개 입력</FormTitle>
                   <InputContainer width="1000px">
                     <Label>비전/미션</Label>
-                    <Input placeholder="회사의 비전, 미션 등을 자유롭게 소개해 주세요." width="800px"></Input>
+                    <Input placeholder="회사의 비전, 미션 등을 자유롭게 소개해 주세요." value={additionalInfo.vision} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, vision: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label>사업 영역</Label>
-                    <Input placeholder="회사의 핵심 사업 내용을 입력해 주세요." width="800px"></Input>
+                    <Input placeholder="회사의 핵심 사업 내용을 입력해 주세요." value={additionalInfo.business} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, business: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label>인재상</Label>
-                    <Input placeholder="회사가 추구하는 인재의 모습을 소개해 주세요." width="800px"></Input>
+                    <Input placeholder="회사가 추구하는 인재의 모습을 소개해 주세요." value={additionalInfo.talent} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, talent: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label>조직문화</Label>
-                    <Input placeholder="회사의 조직문화와 일하는 방식을 소개해 주세요." width="800px"></Input>
+                    <Input placeholder="회사의 조직문화와 일하는 방식을 소개해 주세요." value={additionalInfo.culture} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, culture: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label>복리후생</Label>
-                    <Input placeholder="회사의 복리후생을 소개해 주세요." width="800px"></Input>
+                    <Input placeholder="회사의 복리후생을 소개해 주세요." value={additionalInfo.benefits} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, benefits: e.target.value }))} width="800px"></Input>
                   </InputContainer>
               </Form>
             )}
