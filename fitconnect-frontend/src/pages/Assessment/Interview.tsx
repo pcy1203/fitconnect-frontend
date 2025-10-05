@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
+import { aiURL } from "../../env";
 import { useAuth } from "../../components/AuthContext";
 import colors from "../../styles/colors";
 import axios from "axios";
@@ -272,17 +273,17 @@ export default function Interview() {
 
                 const formData = new FormData();
                 formData.append("file", file);
+                formData.append("language", "ko");
 
-                // try {
-                //     const res = await axios.post("", formData, {
-                //         headers: { "Content-Type": "multipart/form-data" },
-                //     });
-                //     console.log("서버 응답:", res.data);
-                // } catch (err) {
-                //     console.error("업로드 실패:", err);
-                // }
+                try {
+                    const res = await axios.post(`${aiURL}/api/stt/transcribe`, formData, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    });
+                    console.log("녹음 결과 :", res.data);
+                } catch (err) {
+                    console.error("업로드 실패 :", err);
+                }
             };
-
             mediaRecorderRef.current.start();
             setRecording(true);
         } catch (err) {
