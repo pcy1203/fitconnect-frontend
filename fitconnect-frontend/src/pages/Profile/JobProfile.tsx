@@ -211,6 +211,11 @@ const Line = styled.hr`
 
 export default function JobProfile() {
     const { token, setToken, role, setRole } = useAuth();
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (!token || !role) navigate("/auth/login");
+    }, []);
+
     const [page, setPage] = useState(1);
 
     const [primaryInfo, setPrimaryInfo] = useState({ name: "", birth: "", email: "", phone: "", intro: ""});
@@ -220,7 +225,6 @@ export default function JobProfile() {
     const [certificateList, setCertificateList] = useState([{ name: "", score: "", date: "" }]);
 
     const [errors, setErrors] = useState<{ birth?: string; email?: string; phone?: string }>({});
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (!primaryInfo.birth || /^\d{4}-\d{2}-\d{2}$/.test(primaryInfo.birth)) {

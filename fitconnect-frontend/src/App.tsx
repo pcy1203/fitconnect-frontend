@@ -22,7 +22,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<Main />} />
               <Route path="/auth/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/auth/register" element={<Register />} />
 
               <Route path="/profile/setprofile" element={<SetProfile />} />
               <Route path="/profile/jobprofile" element={<JobProfile />} />

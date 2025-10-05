@@ -4,7 +4,7 @@ import { useAuth } from "../../components/AuthContext";
 import styled from "styled-components";
 import axios from "axios";
 
-const baseURL = "http://127.0.0.1:8000";
+import { baseURL } from "../../env";
 
 const Container = styled.div`
     width: 1200px;
@@ -132,12 +132,12 @@ export default function Login() {
 
     const handleLogin = async () => {
         try {
-            const res = await axios.post(`${baseURL}/auth/login/`, { email, password });
-            if (res.data.code === 200) {
-                const token = res.data.data?.access_token;
+            const res = await axios.post(`${baseURL}/auth/login`, { email, password });
+            if (res.status === 200) {
+                const token = res.data?.access_token;
                 localStorage.setItem("jwt_token", token);
                 setToken(token);
-                const role = res.data.data?.role;
+                const role = res.data?.role;
                 localStorage.setItem("user_role", role);
                 setRole(role);
                 console.log("로그인 성공 : " + role + " (" + token + ")");
@@ -164,7 +164,7 @@ export default function Login() {
             </InputContainer>
             <ButtonContainer>
                 <LoginButton onClick={handleLogin}>로그인</LoginButton>
-                <Link to="/profile/setprofile"><SignupButton>회원가입</SignupButton></Link>
+                <Link to="/auth/register"><SignupButton>회원가입</SignupButton></Link>
             </ButtonContainer>
           </Form>
       </Container>
