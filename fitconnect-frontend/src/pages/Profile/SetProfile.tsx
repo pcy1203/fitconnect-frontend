@@ -7,7 +7,6 @@ import styled from "styled-components";
 import axios from "axios";
 
 import { baseURL } from "../../env";
-import { add } from "date-fns";
 
 const Container = styled.div`
     width: 1200px;
