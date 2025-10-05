@@ -132,6 +132,7 @@ export default function Login() {
 
     const handleLogin = async () => {
         try {
+            // POST /auth/login
             const res = await axios.post(`${baseURL}/auth/login`, { email, password });
             if (res.status === 200) {
                 const token = res.data?.access_token;
@@ -140,13 +141,10 @@ export default function Login() {
                 const role = res.data?.role;
                 localStorage.setItem("user_role", role);
                 setRole(role);
-                console.log("로그인 성공 : " + role + " (" + token + ")");
                 navigate("/");
-            } else {
-                console.log("로그인 실패");
             }
         } catch (err) {
-            console.error("로그인 오류 : ", err);
+            alert("아이디 또는 비밀번호를 다시 확인해주세요!");
         }
     };
 
@@ -156,11 +154,11 @@ export default function Login() {
           <Form>
             <InputContainer>
               <Label>아이디</Label>
-              <Input placeholder="아이디" value={email} onChange={(e) => setEmail(e.target.value)}></Input>
+              <Input placeholder="아이디" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => {if (e.key === "Enter") handleLogin();}}></Input>
             </InputContainer>
             <InputContainer>
               <Label>비밀번호</Label>
-              <Input placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)}></Input>
+              <Input type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => {if (e.key === "Enter") handleLogin();}}></Input>
             </InputContainer>
             <ButtonContainer>
                 <LoginButton onClick={handleLogin}>로그인</LoginButton>

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/AuthContext";
-
 import React from "react";
 import colors from "../../styles/colors";
 import styled from "styled-components";
+import axios from "axios";
 
-const color = '#F7F8FA'; // 부모 컴포넌트 전달
+import { baseURL } from "../../env";
 
 const Container = styled.div`
     width: 1200px;
@@ -215,11 +215,22 @@ export default function SetProfile() {
     const { token, setToken, role, setRole } = useAuth();
     const [page, setPage] = useState(1);
 
+    const status = ["재학","휴학","졸업 예정","졸업 유예","졸업","중퇴"]
+    const desiredJobs = ["직무 무관","고객지원/CX","개발/엔지니어","기획/PM","디자인","데이터 분석","마케팅","연구개발","영업","인사","재무/회계","전략/비즈니스","콘텐츠 제작","QA","기타"];
+    const desiredSalary = ["연봉 무관","2000만 ~ 3000만","3000만 ~ 4000만","4000만 ~ 5000만","5000만 ~ 6000만","6000만 ~ 7000만","7000만 ~ 8000만","8000만 ~ 9000만","9000만 ~ 1억","1억 ~ 1.2억","1.2억 ~ 1.5억","1.5억 이상"];
+    const desiredIndustry = ["산업 무관","IT/소프트웨어","게임","핀테크/금융","제조/공장","교육/연구","헬스케어/의료","미디어/콘텐츠","광고","유통/리테일","물류/운송","공공/정부","법률/회계","스타트업/벤처","외국계"];
+    const desiredCompanySize = ["규모 무관","1 ~ 10명","10 ~ 50명","50 ~ 100명","100 ~ 200명","200 ~ 500명","500 ~ 1000명","1000명 이상"];
+    const residence = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
+    const desiredWorkplace = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
+
     const [primaryInfo, setPrimaryInfo] = useState({ name: "", birth: "", email: "", phone: "", intro: ""});
-    const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: "" }]);
+    const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: status[0] }]);
     const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: ""}]);
     const [activityList, setActivityList] = useState([{ name: "", type: "", description: "" }]);
     const [certificateList, setCertificateList] = useState([{ name: "", score: "", date: "" }]);
+    const [resumeFile, setResumeFile] = useState<File | null>(null);
+    const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
+    const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
 
     const [errors, setErrors] = useState<{ birth?: string; email?: string; phone?: string }>({});
     const navigate = useNavigate();
@@ -248,21 +259,159 @@ export default function SetProfile() {
         }
     }, [primaryInfo.phone]);
 
-    const status = ["재학","휴학","졸업 예정","졸업 유예","졸업","중퇴"]
-    const desiredJobs = ["직무 무관","고객지원/CX","개발/엔지니어","기획/PM","디자인","데이터 분석","마케팅","연구개발","영업","인사","재무/회계","전략/비즈니스","콘텐츠 제작","QA","기타"];
-    const desiredSalary = ["연봉 무관","2000만 ~ 3000만","3000만 ~ 4000만","4000만 ~ 5000만","5000만 ~ 6000만","6000만 ~ 7000만","7000만 ~ 8000만","8000만 ~ 9000만","9000만 ~ 1억","1억 ~ 1.2억","1.2억 ~ 1.5억","1.5억 이상"];
-    const desiredIndustry = ["산업 무관","IT/소프트웨어","게임","핀테크/금융","제조/공장","교육/연구","헬스케어/의료","미디어/콘텐츠","광고","유통/리테일","물류/운송","공공/정부","법률/회계","스타트업/벤처","외국계"];
-    const desiredCompanySize = ["규모 무관","1 ~ 10명","10 ~ 50명","50 ~ 100명","100 ~ 200명","200 ~ 500명","500 ~ 1000명","1000명 이상"];
-    const residence = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
-    const desiredWorkplace = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
-
-    const getNextPage = () => {
+    const getNextPage = async () => {
         if (errors.birth || errors.email || errors.phone) {
             alert("입력하신 정보를 다시 한 번 확인해주세요!");
         } else if (role === 'company' && page >= 2) {
-            navigate("/profile/jobprofile");
+            try {
+                // POST /api/me/company/full
+                const res = await axios.post(`${baseURL}/api/me/company/full`, {
+                    basic: {
+                        name: primaryInfo.name,
+                        birth_date: primaryInfo.birth,
+                        phone: primaryInfo.phone,
+                        tagline: primaryInfo.intro,
+                        is_submitted: true,
+                    },
+                    educations: educationList.map((edu) => ({
+                        school_name: edu.school,
+                        major: edu.major,
+                        start_ym: edu.entrance ? `${edu.entrance}-01` : null,  // Back 통일
+                        end_ym: edu.graduation ? `${edu.graduation}-01` : null,  // Back 통일
+                        status: edu.status,
+                    })),
+                    experiences: careerList.map((career) => ({
+                        company_name: career.company,
+                        title: career.role,
+                        start_ym: career.join ? `${career.join}-01` : null,  // Back 통일
+                        end_ym: career.leave ? `${career.leave}-01` : null,  // Back 통일
+                        reason: career.reason,
+                        summary: career.description,
+                    })),
+                    activities: activityList.map((act) => ({
+                        name: act.name,
+                        category: act.type,
+                        description: act.description,
+                        period_ym: null, // Front 없음
+                    })),
+                    certifications: certificateList.map((cert) => ({
+                        name: cert.name,
+                        score_or_grade: cert.score,
+                        acquired_ym: cert.date ? `${cert.date}-01` : null,
+                    })),
+                        documents: [], // 파일 업로드 구현 전이므로 빈 배열로
+                        submit: true,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (res.status === 200) {
+                    navigate("/profile/jobprofile");
+                }
+            } catch (err) {
+                alert("프로필 설정에 실패했습니다.");
+            }
         } else if ((role === 'talent' || !role) && page >= 5) {
-            navigate("/assessment/interview");
+            try {
+                // POST /api/me/talent/full
+                // const formData = new FormData();
+                // formData.append("basic", JSON.stringify({
+                //     name: primaryInfo.name,
+                //     birth_date: primaryInfo.birth || null,
+                //     phone: primaryInfo.phone,
+                //     tagline: primaryInfo.intro,
+                //     is_submitted: true,
+                // }));
+                // formData.append("educations", JSON.stringify(
+                //     educationList.filter(education => education.school).map(education => ({
+                //         school_name: education.school,
+                //         major: education.major,
+                //         start_ym: education.entrance || null,
+                //         end_ym: education.graduation || null,
+                //         status: education.status,
+                //     }))
+                // ));
+                // formData.append("experiences", JSON.stringify(
+                //     careerList.filter(career => career.company).map(career => ({
+                //         company_name: career.company,
+                //         title: career.role,
+                //         start_ym: career.join || null,
+                //         end_ym: career.leave || null,
+                //         reason: career.reason,
+                //         summary: career.description,
+                //     }))
+                // ));
+                // formData.append("activities", JSON.stringify(
+                //     activityList.filter(activity => activity.name).map(activity => ({
+                //         name: activity.name,
+                //         category: activity.type,
+                //         description: activity.description,
+                //     }))
+                // ));
+                // formData.append("certifications", JSON.stringify(
+                //     certificateList.filter(certificate => certificate.name).map(certificate => ({
+                //         name: certificate.name,
+                //         score_or_grade: certificate.score,
+                //         acquired_ym: certificate.date,
+                //     }))
+                // ));
+                // formData.append("submit", JSON.stringify(true));
+                // if (resumeFile) formData.append("resume", resumeFile);
+                // if (coverLetterFile) formData.append("cover_letter", coverLetterFile);
+                // if (portfolioFile) formData.append("portfolio", portfolioFile);
+                // const res = await axios.post(`${baseURL}/api/me/talent/full`, formData, {
+                //     headers: {
+                //         "Content-Type": "multipart/form-data",
+                //         Authorization: `Bearer ${token}`,
+                //     },
+                // });
+                const res = await axios.post(`${baseURL}/api/me/talent/full`, {
+                    basic: {
+                        name: primaryInfo.name,
+                        birth_date: primaryInfo.birth || null,
+                        phone: primaryInfo.phone,
+                        tagline: primaryInfo.intro,
+                        is_submitted: true,
+                    },
+                    educations: educationList.filter(education => education.school).map((education) => ({
+                        school_name: education.school,  // 필수
+                        major: education.major,
+                        start_ym: education.entrance || null,
+                        end_ym: education.graduation || null,
+                        status: education.status,
+                    })),
+                    experiences: careerList.filter(career => career.company).map((career) => ({
+                        company_name: career.company,  // 필수
+                        title: career.role,
+                        start_ym: career.join || null,
+                        end_ym: career.leave || null,
+                        reason: career.reason,
+                        summary: career.description,
+                    })),
+                    activities: activityList.filter(activity => activity.name).map((activity) => ({
+                        name: activity.name,  // 필수
+                        category: activity.type,
+                        description: activity.description,
+                    })),
+                    certifications: certificateList.filter(certificate => certificate.name).map((certificate) => ({
+                        name: certificate.name,  // 필수
+                        score_or_grade: certificate.score,
+                        acquired_ym: certificate.date,
+                    })),
+                        documents: [], // 파일 업로드 구현 전
+                        submit: true,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (res.status === 201) {
+                    navigate("/assessment/interview");
+                }
+            } catch (err) {
+                alert("프로필 설정에 실패했습니다.");
+            }
         } else {
             setPage(page + 1);
         }
@@ -282,7 +431,7 @@ export default function SetProfile() {
                 <FormTitle>기본정보 입력</FormTitle>
                 <InputContainer>
                   <Label>이름</Label>
-                  <Input placeholder="이름"></Input>
+                  <Input placeholder="이름" value={primaryInfo.name} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, name: e.target.value }))} ></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>생년월일</Label>
@@ -301,7 +450,7 @@ export default function SetProfile() {
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>한 줄 소개</Label>
-                  <Input placeholder="나를 한 줄로 표현해주세요!" width="800px"></Input>
+                  <Input placeholder="나를 한 줄로 표현해주세요!" value={primaryInfo.intro} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
                 </InputContainer>
               </Form>
             )}
@@ -314,29 +463,29 @@ export default function SetProfile() {
                     {idx >= 1 && <Line></Line>}
                     <InputContainer width="325px">
                       <Label>학교</Label>
-                      <Input placeholder="학교명" width="150px"></Input>
+                      <Input placeholder="학교명" value={educationList[idx].school} onChange={(e) => {const newList = [...educationList]; newList[idx] = { ...newList[idx], school: e.target.value }; setEducationList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="650px">
                       <Label>전공</Label>
-                      <Input placeholder="전공명" width="475px"></Input>
+                      <Input placeholder="전공명" value={educationList[idx].major} onChange={(e) => {const newList = [...educationList]; newList[idx] = { ...newList[idx], major: e.target.value }; setEducationList(newList);}} width="475px"></Input>
                     </InputContainer>
                     <InputContainer width="325px">
                       <Label>입학연도</Label>
-                      <Input type="month" width="150px"></Input>
+                      <Input type="month" value={educationList[idx].entrance} onChange={(e) => {const newList = [...educationList]; newList[idx] = { ...newList[idx], entrance: e.target.value }; setEducationList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="325px">
                       <Label>졸업연도</Label>
-                      <Input type="month" width="150px"></Input>
+                      <Input type="month" value={educationList[idx].graduation} onChange={(e) => {const newList = [...educationList]; newList[idx] = { ...newList[idx], graduation: e.target.value }; setEducationList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="300px">
                       <Label>재학/졸업</Label>
-                      <Select width="174px">
+                      <Select width="174px" value={educationList[idx].status} onChange={(e) => {const newList = [...educationList]; newList[idx] = { ...newList[idx], status: e.target.value }; setEducationList(newList);}}>
                         {status.map((value) => (<option key={value} value={value}>{value}</option>))}
                       </Select>
                     </InputContainer>
                   </React.Fragment>
                 ))}
-                <AddButton onClick={() => setEducationList([...educationList, { school: "", major: "", entrance: "", graduation: "", status: ""}])}>+ 학력 추가</AddButton>
+                <AddButton onClick={() => setEducationList([...educationList, { school: "", major: "", entrance: "", graduation: "", status: status[0]}])}>+ 학력 추가</AddButton>
                 <Padding></Padding>
                 <FormTitle>경력사항 입력</FormTitle>
                 {careerList.map((career, idx) => (
@@ -344,27 +493,27 @@ export default function SetProfile() {
                     {idx >= 1 && <Line></Line>}
                     <InputContainer width="325px">
                       <Label>직장</Label>
-                      <Input placeholder="회사명" width="150px"></Input>
+                      <Input placeholder="회사명" value={careerList[idx].company} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], company: e.target.value }; setCareerList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="650px">
                       <Label>직무</Label>
-                      <Input placeholder="직무명" width="475px"></Input>
+                      <Input placeholder="직무명" value={careerList[idx].role} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], role: e.target.value }; setCareerList(newList);}} width="475px"></Input>
                     </InputContainer>
                     <InputContainer width="325px">
                       <Label>입사일</Label>
-                      <Input type="month" width="150px"></Input>
+                      <Input type="month" value={careerList[idx].join} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], join: e.target.value }; setCareerList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="325px">
                       <Label>퇴사일</Label>
-                      <Input type="month" width="150px"></Input>
+                      <Input type="month" value={careerList[idx].leave} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], leave: e.target.value }; setCareerList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="300px">
                       <Label>퇴사사유</Label>
-                      <Input placeholder="이직 등" width="150px"></Input>
+                      <Input placeholder="이직 등" value={careerList[idx].reason} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], reason: e.target.value }; setCareerList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="1000px">
                       <Label>업무 내용</Label>
-                      <Input placeholder="담당했던 핵심 업무 내용" width="800px"></Input>
+                      <Input placeholder="담당했던 핵심 업무 내용" value={careerList[idx].description} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], description: e.target.value }; setCareerList(newList);}} width="800px"></Input>
                     </InputContainer>
                   </React.Fragment>
                 ))}
@@ -380,15 +529,15 @@ export default function SetProfile() {
                     {idx >= 1 && <Line></Line>}
                     <InputContainer>
                       <Label>활동명</Label>
-                      <Input placeholder="활동명"></Input>
+                      <Input placeholder="활동명" value={activityList[idx].name} onChange={(e) => {const newList = [...activityList]; newList[idx] = { ...newList[idx], name: e.target.value }; setActivityList(newList);}}></Input>
                     </InputContainer>
                     <InputContainer>
                       <Label>구분</Label>
-                      <Input placeholder="봉사활동, 동아리활동 등"></Input>
+                      <Input placeholder="봉사활동, 동아리활동 등" value={activityList[idx].type} onChange={(e) => {const newList = [...activityList]; newList[idx] = { ...newList[idx], type: e.target.value }; setActivityList(newList);}}></Input>
                     </InputContainer>
                     <InputContainer width="1000px">
                       <Label>내용</Label>
-                      <Input placeholder="진행했던 핵심 활동 내용" width="800px"></Input>
+                      <Input placeholder="진행했던 핵심 활동 내용" value={activityList[idx].description} onChange={(e) => {const newList = [...activityList]; newList[idx] = { ...newList[idx], description: e.target.value }; setActivityList(newList);}} width="800px"></Input>
                     </InputContainer>
                   </React.Fragment>
                 ))}
@@ -400,15 +549,15 @@ export default function SetProfile() {
                     {idx >= 1 && <Line></Line>}
                     <InputContainer width="325px">
                       <Label>자격증</Label>
-                      <Input placeholder="자격증 이름" width="150px"></Input>
+                      <Input placeholder="자격증 이름" value={certificateList[idx].name} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], name: e.target.value }; setCertificateList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="325px">
                       <Label>점수/급수</Label>
-                      <Input placeholder="990 / 1급" width="150px"></Input>
+                      <Input placeholder="990 / 1급" value={certificateList[idx].score} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], score: e.target.value }; setCertificateList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="300px">
                       <Label>취득 시기</Label>
-                      <Input type="month" width="150px"></Input>
+                      <Input type="month" value={certificateList[idx].date} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], date: e.target.value }; setCertificateList(newList);}} width="150px"></Input>
                     </InputContainer>
                   </React.Fragment>
                 ))}
@@ -421,15 +570,15 @@ export default function SetProfile() {
                 <FormTitle>파일 업로드</FormTitle>
                 <InputContainer width="1000px">
                   <Label>경력기술서</Label>
-                  <Input type="file" placeholder="경력기술서 파일을 업로드 해주세요." width="800px"></Input>
+                  <Input type="file" placeholder="경력기술서 파일을 업로드 해주세요." onChange={(e) => setResumeFile(e.target.files?.[0] || null)} width="800px"></Input>
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>자기소개서</Label>
-                  <Input type="file" placeholder="자기소개서 파일을 업로드 해주세요." width="800px"></Input>
+                  <Input type="file" placeholder="자기소개서 파일을 업로드 해주세요." onChange={(e) => setCoverLetterFile(e.target.files?.[0] || null)} width="800px"></Input>
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>포트폴리오</Label>
-                  <Input type="file" placeholder="포트폴리오 파일을 업로드 해주세요." width="800px"></Input>
+                  <Input type="file" placeholder="포트폴리오 파일을 업로드 해주세요."  onChange={(e) => setPortfolioFile(e.target.files?.[0] || null)} width="800px"></Input>
                 </InputContainer>
               </Form>
             )}
