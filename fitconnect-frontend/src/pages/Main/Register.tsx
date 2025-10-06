@@ -154,15 +154,13 @@ export default function Register() {
 
     const handleRegister = async () => {
         try {
+            // POST /auth/register
             const res = await axios.post(`${baseURL}/auth/register`, { email, password, "role": type });
             if (res.status === 200) {
-                console.log("회원가입 완료");
-                navigate("/");
-            } else {
-                console.log("회원가입 실패");
+                navigate("/auth/login");
             }
         } catch (err) {
-            console.error("회원가입 오류 : ", err);
+            alert("이미 존재하는 아이디입니다.");
         }
     };
 
@@ -189,7 +187,7 @@ export default function Register() {
                     </InputContainer>
                     <InputContainer>
                     <Label>비밀번호</Label>
-                    <Input placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)}></Input>
+                    <Input type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)}></Input>
                     </InputContainer>
                     <RegisterButton onClick={handleRegister}>가입하기</RegisterButton>
                 </Form>
