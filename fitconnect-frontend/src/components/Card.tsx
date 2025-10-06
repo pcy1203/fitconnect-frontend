@@ -9,7 +9,7 @@ const CardContainer = styled.div`
 `;
 
 const Card = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== "flipped",
+    shouldForwardProp: (prop) => prop !== "flipped",
 })<{ role?: string, flipped: boolean }>`
   width: 500px;
   height: 640px;
