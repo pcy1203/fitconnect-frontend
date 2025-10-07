@@ -13,6 +13,7 @@ import Interview from "./pages/Assessment/Interview";
 import Result from "./pages/Assessment/Result";
 
 import Recommendation from "./pages/Search/Recommendation";
+import Like from "./pages/Search/Like";
 
 function App() {
     return (
@@ -31,6 +32,7 @@ function App() {
               <Route path="/assessment/result" element={<Result />} />
               
               <Route path="/search/recommendation" element={<Recommendation />} />
+              <Route path="/search/like" element={<Like />} />
             </Route>
           </Routes>
         </Router>
