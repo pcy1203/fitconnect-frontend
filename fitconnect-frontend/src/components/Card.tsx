@@ -9,7 +9,7 @@ const CardContainer = styled.div`
 `;
 
 const Card = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== "flipped",
+    shouldForwardProp: (prop) => prop !== "flipped",
 })<{ role?: string, flipped: boolean }>`
   width: 500px;
   height: 640px;
@@ -155,6 +155,90 @@ const Tag = styled.span`
     top: -1px;
 `;
 
+const CardBackContainer = styled.div`
+    position: relative;
+    top: -610px;
+    width: 470px;
+    height: 1px;
+`;
+
+const CardBackRegion = styled.div<{ role?: string }>`
+    height: 580px;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #ffffffff;
+      border-radius: 10px;
+      border: 2px solid #cccccc;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
+    }
+`;
+
+const BackRegion = styled.div`
+    background: rgba(255, 255, 255, 0.48);
+    width: 430px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+`;
+
+const BackTitle = styled.div`
+    color: black;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+`;
+
+const BackContent = styled.div`
+    color: black;
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+    margin-bottom: 5px;
+    width: 425px;
+    position: relative;
+    left: 5px;
+    padding-left: 5px;
+    display: list-item;
+    list-style-type: "·";
+`;
+
+const BackButton = styled.button`
+    all: unset;
+    background: rgba(255, 255, 255, 0.48);
+    width: 430px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: black;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 2;
+    cursor: pointer;
+    &:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+    &:active {
+      transform: scale(0.95);
+    }
+`;
+
+const BackLine = styled.hr`
+
+`;
+
 export {
     CardContainer,
     Card,
@@ -170,5 +254,12 @@ export {
     ContentTitle,
     ContentParagraph,
     Analysis,
-    Tag
+    Tag,
+    CardBackContainer,
+    CardBackRegion,
+    BackRegion,
+    BackTitle,
+    BackContent,
+    BackButton,
+    BackLine
 };

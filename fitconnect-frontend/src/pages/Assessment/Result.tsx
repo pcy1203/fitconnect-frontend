@@ -8,6 +8,10 @@ import axios from "axios";
 import talent from '../../assets/talent.png';
 import company from '../../assets/company.png';
 
+import { CardContainer, Card, CardFace, CardBack, ProfileContainer, ProfileImage, ProfileName, ProfileContent,
+  Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag, 
+  CardBackContainer, CardBackRegion, BackRegion, BackTitle, BackContent, BackButton, BackLine } from "../../components/Card";
+
 const Container = styled.div`
   width: 1200px;
   min-height: calc(100vh - 80px);
@@ -28,158 +32,158 @@ const Title = styled.div`
   line-height: 50px;
 `;
 
-const CardContainer = styled.div`
-  perspective: 1000px;
-  margin-top: 20px;
-  margin-bottom: 50px;
-`;
+// const CardContainer = styled.div`
+//   perspective: 1000px;
+//   margin-top: 20px;
+//   margin-bottom: 50px;
+// `;
 
-const Card = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== "flipped",
-})<{ role?: string, flipped: boolean }>`
-  width: 500px;
-  height: 640px;
-  left: 350px;
-  position: relative;
-  background: ${({ role }) => (role === "company" ? "linear-gradient(180deg, #ffffffff 0%, #f1dcdcff 100%)" : "linear-gradient(180deg, #ffffffff 0%, #dce3f1ff 100%)" )};
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  transform: ${({ flipped }) => (flipped ? "rotateY(180deg)" : "rotateY(0deg)")};
-  border: 3px solid ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1),
-              0 0 10px ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
-  &:hover {
-    transform: ${({ flipped }) => (flipped ? "rotateY(180deg) translateY(-10px)" : "rotateY(0deg) translateY(-10px)")};
-    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2),
-                0 0 20px ${({ role }) => (role === "company" ? colors.company : colors.talent )};
-  }
-`;
+// const Card = styled.div.withConfig({
+//   shouldForwardProp: (prop) => prop !== "flipped",
+// })<{ role?: string, flipped: boolean }>`
+//   width: 500px;
+//   height: 640px;
+//   left: 350px;
+//   position: relative;
+//   background: ${({ role }) => (role === "company" ? "linear-gradient(180deg, #ffffffff 0%, #f1dcdcff 100%)" : "linear-gradient(180deg, #ffffffff 0%, #dce3f1ff 100%)" )};
+//   transform-style: preserve-3d;
+//   transition: transform 0.3s ease, box-shadow 0.3s ease;
+//   transform: ${({ flipped }) => (flipped ? "rotateY(180deg)" : "rotateY(0deg)")};
+//   border: 3px solid ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
+//   border-radius: 20px;
+//   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1),
+//               0 0 10px ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
+//   &:hover {
+//     transform: ${({ flipped }) => (flipped ? "rotateY(180deg) translateY(-10px)" : "rotateY(0deg) translateY(-10px)")};
+//     box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2),
+//                 0 0 20px ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+//   }
+// `;
 
-const CardFace = styled.div`
-  backface-visibility: hidden;
-`;
+// const CardFace = styled.div`
+//   backface-visibility: hidden;
+// `;
 
-const CardBack = styled(CardFace)`
-  transform: rotateY(180deg);
-  width: 100%;
-  margin-top: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
+// const CardBack = styled(CardFace)`
+//   transform: rotateY(180deg);
+//   width: 100%;
+//   margin-top: 40px;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   justify-content: center;
+// `;
 
-const ProfileContainer = styled.div<{ role?: string }>`
-  width: calc(100% + 2px);
-  height: 90px;
-  margin-top: -1px;
-  background: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
-  border-radius: 15px 15px 0 0;
-`;
+// const ProfileContainer = styled.div<{ role?: string }>`
+//   width: calc(100% + 2px);
+//   height: 90px;
+//   margin-top: -1px;
+//   background: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
+//   border-radius: 15px 15px 0 0;
+// `;
 
-const ProfileImage = styled.div`
-  width: 200px;
-  height: 50px;
-  background: #FFFFFF;
-  border-radius: 50px;
-  text-align: center;
-  position: relative;
-  left: 40px;
-  top: 20px;
-  & > img {
-    position: relative;
-    left: -50px;
-    margin-top: 5px;
-  }
-`;
+// const ProfileImage = styled.div`
+//   width: 200px;
+//   height: 50px;
+//   background: #FFFFFF;
+//   border-radius: 50px;
+//   text-align: center;
+//   position: relative;
+//   left: 40px;
+//   top: 20px;
+//   & > img {
+//     position: relative;
+//     left: -50px;
+//     margin-top: 5px;
+//   }
+// `;
 
-const ProfileName = styled.div`
-  color: black;
-  position: relative;
-  left: 120px;
-  top: -25px;
-  font-size: 25px;
-  font-weight: 600;
-`;
+// const ProfileName = styled.div`
+//   color: black;
+//   position: relative;
+//   left: 120px;
+//   top: -25px;
+//   font-size: 25px;
+//   font-weight: 600;
+// `;
 
-const ProfileContent = styled.div`
-  color: black;
-  font-size: 16px;
-  font-weight: 500;
-  position: relative;
-  left: 256px;
-  top: -65px;
-`;
+// const ProfileContent = styled.div`
+//   color: black;
+//   font-size: 16px;
+//   font-weight: 500;
+//   position: relative;
+//   left: 256px;
+//   top: -65px;
+// `;
 
-const Introduction = styled.div`
-  width: 450px;
-  margin-top: 25px;
-  margin-bottom: 10px;
-  margin-left: 25px;
-  border-radius: 10px;
-  color: black;
-  font-size: 16px;
-  line-height: 30px;
-  text-align: center;
-`;
+// const Introduction = styled.div`
+//   width: 450px;
+//   margin-top: 25px;
+//   margin-bottom: 10px;
+//   margin-left: 25px;
+//   border-radius: 10px;
+//   color: black;
+//   font-size: 16px;
+//   line-height: 30px;
+//   text-align: center;
+// `;
 
-const ContentContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  align-items: center;
-  justify-content: center;
-`;
+// const ContentContainer = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   gap: 20px;
+//   align-items: center;
+//   justify-content: center;
+// `;
 
-const Content = styled.div<{ role?: string }>`
-  width: 200px;
-  margin-top: 10px;
-  color: black;
-  background: ${({ role }) => (role === "company" ? "#f7e7e7ff" : "#dde6f3ff" )};
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
-`;
+// const Content = styled.div<{ role?: string }>`
+//   width: 200px;
+//   margin-top: 10px;
+//   color: black;
+//   background: ${({ role }) => (role === "company" ? "#f7e7e7ff" : "#dde6f3ff" )};
+//   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+// `;
 
-const ContentTitle = styled.div`
-  padding-left: 10px;
-  padding-top: 15px;
-  font-size: 16px;
-  font-weight: 600;
-  color: black;
-`;
+// const ContentTitle = styled.div`
+//   padding-left: 10px;
+//   padding-top: 15px;
+//   font-size: 16px;
+//   font-weight: 600;
+//   color: black;
+// `;
 
-const ContentParagraph = styled.div`
-  color: black;
-  padding-left: 15px;
-  padding-bottom: 15px;
-  width: 170px;
-  padding-top: 10px;
-  font-size: 12px;
-  white-space: pre-line;
-  line-height: 25px;
-`;
+// const ContentParagraph = styled.div`
+//   color: black;
+//   padding-left: 15px;
+//   padding-bottom: 15px;
+//   width: 170px;
+//   padding-top: 10px;
+//   font-size: 12px;
+//   white-space: pre-line;
+//   line-height: 25px;
+// `;
 
-const Analysis = styled.div`
-  color: black;
-  margin-left: 50px;
-  margin-top: 15px;
-  width: 400px;
-  padding-top: 10px;
-  font-size: 12px;
-  white-space: pre-line;
-  line-height: 25px;
-`;
+// const Analysis = styled.div`
+//   color: black;
+//   margin-left: 50px;
+//   margin-top: 15px;
+//   width: 400px;
+//   padding-top: 10px;
+//   font-size: 12px;
+//   white-space: pre-line;
+//   line-height: 25px;
+// `;
 
-const Tag = styled.span`
-    background: #fac3c3ff;
-    border: 1px solid #e64040ff;
-    color: #c01010ff;
-    border-radius: 15px;
-    margin-left: 5px;
-    padding: 1px 5px;
-    position: relative;
-    top: -1px;
-`;
+// const Tag = styled.span`
+//     background: #fac3c3ff;
+//     border: 1px solid #e64040ff;
+//     color: #c01010ff;
+//     border-radius: 15px;
+//     margin-left: 5px;
+//     padding: 1px 5px;
+//     position: relative;
+//     top: -1px;
+// `;
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -280,6 +284,38 @@ export default function Result() {
                   </Analysis>
                 </CardFace>
                 <CardBack role={role}>
+                  <CardBackContainer>
+                    <CardBackRegion role={role}>
+                      <BackRegion>
+                        <BackTitle>👤 인적사항</BackTitle>
+                        <BackContent>이름  |  생년.월.일  |  이메일  |  휴대전화</BackContent>
+                      </BackRegion>
+                      <BackRegion>
+                        <BackTitle>🏫 학력사항</BackTitle>
+                        <BackContent>학교  |  전공  (년.월 ~ 년.월, 졸업)</BackContent>
+                        <BackContent>학교  |  전공  (년.월 ~ 년.월, 재학)</BackContent>
+                      </BackRegion>
+                      <BackRegion>
+                        <BackTitle>💼 경력사항</BackTitle>
+                        <BackContent>직장  |  직무  (년.월 ~ 년.월, 퇴사)<br/>업무 내용 (퇴사 사유)</BackContent>
+                        <BackContent>직장  |  직무  (년.월 ~ 년.월, 퇴사)<br/>업무 내용 (퇴사 사유)</BackContent>
+                      </BackRegion>
+                      <BackRegion>
+                        <BackTitle>📒 활동내역</BackTitle>
+                        <BackContent>활동명  |  봉사활동<br/>활동 내용</BackContent>
+                        <BackContent>활동명  |  봉사활동<br/>활동 내용</BackContent>
+                      </BackRegion>
+                      <BackRegion>
+                        <BackTitle>📜 자격사항</BackTitle>
+                        <BackContent>자격증  |  점수  |  년.월</BackContent>
+                        <BackContent>자격증  |  점수  |  년.월</BackContent>
+                      </BackRegion>
+                      <BackLine></BackLine>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 자기소개서 확인하기</BackButton>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 경력기술서 확인하기</BackButton>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 포트폴리오 확인하기</BackButton>
+                    </CardBackRegion>
+                  </CardBackContainer>
                 </CardBack>
               </Card>
               <ButtonContainer>
@@ -330,6 +366,40 @@ export default function Result() {
                   </Analysis>
                 </CardFace>
                 <CardBack role={role}>
+                  <CardBackContainer>
+                    <CardBackRegion role={role}>
+                      <BackRegion>
+                        <BackTitle>💼 기업 정보</BackTitle>
+                        <BackContent>회사명  |  업종  |  회사 규모  |  회사 위치</BackContent>
+                        <BackContent>비전/미션 :</BackContent>
+                        <BackContent>사업 영역 : </BackContent>
+                        <BackContent>인재상 : </BackContent>
+                        <BackContent>조직문화 :</BackContent>
+                        <BackContent>복리후생 :</BackContent>
+                      </BackRegion>
+                      <BackRegion>
+                        <BackTitle>📚 공고 정보</BackTitle>
+                        <BackContent>공고명  |  고용 형태  |  신입/경력</BackContent>
+                        <BackContent>근무 기간 (근무 시작일)  |  부서</BackContent>
+                        <BackContent>연봉  |  회사 위치</BackContent>
+                        <BackContent>업무 내용 : </BackContent>
+                        <BackContent>문의 메일  |  문의 연락처</BackContent>
+                      </BackRegion>
+                      <BackRegion>
+                        <BackTitle>☑️ 자격 요건</BackTitle>
+                        <BackContent>학력</BackContent>
+                        <BackContent>필수 요건 : </BackContent>
+                        <BackContent>우대 사항 : </BackContent>
+                        <BackContent>요구 역량 : </BackContent>
+                      </BackRegion>
+                      <BackLine></BackLine>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 공고 확인하기</BackButton>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 직무기술서 확인하기</BackButton>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 공고 자료 확인하기</BackButton>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 채용 홈페이지 확인하기</BackButton>
+                      <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 회사 홈페이지 확인하기</BackButton>
+                    </CardBackRegion>
+                  </CardBackContainer>
                 </CardBack>
               </Card>
               <ButtonContainer>

@@ -35,6 +35,109 @@ const Title = styled.div`
   line-height: 50px;
 `;
 
+const LikeContainer = styled.div`
+  position: relative;
+  top: -688px;
+  left: 660px;
+  width: 410px;
+  height: 1px;
+`;
+
+const LikeRegion = styled.div<{ role?: string }>`
+  height: 620px;
+  overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #bbb;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: #ffffffff;
+        border-radius: 10px;
+        border: 2px solid #cccccc;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: #ddd;
+    }
+`;
+
+const Like = styled.div`
+  width: 360px;
+  height: 100px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: 5px;
+  background: rgba(255, 255, 255, 1);
+  border: 2px solid #b2b2b2ff;
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px rgba(171, 171, 171, 0.2);
+  transition: transform 0.1s ease;
+  &:hover {
+    background: rgba(247, 247, 247, 1);
+  }
+  &:hover button {
+    visibility: visible;
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const LikeImage = styled.div`
+  margin-left: 15px;
+  margin-top: 15px;
+  width: 30px;
+`;
+
+const LikeTitle = styled.div`
+  width: 300px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #242424ff;
+  position: relative;
+  top: -25px;
+  left: 41px;
+`;
+
+const LikeContent = styled.div`
+  width: 320px;
+  font-size: 12px;
+  color: #242424ff;
+  position: relative;
+  top: -42px;
+  left: 20px;
+  line-height: 22px;
+`;
+
+const LikeButton = styled.button<{ role?: string }>`
+  all: unset;
+  visibility: hidden;
+  width: 50px;
+  height: 22px;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  font-size: 14px;
+  top: -48px;
+  left: 290px;
+  background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  border: 2px solid #b2b2b2ff;
+  box-shadow: 1px 1px 1px rgba(171, 171, 171, 0.2);
+  transition: transform 0.1s ease;
+  &:hover {
+    font-weight: 600;
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const CardContainer = styled.div`
   perspective: 1000px;
   margin-top: 20px;
@@ -63,291 +166,11 @@ const Card = styled.div.withConfig({
   }
 `;
 
-// const CardFace = styled.div`
-//   backface-visibility: hidden;
-// `;
-
-// const CardBack = styled(CardFace)`
-//   transform: rotateY(180deg);
-//   width: 100%;
-//   margin-top: 40px;
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   justify-content: center;
-// `;
-
-// const ProfileContainer = styled.div`
-//   width: 100%;
-//   height: 90px;
-//   margin-top: -1px;
-//   background: #87B2FF;
-//   border-radius: 15px 15px 0 0;
-// `;
-
-// const ProfileImage = styled.div`
-//   width: 200px;
-//   height: 50px;
-//   background: #FFFFFF;
-//   border-radius: 50px;
-//   text-align: center;
-//   position: relative;
-//   left: 40px;
-//   top: 20px;
-//   & > img {
-//     position: relative;
-//     left: -50px;
-//     margin-top: 5px;
-//   }
-// `;
-
-// const ProfileName = styled.div`
-//   color: black;
-//   position: relative;
-//   left: 120px;
-//   top: -25px;
-//   font-size: 25px;
-//   font-weight: 600;
-// `;
-
-// const ProfileContent = styled.div`
-//   color: black;
-//   font-size: 16px;
-//   font-weight: 500;
-//   position: relative;
-//   left: 256px;
-//   top: -65px;
-// `;
-
-// const Introduction = styled.div`
-//   width: 450px;
-//   margin-top: 25px;
-//   margin-bottom: 10px;
-//   margin-left: 25px;
-//   border-radius: 10px;
-//   color: black;
-//   font-size: 16px;
-//   line-height: 30px;
-//   text-align: center;
-// `;
-
-// const ContentContainer = styled.div`
-//   display: flex;
-//   flex-direction: row;
-//   gap: 20px;
-//   align-items: center;
-//   justify-content: center;
-// `;
-
-// const Content = styled.div`
-//   width: 200px;
-//   margin-top: 10px;
-//   color: black;
-//   background: #dde6f3ff;
-//   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
-// `;
-
-// const ContentTitle = styled.div`
-//   padding-left: 10px;
-//   padding-top: 15px;
-//   font-size: 16px;
-//   font-weight: 600;
-//   color: black;
-// `;
-
-// const ContentParagraph = styled.div`
-//   color: black;
-//   padding-left: 15px;
-//   padding-bottom: 15px;
-//   width: 170px;
-//   padding-top: 10px;
-//   font-size: 12px;
-//   white-space: pre-line;
-//   line-height: 25px;
-// `;
-
-// const Analysis = styled.div`
-//   color: black;
-//   margin-left: 50px;
-//   margin-top: 15px;
-//   width: 400px;
-//   padding-top: 10px;
-//   font-size: 12px;
-//   white-space: pre-line;
-//   line-height: 25px;
-// `;
-
-// const Tag = styled.span`
-//     background: #fac3c3ff;
-//     border: 1px solid #e64040ff;
-//     color: #c01010ff;
-//     border-radius: 15px;
-//     margin-left: 5px;
-//     padding: 1px 5px;
-//     position: relative;
-//     top: -1px;
-// `;
-
 const HexagonContainer = styled.div`
     position: relative;
-    top: -680px;
-    left: 720px;
-    height: 1px;
+    margin-left: 60px;
+    overflow: hidden;
 `;
-
-const ButtonContainer = styled.div`
-    width: 400px;
-    top: -370px;
-    height: 1px;
-    position: relative;
-    left: 680px;
-`;
-
-const Button = styled.button<{ role?: string }>`
-  all: unset;
-  width: 400px;
-  height: 50px;
-  background: #FFFFFF;
-  color: #000000;
-  text-align: center;
-  font-size: 24px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-bottom: 30px;
-  border: 3px solid ${({ role }) => (role === "company" ? colors.company : colors.talent )};
-  border-radius: 25px;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s ease;
-  &:hover {
-    background-color: #f2f2f2ff;
-  }
-  &:active {
-    transform: scale(0.95);
-  }
-  & > span {
-    position: relative;
-    top: -1px;
-  }
-`;
-
-const ReactionContainer = styled.div`
-  width: 406px;
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-`;
-
-const Line = styled.hr`
-  color: black;
-`;
-
-const ReactionTitle = styled.div`
-  width: 406px;
-  color: black;
-  font-size: 14px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  text-align: center;
-`;
-
-const ReactionButton = styled.button`
-  all: unset;
-  width: 190px;
-  height: 30px;
-  background: #FFFFFF;
-  color: #000000;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 400;
-  margin-bottom: 7px;
-  margin-left: 5px;
-  cursor: pointer;
-  border: 1px solid #b2b2b2ff;
-  box-shadow: 1px 1px 1px rgba(171, 171, 171, 0.2);
-  border-radius: 5px;
-  transition: transform 0.1s ease;
-  &:hover {
-    font-weight: 500;
-    background-color: #f2f2f2ff;
-  }
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
-const LeftArrow = styled.button`
-  all: unset;
-  position: relative;
-  top: -450px;
-  left: 20px;
-  &:hover {
-    opacity: 0.5;
-  }
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
-const RightArrow = styled.button`
-  all: unset;
-  transform: rotate(180deg);
-  position: relative;
-  top: -454px;
-  left: 1085px;
-  &:hover {
-    opacity: 0.5;
-  }
-  &:active {
-    transform: rotate(180deg) scale(0.95);
-  }
-`;
-
-
-// const YesButton = styled.button`
-//     all: unset;
-//     width: 150px;
-//     height: 150px;
-//     background: #ffffffff;
-//     color: #FFFFFF;
-//     text-align: center;
-//     font-size: 16px;
-//     font-weight: 500;
-//     cursor: pointer;
-//     border: 3px solid #51c257ff;
-//     border-radius: 100px;
-//     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-//     transition: transform 0.1s ease;
-//     &:hover {
-//       background-color: #ecececff;
-//     }
-//     &:active {
-//       transform: scale(0.95);
-//     }
-//     font-size: 40px;
-// `;
-
-// const NoButton = styled.button`
-//     all: unset;
-//     width: 150px;
-//     height: 150px;
-//     background: #ffffffff;
-//     color: #FFFFFF;
-//     text-align: center;
-//     font-size: 16px;
-//     font-weight: 500;
-//     cursor: pointer;
-//     border: 3px solid #ff6a6aff;
-//     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-//     border-radius: 100px;
-//     transition: transform 0.1s ease;
-//     &:hover {
-//       background-color: #ecececff;
-//     }
-//     &:active {
-//       transform: scale(0.95);
-//     }
-//     font-size: 40px;
-// `;
 
 export default function Recommendation() {
     const { token, setToken, role, setRole } = useAuth();
@@ -360,7 +183,7 @@ export default function Recommendation() {
     if (role === "talent") {
         return (
           <Container>
-            <Title>🔍 공고 탐색</Title>
+            <Title>💙 보관한 공고</Title>
             <CardContainer>
               <Card role="company" flipped={flipped} onClick={() => setFlipped(!flipped)}>
                 <CardFace>
@@ -400,6 +223,9 @@ export default function Recommendation() {
                 <CardBack role="company">
                   <CardBackContainer>
                     <CardBackRegion role="company">
+                      <HexagonContainer>
+                        <Hexagon score={[70, 20, 90, 50, 30, 60]} role={role} />
+                      </HexagonContainer>
                       <BackRegion>
                         <BackTitle>💼 기업 정보</BackTitle>
                         <BackContent>회사명  |  업종  |  회사 규모  |  회사 위치</BackContent>
@@ -435,24 +261,52 @@ export default function Recommendation() {
                 </CardBack>
               </Card>
             </CardContainer>
-            <HexagonContainer>
-              <Hexagon role={role} score={[70, 20, 90, 50, 30, 60]} />
-            </HexagonContainer>
-            <ButtonContainer>
-              <Button role={role}><span>💙 보관하기</span></Button>
-              <Line></Line>
-              <ReactionContainer>
-                <ReactionTitle>아쉬운 점에 대한 반응을 누르면, 더 적합한 인재를 찾아드려요.</ReactionTitle>
-                <ReactionButton>⚡ 기대하는 역할의 포지션이 아님</ReactionButton>
-                <ReactionButton>🛠 보유한 직무 역량과의 불일치</ReactionButton>
-                <ReactionButton>🤝 조직 비전/전략과의 불일치</ReactionButton>
-                <ReactionButton>🏢 조직/문화 적합도의 차이</ReactionButton>
-                <ReactionButton>🌱 충분하지 않은 성장 기회</ReactionButton>
-                <ReactionButton>🧭 커리어 방향의 불일치</ReactionButton>
-              </ReactionContainer>
-            </ButtonContainer>
-            <LeftArrow><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></LeftArrow>
-            <RightArrow><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></RightArrow>
+            <LikeContainer>
+              <LikeRegion>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : 백엔드 개발자</LikeTitle>
+                  <LikeButton role="company">삭제</LikeButton>
+                  <LikeContent>· 정규직  |  경력 3~5년차  |  2025.10.04 마감<br/>· 백엔드 개발자를 찾습니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : 백엔드 개발자</LikeTitle>
+                  <LikeButton role="company">삭제</LikeButton>
+                  <LikeContent>· 정규직  |  경력 3~5년차  |  2025.10.04 마감<br/>· 백엔드 개발자를 찾습니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : 백엔드 개발자</LikeTitle>
+                  <LikeButton role="company">삭제</LikeButton>
+                  <LikeContent>· 정규직  |  경력 3~5년차  |  2025.10.04 마감<br/>· 백엔드 개발자를 찾습니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : 백엔드 개발자</LikeTitle>
+                  <LikeButton role="company">삭제</LikeButton>
+                  <LikeContent>· 정규직  |  경력 3~5년차  |  2025.10.04 마감<br/>· 백엔드 개발자를 찾습니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : 백엔드 개발자</LikeTitle>
+                  <LikeButton role="company">삭제</LikeButton>
+                  <LikeContent>· 정규직  |  경력 3~5년차  |  2025.10.04 마감<br/>· 백엔드 개발자를 찾습니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : 백엔드 개발자</LikeTitle>
+                  <LikeButton role="company">삭제</LikeButton>
+                  <LikeContent>· 정규직  |  경력 3~5년차  |  2025.10.04 마감<br/>· 백엔드 개발자를 찾습니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : 백엔드 개발자</LikeTitle>
+                  <LikeButton role="company">삭제</LikeButton>
+                  <LikeContent>· 정규직  |  경력 3~5년차  |  2025.10.04 마감<br/>· 백엔드 개발자를 찾습니다.</LikeContent>
+                </Like>
+              </LikeRegion>
+            </LikeContainer>
           </Container>
         );
     } else if (role === "company") {
@@ -498,6 +352,9 @@ export default function Recommendation() {
                 <CardBack role="talent">
                   <CardBackContainer>
                     <CardBackRegion role="talent">
+                      <HexagonContainer>
+                        <Hexagon score={[70, 20, 90, 50, 30, 60]} role={role} />
+                      </HexagonContainer>
                       <BackRegion>
                         <BackTitle>👤 인적사항</BackTitle>
                         <BackContent>이름  |  생년.월.일  |  이메일  |  휴대전화</BackContent>
@@ -531,24 +388,52 @@ export default function Recommendation() {
                 </CardBack>
               </Card>
             </CardContainer>
-            <HexagonContainer>
-              <Hexagon score={[70, 20, 90, 50, 30, 60]} role={role} />
-            </HexagonContainer>
-            <ButtonContainer>
-              <Button role={role}><span>❤️ 보관하기</span></Button>
-              <Line></Line>
-              <ReactionContainer>
-                <ReactionTitle>아쉬운 점에 대한 반응을 누르면, 더 적합한 인재를 찾아드려요.</ReactionTitle>
-                <ReactionButton>⚡ 기대하는 경험/경력과의 불일치</ReactionButton>
-                <ReactionButton>🛠 요구하는 직무 역량과의 차이</ReactionButton>
-                <ReactionButton>🤝 협업 스타일의 차이</ReactionButton>
-                <ReactionButton>🏢 조직/문화 적합도의 차이</ReactionButton>
-                <ReactionButton>🌱 성장 가능성 검증의 어려움</ReactionButton>
-                <ReactionButton>🧭 커리어 방향의 불일치</ReactionButton>
-              </ReactionContainer>
-            </ButtonContainer>
-            <LeftArrow><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></LeftArrow>
-            <RightArrow><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></RightArrow>
+            <LikeContainer>
+              <LikeRegion>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
+                  <LikeButton role="talent">삭제</LikeButton>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
+                  <LikeButton role="talent">삭제</LikeButton>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
+                  <LikeButton role="talent">삭제</LikeButton>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
+                  <LikeButton role="talent">삭제</LikeButton>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
+                  <LikeButton role="talent">삭제</LikeButton>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
+                  <LikeButton role="talent">삭제</LikeButton>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                </Like>
+                <Like>
+                  <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
+                  <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
+                  <LikeButton role="talent">삭제</LikeButton>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                </Like>
+              </LikeRegion>
+            </LikeContainer>
           </Container>
         );
     }
