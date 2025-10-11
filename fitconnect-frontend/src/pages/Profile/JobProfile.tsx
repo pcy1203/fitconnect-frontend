@@ -78,6 +78,24 @@ const FormTitle = styled.div`
     line-height: 50px;
 `
 
+const FormContent = styled.div`
+  width: 920px;
+  color: black;
+  margin-top: 20px;
+  margin-left: 40px;
+  margin-bottom: 40px;
+  background: #e6e6e6ff;
+  border-radius: 10px;
+`;
+
+const FormParagraph = styled.p`
+  margin-left: 40px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  color: black;
+  line-height: 30px;
+`;
+
 const InputContainer = styled.div<{ width?: string }>`
     width: ${(props) => props.width || "500px"};
     display: flex;
@@ -126,6 +144,27 @@ const Input = styled.input.withConfig({
     &::file-selector-button:hover {
         background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
     }
+`;
+
+const Textarea = styled.textarea.withConfig({
+    shouldForwardProp: (prop) => prop !== "hasError"
+})<{ width?: string, height?: string, hasError?: boolean, role?: string }>`
+    width: ${(props) => props.width || "300px"};
+    height: ${(props) => props.height || "30px"};
+    background: #FFFFFF;
+    color: #000000;
+    border: 1px solid #9E9E9E;
+    padding: 10px 10px;
+    &:focus {
+        outline: none;
+        border: 2px solid ${ colors.company };
+        box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
+    }
+    &::placeholder {
+        color: #dbdbdb;
+    }
+    font-family: inherit;
+    resize: none;
 `;
 
 const Select = styled.select<{ width?: string }>`
@@ -367,22 +406,12 @@ export default function JobProfile() {
             {page == 2 && (
               <Form>
                 <FormTitle>공고 세부내용 입력</FormTitle>
-                <InputContainer width="1000px">
-                  <Label>업무 내용</Label>
-                  <Input placeholder="담당하게 될 업무 내용을 소개해주세요." value={additionalInfo.role} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, role: e.target.value }))} width="800px"></Input>
-                </InputContainer>
-                <InputContainer width="1000px">
-                  <Label>필수 요건</Label>
-                  <Input placeholder="지원 자격/요건을 작성해주세요." value={additionalInfo.requirement} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, requirement: e.target.value }))} width="800px"></Input>
-                </InputContainer>
-                <InputContainer width="1000px">
-                  <Label>우대 사항</Label>
-                  <Input placeholder="우대 사항을 작성해주세요." value={additionalInfo.preference} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, preference: e.target.value }))} width="800px"></Input>
-                </InputContainer>
-                <InputContainer width="1000px">
-                  <Label>요구 역량</Label>
-                  <Input placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Input>
-                </InputContainer>
+                <FormContent>
+                  <FormParagraph>🤔 <b>공고 작성에 어려움을 겪고 계신가요?</b><br/>
+                  필요한 내용만 간단히 입력 후 하단의 '작성 완료' 버튼을 누르면, <b>AI 분석 인터뷰</b>를 바로 진행할 수 있어요.<br/>
+                  실무진 팀원들 · HR(인사팀) 담당자가 함께 논의하는 내용을 AI가 분석하여, <b>공고에 들어갈 내용을 추천</b>받을 수 있답니다!
+                  </FormParagraph>
+                </FormContent>
                 <InputContainer width="1000px">
                   <Label>직무기술서</Label>
                   <Input type="file" role={role} onChange={(e) => setJobDescriptionFile(e.target.files?.[0] || null)} width="800px"></Input>
@@ -390,6 +419,22 @@ export default function JobProfile() {
                 <InputContainer width="1000px">
                   <Label>공고 자료</Label>
                   <Input type="file" role={role} onChange={(e) => setJobPostingFile(e.target.files?.[0] || null)} width="800px"></Input>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginTop': '20px', 'marginBottom': '30px' }}>업무 내용</Label>
+                  <Textarea style={{ 'height': '200px', 'marginTop': '20px', 'marginBottom': '30px' }} placeholder="담당하게 될 업무 내용을 소개해주세요." value={additionalInfo.role} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, role: e.target.value }))} width="800px"></Textarea>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginBottom': '30px' }}>필수 요건</Label>
+                  <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="지원 자격/요건을 작성해주세요." value={additionalInfo.requirement} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, requirement: e.target.value }))} width="800px"></Textarea>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginBottom': '30px' }}>우대 사항</Label>
+                  <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="우대 사항을 작성해주세요." value={additionalInfo.preference} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, preference: e.target.value }))} width="800px"></Textarea>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginBottom': '30px' }}>요구 역량</Label>
+                  <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Textarea>
                 </InputContainer>
               </Form>
             )}

@@ -227,6 +227,46 @@ const StyledCanvas = styled.canvas`
   display: block;
 `;
 
+
+const InputContainer = styled.div<{ width?: string }>`
+    width: ${(props) => props.width || "500px"};
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+`
+
+const Label = styled.div`
+    width: 80px;
+    height: 70px;
+    position: relative;
+    padding-left: 40px;
+    color: black;
+    font-size: 16px;
+    line-height: 70px;
+`;
+
+const Input = styled.textarea.withConfig({
+    shouldForwardProp: (prop) => prop !== "hasError"
+})<{ width?: string, height?: string, hasError?: boolean, role?: string }>`
+    width: ${(props) => props.width || "300px"};
+    height: ${(props) => props.height || "30px"};
+    background: #FFFFFF;
+    color: #000000;
+    border: 1px solid #9E9E9E;
+    padding: 10px 10px;
+    &:focus {
+        outline: none;
+        border: 2px solid ${ colors.company };
+        box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
+    }
+    &::placeholder {
+        color: #dbdbdb;
+    }
+    font-family: inherit;
+    resize: none;
+`;
+
 export default function Interview() {
     const { token, setToken, role, setRole } = useAuth();
     const navigate = useNavigate();
@@ -253,6 +293,7 @@ export default function Interview() {
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [totalQuestions, setTotalQuestions] = useState(1);
+    const [additionalInfo, setAdditionalInfo] = useState({ role: "", requirement: "", preference: "", capacity: ""});
 
     const [recording, setRecording] = useState(false);
     const [audioUrls, setAudioUrls] = useState<(string | null)[]>([]);
@@ -271,12 +312,12 @@ export default function Interview() {
     //   "4️⃣ 일을 할 때 가장 중요하게 생각하는 가치는 무엇인가요?",
     //   "5️⃣ 앞으로 어떤 커리어를 그리고 계신가요?"]
 
-    const companyQuestionList = [
-      "1️⃣ 이번 포지션에서 가장 중요한 역할과 기대하는 역량은 무엇인가요?",
-      "2️⃣ 이 포지션에서 뛰어난 성과를 낸 직원은 어떤 특징을 가지고 있었나요?\n(새롭게 만들어진 포지션이라면, 해당 포지션이 만들어진 이유를 알려주세요.)",
-      "3️⃣ 팀에서 잘 맞는 성향이나 협업 스타일은 어떤 것인가요?",
-      "4️⃣ 이 포지션에서 예상되는 어려움이나 도전 과제는 무엇인가요?",
-      "5️⃣ 이 포지션에서 가장 중요하게 생각하는 인재상이나 가치관은 무엇인가요?"]
+    // const companyQuestionList = [
+    //   "1️⃣ 이번 포지션에서 가장 중요한 역할과 기대하는 역량은 무엇인가요?",
+    //   "2️⃣ 이 포지션에서 뛰어난 성과를 낸 직원은 어떤 특징을 가지고 있었나요?\n(새롭게 만들어진 포지션이라면, 해당 포지션이 만들어진 이유를 알려주세요.)",
+    //   "3️⃣ 팀에서 잘 맞는 성향이나 협업 스타일은 어떤 것인가요?",
+    //   "4️⃣ 이 포지션에서 예상되는 어려움이나 도전 과제는 무엇인가요?",
+    //   "5️⃣ 이 포지션에서 가장 중요하게 생각하는 인재상이나 가치관은 무엇인가요?"]
 
     const getTutorial = () => {
         setStage(stage + 1);
@@ -722,52 +763,186 @@ export default function Interview() {
         return (
           <Container>
             <Title>🎤 AI 분석 인터뷰</Title>
-            <ProgressBarContainer>
-              <Progress progress={page * 16.67} role={role}></Progress>
-              <ProgressText>{page} / 6</ProgressText>
-            </ProgressBarContainer>
+              <StepContainer>
+                {stages.map((stageElement, idx) => (
+                  <StepGroup key={stageElement.num}>
+                    <Step role={role} active={stage === stageElement.num}>{stageElement.num}</Step>
+                    <StepLabel role={role} active={stage === stageElement.num}>{stageElement.label}</StepLabel>
+                    {idx < stages.length - 1 && <Divider />}
+                  </StepGroup>
+                ))}
+              </StepContainer>
 
-            {page == 1 && (
+            {!stage && (
+              <>
               <Form>
                 <FormTitle>시작 전 안내사항</FormTitle>
                 <FormContent>
                   <FormParagraph>
                   <b>'딱 맞는 매칭'</b>을 위해, 어떤 인재가 $공고$ 포지션에 적합한지 구체적으로 파악해 볼게요.<br/>
                   <br/>
-                  ✔️ AI 분석 인터뷰는 <b>총 5개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 15분</b> 정도로 예상돼요.<br/>
-                  ✔️ 인터뷰 내용은 공개되지 않으며, 포지션에서 <b>요구하는 역량과 기대하는 역할</b>을 이해하는 데 활용돼요.<br/>
-                  ✔️ <b>실무진 팀원들, 영입 담당자</b>가 함께 참여해 의견을 나누는 걸 권장드려요.<br/>
-                  ✔️ 시작 전, <b>마이크 상태와 주변 소음</b>을 한 번 확인해 주세요.<br/>
+                  📌 AI 분석 인터뷰는 <b>3단계</b>로 이루어져 있으며, 총 소요 시간은 <b>약 30분</b> 정도로 예상돼요.<br/>
+                  📌 <b>실무진 팀원들, HR(인사팀) 담당자</b>가 함께 참여해 질문을 보고 의견을 나누는 걸 권장드려요.<br/>
+                  📌 인터뷰 내용은 공개되지 않으며, 포지션에서 <b>요구하는 역량과 기대하는 역할</b>을 이해하는 데 활용돼요.<br/>
+                  📌 인터뷰가 완료되면, AI가 공고 내용을 제안드릴 예정이에요. 내용을 자유롭게 수정 후 완성해주세요.<br/>
+                  📌 시작 전, <b>마이크 상태와 주변 소음</b>을 한 번 확인해 주세요.<br/>
                   <br/>
                   모든 준비가 되었다면, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러주세요!
                   </FormParagraph>  
                 </FormContent>
               </Form>
+              <Button onClick={getTutorial} role={role}>인터뷰 시작하기</Button>
+              </>
+            )}
+
+            {stage == GENERAL && tutorial && (
+              <>
+              <Form>
+                <FormTitle>1️⃣ 구조화 면접</FormTitle>
+                <FormContent>
+                  <FormParagraph>
+                  <b>구조화 면접</b>은 정해진 질문을 통해 $공고$ 포지션의 전반적인 조건을 파악하는 단계예요.<br/>
+                  <br/>
+                  ✔️ 구조화 면접은 <b>총 5개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 7분</b> 정도로 예상돼요.<br/>
+                  ✔️ 업무, 인재상 등 포괄적인 주제를 중심으로 $공고$ 포지션의 <b>주요 역할</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
+                  <br/>
+                  우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
+                  </FormParagraph>  
+                </FormContent>
+              </Form>
+              <Button onClick={startInterview} role={role}>시작하기</Button>
+              </>
+            )}
+
+            {stage == TECHNICAL && tutorial && (
+              <>
+              <Form>
+                <FormTitle>2️⃣ 직무 적합성 면접</FormTitle>
+                <FormContent>
+                  <FormParagraph>
+                  <b>직무 적합성 면접</b>은 맞춤형 질문을 통해 $공고$ 포지션의 요구 역량과 기술을 구체적으로 알아보는 단계예요.<br/>
+                  <br/>
+                  ✔️ 직무 적합성 면접은 <b>8 ~ 10개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 15분</b> 정도로 예상돼요.<br/>
+                  ✔️ 팀의 KPI와 포지션의 JD를 바탕으로 $공고$ 포지션의 <b>요구 역량</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
+                  <br/>
+                  우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
+                  </FormParagraph>  
+                </FormContent>
+              </Form>
+              <Button onClick={startInterview} role={role}>시작하기</Button>
+              </>
+            )}
+
+            {stage == SITUATIONAL && tutorial && (
+              <>
+              <Form>
+                <FormTitle>3️⃣ 상황 면접</FormTitle>
+                <FormContent>
+                  <FormParagraph>
+                  <b>상황 면접</b>은 맞춤형 질문을 통해 조직/팀의 성격과 일하는 방식을 알아보는 단계예요.<br/>
+                  <br/>
+                  ✔️ 상황 면접은 <b>5 ~ 7개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 8분</b> 정도로 예상돼요.<br/>
+                  ✔️ 가상의 상황에서의 판단 내용을 바탕으로 팀의 <b>인재상과 도전 과제</b>를 이해하는 데 활용돼요.<br/>
+                  ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
+                  <br/>
+                  마지막까지 최선을 다해, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
+                  </FormParagraph>  
+                </FormContent>
+              </Form>
+              <Button onClick={startInterview} role={role}>시작하기</Button>
+              </>
             )}
             
-            {page >= 2 && page <= 6 && (
+            {!tutorial && (
+              <>
+              <ProgressBarContainer>
+                <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
+                <ProgressText>{page} / {totalQuestions}</ProgressText>
+              </ProgressBarContainer>
               <Form>
-                <FormTitle style={{ whiteSpace: 'pre-line' }}>{companyQuestionList[page - 2]}</FormTitle>
+                <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
                   <CanvasWrapper>
                     {recording && (
                       <StyledCanvas ref={canvasRef} width={200} height={140} />
                     )}
                   </CanvasWrapper>
+                  <ButtonContainer>
                   {!recording ? 
                     <RecordButton onClick={startRecording} role={role}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
                     : <RecordButton onClick={stopRecording} role={role}>⏹️ 녹음 종료</RecordButton>
                   }
+                  {/* {audioUrls[page] && (
+                    <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
+                  )} */}
+                  </ButtonContainer>
                   {audioUrls[page] && (
                   <div style={{ marginTop: "20px" }}>
                       <audio controls src={audioUrls[page]}></audio>
                   </div>
                   )}
               </Form>
+              {audioUrls[page] && (
+                <>
+                <Button onClick={getNextPage} role={role}>{page < totalQuestions ? "답변 제출 · 다음으로" : "답변 제출 · 마무리"}</Button>
+                </>
+              )}
+              </>
             )}
 
-            {(page == 1 || audioUrls[page]) && 
-              <Button onClick={getNextPage} role={role}>{page == 1 ? "시작하기" : (page <= 5 ? "다음으로" : "인터뷰 종료")}</Button>
-            }
+            {jobPosting && !finished && (
+              <>
+              <Form>
+                <FormTitle>AI 공고 내용 추천</FormTitle>
+                <FormContent style={{ 'marginBottom': '30px' }}>
+                  <FormParagraph>
+                  3단계의 인터뷰가 모두 <b>완료</b>되어, AI가 공고에 들어갈 내용을 추천드려요.<br/>
+                  <br/>
+                  ✍️ 긴 시간 <b>인터뷰에 성실하게 답해주셔서 진심으로 감사드려요</b>.<br/>
+                  ✍️ AI가 작성한 내용을 바탕으로, <b>공고 내용을 수정하여 최종 완성</b>해주세요!<br/>
+                  </FormParagraph>  
+                </FormContent>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginBottom': '30px' }}>업무 내용</Label>
+                  <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="담당하게 될 업무 내용을 소개해주세요." value={additionalInfo.role} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, role: e.target.value }))} width="800px"></Input>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginBottom': '30px' }}>필수 요건</Label>
+                  <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="지원 자격/요건을 작성해주세요." value={additionalInfo.requirement} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, requirement: e.target.value }))} width="800px"></Input>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginBottom': '30px' }}>우대 사항</Label>
+                  <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="우대 사항을 작성해주세요." value={additionalInfo.preference} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, preference: e.target.value }))} width="800px"></Input>
+                </InputContainer>
+                <InputContainer width="1000px">
+                  <Label style={{ 'marginBottom': '30px' }}>요구 역량</Label>
+                  <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Input>
+                </InputContainer>
+              </Form>
+              <Button onClick={postJobPosting} role={role}>분석 결과 확인하기</Button>
+              </>
+            )}
+
+            {finished && (
+              <>
+              <Form>
+                <FormTitle>인터뷰 종료</FormTitle>
+                <FormContent>
+                  <FormParagraph>
+                  3단계의 인터뷰 및 공고 작성이 모두 <b>완료</b>되어, AI가 인터뷰와 공고 내용을 분석 중이에요.<br/>
+                  <br/>
+                  🤚 답변 내용을 바탕으로 $공고$ 포지션의 <b>주요 역할/업무, 요구 역량</b>을 파악하고 있어요.<br/>
+                  🤚 분석한 내용은 한 눈에 확인 가능하도록 <b>공고 카드</b>로 만들어드려요.<br/>
+                  🤚 공고 카드 내용을 바탕으로, <b>'인재 탐색' 탭에서 맞춤형 인재를 추천</b>드려요.<br/>
+                  <br/>
+                  만들어진 공고 카드가 궁금하다면, 우측 하단의 <b>'분석 결과 확인하기'</b> 버튼을 눌러주세요!
+                  </FormParagraph>  
+                </FormContent>
+              </Form>
+              <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
+              </>
+            )}
           </Container>
         )
     }
