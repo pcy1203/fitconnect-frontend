@@ -140,10 +140,10 @@ export default function Login() {
             const res = await axios.post(`${baseURL}/auth/login`, { email, password });
             if (res.status === 200) {
                 const token = res.data?.access_token;
-                localStorage.setItem("jwt_token", token);
+                sessionStorage.setItem("jwt_token", token);
                 setToken(token);
                 const role = res.data?.role;
-                localStorage.setItem("user_role", role);
+                sessionStorage.setItem("user_role", role);
                 setRole(role);
                 navigate("/");
             }

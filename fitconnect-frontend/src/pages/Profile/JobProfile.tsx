@@ -250,11 +250,12 @@ const Line = styled.hr`
 `;
 
 export default function JobProfile() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, loading } = useAuth();
     const navigate = useNavigate();
+    
     useEffect(() => {
-        if (!token || !role) navigate("/auth/login");
-    }, []);
+        if (!loading && (!token || !role)) navigate("/auth/login");
+    }, [loading, token]);
 
     const jobs = ["고객지원/CX","개발/엔지니어","기획/PM","디자인","데이터 분석","마케팅","연구개발","영업","인사","재무/회계","전략/비즈니스","콘텐츠 제작","QA","기타"];
     const residence = ["서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];

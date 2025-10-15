@@ -12,6 +12,8 @@ import { CardContainer, Card, CardFace, CardBack, ProfileContainer, ProfileImage
   Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag, 
   CardBackContainer, CardBackRegion, BackRegion, BackTitle, BackContent, BackButton, BackLine } from "../../components/Card";
 
+import { baseURL } from "../../env";
+
 const Container = styled.div`
   width: 1200px;
   min-height: calc(100vh - 80px);
@@ -235,14 +237,43 @@ const InterviewButton = styled.button`
     }
 `;
 
-export default function Result() {
-    const { token, setToken, role, setRole } = useAuth();
-    const navigate = useNavigate();
-    useEffect(() => {
-        if (!token || !role) navigate("/auth/login");
-    }, []);
+const formatYearMonth = (dateStr: string) => {
+  if (!dateStr) return "";
+  return dateStr.slice(0, 7).replace("-", ".");
+};
 
+export default function Result() {
+    const { token, setToken, role, setRole, loading } = useAuth();
+    const navigate = useNavigate();
+    
+    const [data, setData] = useState(null);
+    const [cardData, setCardData] = useState(null);
     const [flipped, setFlipped] = useState(false);
+
+    useEffect(() => {
+        if (!loading && (!token || !role)) navigate("/auth/login");
+    }, [loading, token]);
+
+    useEffect(() => {
+        if (!loading) {
+          axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              setData(response.data.data);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+
+          // axios.get(`${baseURL}/api/talent_cards/${data?.basic.user_id}`)
+          //   .then((response) => {
+          //     setCardData(response.data.data);
+          //   })
+          //   .catch((error) => {
+          //     console.error("데이터 불러오기 실패:", error);
+          //   });
+        }
+    }, [loading]);
+
     if (role === "talent") {
         return (
           <Container>
@@ -252,8 +283,8 @@ export default function Result() {
                 <CardFace role={role}>
                   <ProfileContainer role={role}>
                     <ProfileImage><img src={role === "company" ? company : talent} alt="Logo" width={32} height={36}></img></ProfileImage>
-                    <ProfileName>김커넥</ProfileName>
-                    <ProfileContent>🌠 백엔드 개발자 (경력 5년)</ProfileContent>
+                    <ProfileName>{data?.basic.name || "　"}</ProfileName>
+                    <ProfileContent>🌠 {data?.basic.tagline} (경력 {data?.experience_total_years}년)</ProfileContent>
                     <ProfileContent>💼 FitConnect 재직 중</ProfileContent>
                   </ProfileContainer>
                   <Introduction>"안녕하세요, 백엔드 개발자입니다."</Introduction>
@@ -288,27 +319,31 @@ export default function Result() {
                     <CardBackRegion role={role}>
                       <BackRegion>
                         <BackTitle>👤 인적사항</BackTitle>
-                        <BackContent>이름  |  생년.월.일  |  이메일  |  휴대전화</BackContent>
+                        <BackContent><b>{data?.basic.name}</b>  |  🎂 {data?.basic.birth_date?.replace("-", ".").replace("-", ".")}  |  ✉️ 이메일  |  📞 {data?.basic.phone}</BackContent>
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>🏫 학력사항</BackTitle>
-                        <BackContent>학교  |  전공  (년.월 ~ 년.월, 졸업)</BackContent>
-                        <BackContent>학교  |  전공  (년.월 ~ 년.월, 재학)</BackContent>
+                        {data?.educations.map((education) => (
+                          <BackContent><b>{education.school_name}</b>  |  {education.major}  ({formatYearMonth(education.start_ym)} ~ {formatYearMonth(education.end_ym)}, {education.status})</BackContent>
+                        ))}
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>💼 경력사항</BackTitle>
-                        <BackContent>직장  |  직무  (년.월 ~ 년.월, 퇴사)<br/>업무 내용 (퇴사 사유)</BackContent>
-                        <BackContent>직장  |  직무  (년.월 ~ 년.월, 퇴사)<br/>업무 내용 (퇴사 사유)</BackContent>
+                        {data?.experiences.map((experience) => (
+                          <BackContent><b>{experience.company_name}</b>  |  {experience.title}  ({formatYearMonth(experience.start_ym)} ~ {formatYearMonth(experience.end_ym)})<br/>{experience.summary} {experience.leave_reason ? "(퇴사 사유 : {experience.leave_reason})" : ""}</BackContent>
+                        ))}
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>📒 활동내역</BackTitle>
-                        <BackContent>활동명  |  봉사활동<br/>활동 내용</BackContent>
-                        <BackContent>활동명  |  봉사활동<br/>활동 내용</BackContent>
+                        {data?.activities.map((activity) => (
+                          <BackContent><b>{activity.name}</b>  |  {activity.category}<br/>{activity.description}</BackContent>
+                        ))}
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>📜 자격사항</BackTitle>
-                        <BackContent>자격증  |  점수  |  년.월</BackContent>
-                        <BackContent>자격증  |  점수  |  년.월</BackContent>
+                        {data?.certifications.map((certification) => (
+                          <BackContent><b>{certification.name}</b>  |  {certification.score_or_grade}  |  {formatYearMonth(certification.acquired_ym)}</BackContent>
+                        ))}
                       </BackRegion>
                       <BackLine></BackLine>
                       <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 자기소개서 확인하기</BackButton>

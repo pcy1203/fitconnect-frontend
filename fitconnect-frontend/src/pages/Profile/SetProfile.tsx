@@ -95,6 +95,11 @@ const Label = styled.div`
     color: black;
     font-size: 16px;
     line-height: 70px;
+    &.required::after {
+        content: " *";
+        color: #ff7070ff;
+        font-weight: 600;
+    }
 `;
 
 const Input = styled.input.withConfig({
@@ -129,6 +134,27 @@ const Input = styled.input.withConfig({
     }
 `;
 
+const TextArea = styled.textarea.withConfig({
+    shouldForwardProp: (prop) => prop !== "hasError"
+})<{ width?: string, height?: string, hasError?: boolean, role?: string }>`
+    width: ${(props) => props.width || "300px"};
+    height: ${(props) => props.height || "30px"};
+    background: #FFFFFF;
+    color: #000000;
+    border: 1px solid #9E9E9E;
+    padding: 10px 10px;
+    &:focus {
+        outline: none;
+        border: 2px solid ${(props) => (props.hasError ? "#FB8565" : "#6399fb")};
+        box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
+    }
+    &::placeholder {
+        color: #dbdbdb;
+    }
+    font-family: inherit;
+    resize: none;
+`;
+
 const Select = styled.select<{ width?: string }>`
     width: ${(props) => props.width || "322px"};
     height: 36px;
@@ -156,7 +182,9 @@ const AddButton = styled.button`
     width: 120px;
     height: 30px;
     position: relative;
-    left: 830px;
+    left: 690px;
+    margin-left: 10px;
+    margin-top: 20px;
     background: #9e9e9eff;
     color: #FFFFFF;
     text-align: center;
@@ -164,6 +192,7 @@ const AddButton = styled.button`
     cursor: pointer;
     border: 1px solid #9E9E9E;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    border-radius: 7px;
     transition: transform 0.1s ease;
     &:hover {
       background-color: #b2b2b2ff;
@@ -178,13 +207,20 @@ const Padding = styled.div`
   height: 80px;
 `
 
+const ButtonContainer = styled.div`
+  width: 1200px;
+  margin-top: 30px;
+  margin-left: 100px;
+  display: flex;
+  flex-direction: row;
+  gap: 598px;
+`;
+
 const Button = styled.button<{ role?: string }>`
     all: unset;
     width: 200px;
     height: 40px;
     background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
-    margin-top: 30px;
-    margin-left: 900px;
     margin-bottom: 150px;
     color: #FFFFFF;
     text-align: center;
@@ -208,17 +244,18 @@ const Line = styled.hr`
     height: 1px;
     margin-top: 20px;
     margin-bottom: 20px;
-    background-color: #9E9E9E;
+    background-color: #b8b8b8ff;
 `;
 
 export default function SetProfile() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, loading } = useAuth();
     const [page, setPage] = useState(1);
+    const [submitPage, setSubmitPage] = useState(0);
     const navigate = useNavigate();
-
+    
     useEffect(() => {
-        if (!token || !role) navigate("/auth/login");
-    }, []);
+        if (!loading && (!token || !role)) navigate("/auth/login");
+    }, [loading, token]);
 
     // Select Options
     const status = ["재학","휴학","졸업 예정","졸업 유예","졸업","중퇴"]
@@ -230,10 +267,14 @@ export default function SetProfile() {
     
     // Talent
     const [primaryInfo, setPrimaryInfo] = useState({ name: "", birth: "", email: "", phone: "", intro: "" });
-    const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: status[0] }]);
-    const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: "" }]);
-    const [activityList, setActivityList] = useState([{ name: "", type: "", description: "" }]);
-    const [certificateList, setCertificateList] = useState([{ name: "", score: "", date: "" }]);
+    const [educationList, setEducationList] = useState([]);
+    const [careerList, setCareerList] = useState([]);
+    const [activityList, setActivityList] = useState([]);
+    const [certificateList, setCertificateList] = useState([]);
+    // const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: status[0] }]);
+    // const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: "" }]);
+    // const [activityList, setActivityList] = useState([{ name: "", type: "", description: "" }]);
+    // const [certificateList, setCertificateList] = useState([{ name: "", score: "", date: "" }]);
     const [resumeFile, setResumeFile] = useState<File | null>(null);
     const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
     const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
@@ -243,35 +284,97 @@ export default function SetProfile() {
     const [additionalInfo, setAdditionalInfo] = useState({ vision: "", business: "", talent: "", culture: "", benefits: "" });
     
     // Validation
-    const [errors, setErrors] = useState<{ birth?: string; email?: string; phone?: string }>({});
+    const [errors, setErrors] = useState<{ name?: string; birth?: string; email?: string; phone?: string,
+      career?: string; education?: string; activity?: string; certificate?: string; certificateDate?: string}>({});
 
     useEffect(() => {
-        if (!primaryInfo.birth || /^\d{4}-\d{2}-\d{2}$/.test(primaryInfo.birth)) {
+        if (submitPage < 1 || primaryInfo.name) {
+          setErrors((prev) => ({ ...prev, name: undefined }));
+        } else {
+          setErrors((prev) => ({ ...prev, name: "이름을 입력해주세요." }));
+        }
+    }, [primaryInfo.birth, submitPage]);
+
+    useEffect(() => {
+        if ((submitPage < 1 && !primaryInfo.birth) || /^\d{4}-\d{2}-\d{2}$/.test(primaryInfo.birth)) {
           setErrors((prev) => ({ ...prev, birth: undefined }));
         } else {
           setErrors((prev) => ({ ...prev, birth: "YYYY-MM-DD 형식으로 입력해주세요." }));
         }
-    }, [primaryInfo.birth]);
+    }, [primaryInfo.birth, submitPage]);
 
     useEffect(() => {
-        if (!primaryInfo.email || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(primaryInfo.email)) {
+        if ((submitPage < 1 && !primaryInfo.email) || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(primaryInfo.email)) {
           setErrors((prev) => ({ ...prev, email: undefined }));
         } else {
           setErrors((prev) => ({ ...prev, email: "이메일 형식으로 입력해주세요." }));
         }
-    }, [primaryInfo.email]);
+    }, [primaryInfo.email, submitPage]);
     
     useEffect(() => {
-        if (!primaryInfo.phone || /^010-\d{4}-\d{4}$/.test(primaryInfo.phone)) {
+        if ((submitPage < 1 && !primaryInfo.phone) || /^010-\d{4}-\d{4}$/.test(primaryInfo.phone)) {
           setErrors((prev) => ({ ...prev, phone: undefined }));
         } else {
           setErrors((prev) => ({ ...prev, phone: "010-0000-0000 형식으로 입력해주세요." }));
         }
-    }, [primaryInfo.phone]);
+    }, [primaryInfo.phone, submitPage]);
+
+    useEffect(() => {
+        if (submitPage >= 2 && educationList.some(education => !education.school)) {
+          setErrors((prev) => ({ ...prev, education: "학력사항을 입력해주세요." }));
+        } else {
+          setErrors((prev) => ({ ...prev, education: undefined }));
+        }
+    }, [educationList, submitPage]);
+
+    useEffect(() => {
+        if (submitPage >= 2 && educationList.some(education => !education.school)) {
+          setErrors((prev) => ({ ...prev, education: "학력사항을 입력해주세요." }));
+        } else {
+          setErrors((prev) => ({ ...prev, education: undefined }));
+        }
+    }, [educationList, submitPage]);
+
+    useEffect(() => {
+        if (submitPage >= 2 && careerList.some(career => !career.company)) {
+          setErrors((prev) => ({ ...prev, career: "경력사항을 입력해주세요." }));
+        } else {
+          setErrors((prev) => ({ ...prev, career: undefined }));
+        }
+    }, [careerList, submitPage]);
+
+    useEffect(() => {
+        if (submitPage >= 3 && activityList.some(activity => !activity.name)) {
+          setErrors((prev) => ({ ...prev, activity: "활동사항을 입력해주세요." }));
+        } else {
+          setErrors((prev) => ({ ...prev, activity: undefined }));
+        }
+    }, [activityList, submitPage]);
+
+    useEffect(() => {
+        if (submitPage >= 3 && certificateList.some(certificate => !certificate.name)) {
+          setErrors((prev) => ({ ...prev, certificate: "자격사항을 입력해주세요." }));
+        } else {
+          setErrors((prev) => ({ ...prev, certificate: undefined }));
+        }
+    }, [certificateList, submitPage]);
+
+    useEffect(() => {
+        if (submitPage >= 3 && certificateList.some(certificate => !certificate.date)) {
+          setErrors((prev) => ({ ...prev, certificateDate: "취득일을 입력해주세요." }));
+        } else {
+          setErrors((prev) => ({ ...prev, certificateDate: undefined }));
+        }
+    }, [certificateList, submitPage]);
 
     const getNextPage = async () => {
-        if (errors.birth || errors.email || errors.phone) {
-            alert("입력하신 정보를 다시 한 번 확인해주세요!");
+        setSubmitPage(page);
+        if (role === 'talent' &&
+          (page == 1 && (!primaryInfo.name || !primaryInfo.birth || !primaryInfo.email || !primaryInfo.phone || errors.birth || errors.email || errors.phone))
+          || (page == 2 && (educationList.some(education => !education.school) || careerList.some(career => !career.company)))
+          || (page == 3 && (activityList.some(activity => !activity.name) || certificateList.some(certificate => !certificate.name || !certificate.date)))
+        ) {
+          alert("입력하신 정보를 다시 한 번 확인해주세요!");
         } else if (role === 'talent' && page >= 5) {
             try {
                 // POST /api/me/talent/full
@@ -354,10 +457,10 @@ export default function SetProfile() {
                         category: activity.type,
                         description: activity.description,
                     })),
-                    certifications: certificateList.filter(certificate => certificate.name).map((certificate) => ({
+                    certifications: certificateList.filter(certificate => certificate.name && certificate.date).map((certificate) => ({
                         name: certificate.name,  // 필수
                         score_or_grade: certificate.score,
-                        acquired_ym: certificate.date,
+                        acquired_ym: certificate.date,  // 필수
                     })),
                         documents: [], // 파일 업로드 구현 전
                         submit: true,
@@ -367,12 +470,14 @@ export default function SetProfile() {
                     },
                 });
                 if (res.status === 201) {
-                    navigate("/assessment/interview");
+                  alert("성공");
+                    // navigate("/assessment/interview");
                 }
             } catch (err) {
                 alert("프로필 설정에 실패했습니다.");
+                console.log(err);
             }
-        } else if (role === 'company' && page >= 2) {
+          } else if (role === 'company' && page >= 2) {
             try {
                 // POST /api/me/company/full
                 const res = await axios.post(`${baseURL}/api/me/company/full`, {
@@ -422,21 +527,22 @@ export default function SetProfile() {
               <Form>
                 <FormTitle>기본정보 입력</FormTitle>
                 <InputContainer>
-                  <Label>이름</Label>
-                  <Input placeholder="이름" value={primaryInfo.name} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, name: e.target.value }))}></Input>
+                  <Label className="required">이름</Label>
+                  <Input placeholder="이름" value={primaryInfo.name} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, name: e.target.value }))} hasError={!!errors.name}></Input>
+                  {errors.name && <ErrorText>{errors.name}</ErrorText>}
                 </InputContainer>
                 <InputContainer>
-                  <Label>생년월일</Label>
+                  <Label className="required">생년월일</Label>
                   <Input placeholder="2025-01-01" value={primaryInfo.birth} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, birth: e.target.value }))} hasError={!!errors.birth}></Input>
                   {errors.birth && <ErrorText>{errors.birth}</ErrorText>}
                 </InputContainer>
                 <InputContainer>
-                  <Label>이메일</Label>
+                  <Label className="required">이메일</Label>
                   <Input placeholder="fitconnect@gmail.com" value={primaryInfo.email} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, email: e.target.value }))} hasError={!!errors.email}></Input>
                   {errors.email && <ErrorText>{errors.email}</ErrorText>}
                 </InputContainer>
                 <InputContainer>
-                  <Label>휴대전화</Label>
+                  <Label className="required">휴대전화</Label>
                   <Input placeholder="010-0000-0000" value={primaryInfo.phone} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, phone: e.target.value }))} hasError={!!errors.phone}></Input>
                   {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
                 </InputContainer>
@@ -454,8 +560,9 @@ export default function SetProfile() {
                   <React.Fragment key={idx}>
                     {idx >= 1 && <Line></Line>}
                     <InputContainer width="325px">
-                      <Label>학교</Label>
-                      <Input placeholder="학교명" value={educationList[idx].school} onChange={(e) => {const newList = [...educationList]; newList[idx] = { ...newList[idx], school: e.target.value }; setEducationList(newList);}} width="150px"></Input>
+                      <Label className="required">학교</Label>
+                      <Input placeholder="학교명" value={educationList[idx].school} onChange={(e) => {const newList = [...educationList]; newList[idx] = { ...newList[idx], school: e.target.value }; setEducationList(newList);}} hasError={!!errors.education} width="150px"></Input>
+                      {errors.education && <ErrorText>{errors.education}</ErrorText>}
                     </InputContainer>
                     <InputContainer width="650px">
                       <Label>전공</Label>
@@ -477,6 +584,7 @@ export default function SetProfile() {
                     </InputContainer>
                   </React.Fragment>
                 ))}
+                <AddButton onClick={() => setEducationList(educationList.slice(0, -1))}>- 학력 삭제</AddButton>
                 <AddButton onClick={() => setEducationList([...educationList, { school: "", major: "", entrance: "", graduation: "", status: status[0]}])}>+ 학력 추가</AddButton>
                 <Padding></Padding>
                 <FormTitle>경력사항 입력</FormTitle>
@@ -484,8 +592,9 @@ export default function SetProfile() {
                   <React.Fragment key={idx}>
                     {idx >= 1 && <Line></Line>}
                     <InputContainer width="325px">
-                      <Label>직장</Label>
-                      <Input placeholder="회사명" value={careerList[idx].company} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], company: e.target.value }; setCareerList(newList);}} width="150px"></Input>
+                      <Label className="required">직장</Label>
+                      <Input placeholder="회사명" value={careerList[idx].company} onChange={(e) => {const newList = [...careerList]; newList[idx] = { ...newList[idx], company: e.target.value }; setCareerList(newList);}} hasError={!!errors.career} width="150px"></Input>
+                      {errors.career && <ErrorText>{errors.career}</ErrorText>}
                     </InputContainer>
                     <InputContainer width="650px">
                       <Label>직무</Label>
@@ -509,6 +618,7 @@ export default function SetProfile() {
                     </InputContainer>
                   </React.Fragment>
                 ))}
+                <AddButton onClick={() => setCareerList(careerList.slice(0, -1))}>- 경력 삭제</AddButton>
                 <AddButton onClick={() => setCareerList([...careerList, { company: "", role: "", join: "", leave: "", reason: "", description: "" }])}>+ 경력 추가</AddButton>
               </Form>
             )}
@@ -520,8 +630,9 @@ export default function SetProfile() {
                   <React.Fragment key={idx}>
                     {idx >= 1 && <Line></Line>}
                     <InputContainer>
-                      <Label>활동명</Label>
-                      <Input placeholder="활동명" value={activityList[idx].name} onChange={(e) => {const newList = [...activityList]; newList[idx] = { ...newList[idx], name: e.target.value }; setActivityList(newList);}}></Input>
+                      <Label className="required">활동명</Label>
+                      <Input placeholder="활동명" value={activityList[idx].name} onChange={(e) => {const newList = [...activityList]; newList[idx] = { ...newList[idx], name: e.target.value }; setActivityList(newList);}} hasError={!!errors.activity}></Input>
+                      {errors.activity && <ErrorText>{errors.activity}</ErrorText>}
                     </InputContainer>
                     <InputContainer>
                       <Label>구분</Label>
@@ -533,6 +644,7 @@ export default function SetProfile() {
                     </InputContainer>
                   </React.Fragment>
                 ))}
+                <AddButton onClick={() => setActivityList(activityList.slice(0, -1))}>- 활동 삭제</AddButton>
                 <AddButton onClick={() => setActivityList([...activityList, { name: "", type: "", description: "" }])}>+ 활동 추가</AddButton>
                 <Padding></Padding>
                 <FormTitle>자격사항 입력</FormTitle>
@@ -540,19 +652,22 @@ export default function SetProfile() {
                   <React.Fragment key={idx}>
                     {idx >= 1 && <Line></Line>}
                     <InputContainer width="325px">
-                      <Label>자격증</Label>
-                      <Input placeholder="자격증 이름" value={certificateList[idx].name} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], name: e.target.value }; setCertificateList(newList);}} width="150px"></Input>
+                      <Label className="required">자격증</Label>
+                      <Input placeholder="자격증 이름" value={certificateList[idx].name} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], name: e.target.value }; setCertificateList(newList);}} hasError={!!errors.certificate} width="150px"></Input>
+                      {errors.certificate && <ErrorText>{errors.certificate}</ErrorText>}
                     </InputContainer>
                     <InputContainer width="325px">
                       <Label>점수/급수</Label>
                       <Input placeholder="990 / 1급" value={certificateList[idx].score} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], score: e.target.value }; setCertificateList(newList);}} width="150px"></Input>
                     </InputContainer>
                     <InputContainer width="300px">
-                      <Label>취득 시기</Label>
-                      <Input type="month" value={certificateList[idx].date} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], date: e.target.value }; setCertificateList(newList);}} width="150px"></Input>
+                      <Label className="required">취득 시기</Label>
+                      <Input type="month" value={certificateList[idx].date} onChange={(e) => {const newList = [...certificateList]; newList[idx] = { ...newList[idx], date: e.target.value }; setCertificateList(newList);}} hasError={!!errors.certificateDate} width="150px"></Input>
+                      {errors.certificateDate && <ErrorText>{errors.certificateDate}</ErrorText>}
                     </InputContainer>
                   </React.Fragment>
                 ))}
+                <AddButton onClick={() => setCertificateList(certificateList.slice(0, -1))}>- 자격 삭제</AddButton>
                 <AddButton onClick={() => setCertificateList([...certificateList, { name: "", score: "", date: "" }])}>+ 자격 추가</AddButton>
               </Form>
             )}
@@ -614,13 +729,16 @@ export default function SetProfile() {
                     {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
-                <InputContainer width="1000px">
-                  <Label>기타 사항</Label>
-                  <Input placeholder="희망하는 기업/포지션에 대해 자유롭게 이야기해주세요." width="800px"></Input>
+                <InputContainer width="1000px" style={{ 'marginTop': '25px' }}>
+                  <Label style={{ 'marginBottom': '30px' }}>기타 사항</Label>
+                  <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="희망하는 기업/포지션에 대해 자유롭게 이야기해주세요." width="800px"></TextArea>
                 </InputContainer>
               </Form>
             )}
-            <Button onClick={getNextPage}>{page <= 4 ? "다음으로" : "작성 완료"}</Button>
+            <ButtonContainer>
+              <Button onClick={() => {setPage(page - 1)}} style={page === 1 ? { display: 'none' } : {}}>이전으로</Button>
+              <Button onClick={getNextPage} style={page === 1 ? { marginLeft: '798px' } : {}}>{page <= 4 ? "다음으로" : "작성 완료"}</Button>
+            </ButtonContainer>
           </Container>
         );
     } else if (role === "company") {

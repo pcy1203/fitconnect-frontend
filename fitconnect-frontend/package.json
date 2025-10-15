@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
     "react": "^19.1.1",
     "react-datepicker": "^8.7.0",
     "react-dom": "^19.1.1",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
+    "@types/jwt-decode": "^2.2.1",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/styled-components": "^5.1.34",

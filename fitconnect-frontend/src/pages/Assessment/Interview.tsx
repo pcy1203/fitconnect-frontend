@@ -268,12 +268,12 @@ const Input = styled.textarea.withConfig({
 `;
 
 export default function Interview() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, loading } = useAuth();
     const navigate = useNavigate();
     
     useEffect(() => {
-        if (!token || !role) navigate("/auth/login");
-    }, []);
+        if (!loading && (!token || !role)) navigate("/auth/login");
+    }, [loading, token]);
 
     const GENERAL = 1;
     const TECHNICAL = 2;
