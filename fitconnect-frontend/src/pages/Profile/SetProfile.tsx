@@ -470,8 +470,7 @@ export default function SetProfile() {
                     },
                 });
                 if (res.status === 201) {
-                  alert("성공");
-                    // navigate("/assessment/interview");
+                    navigate("/assessment/interview");
                 }
             } catch (err) {
                 alert("프로필 설정에 실패했습니다.");

@@ -259,18 +259,17 @@ export default function Result() {
           axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
               setData(response.data.data);
+              axios.get(`${baseURL}/api/talent_cards/${response.data.data?.basic.user_id}`, { headers: { Authorization: `Bearer ${token}` } })
+                .then((response) => {
+                  setCardData(response.data.data);
+                })
+                .catch((error) => {
+                  console.error("데이터 불러오기 실패:", error);
+                });
             })
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
             });
-
-          // axios.get(`${baseURL}/api/talent_cards/${data?.basic.user_id}`)
-          //   .then((response) => {
-          //     setCardData(response.data.data);
-          //   })
-          //   .catch((error) => {
-          //     console.error("데이터 불러오기 실패:", error);
-          //   });
         }
     }, [loading]);
 
@@ -283,35 +282,61 @@ export default function Result() {
                 <CardFace role={role}>
                   <ProfileContainer role={role}>
                     <ProfileImage><img src={role === "company" ? company : talent} alt="Logo" width={32} height={36}></img></ProfileImage>
-                    <ProfileName>{data?.basic.name || "　"}</ProfileName>
-                    <ProfileContent>🌠 {data?.basic.tagline} (경력 {data?.experience_total_years}년)</ProfileContent>
-                    <ProfileContent>💼 FitConnect 재직 중</ProfileContent>
+                    <ProfileName>{data?.basic.name ? (data?.basic.name + "　") : "　"}</ProfileName>
+                    <ProfileContent>🌠 {data?.experiences.at(-1)?.title} (경력 {data?.experience_total_years}년)</ProfileContent>
+                    <ProfileContent>💼 {data?.experiences.at(-1)?.company_name} {data?.experiences.at(-1)?.status}</ProfileContent>
                   </ProfileContainer>
-                  <Introduction>"안녕하세요, 백엔드 개발자입니다."</Introduction>
+                  <Introduction>{data?.basic.tagline ? data?.basic.tagline : "안녕하세요, 잘 부탁드립니다!"}</Introduction>
                   <ContentContainer>
                     <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📂 주요 경험/경력</ContentTitle>
-                      <ContentParagraph>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        {cardData?.experiences.map((experience, idx) => (
+                          <span key={idx}>
+                            · {experience}
+                            <br />
+                          </span>
+                        ))}
+                      </ContentParagraph>
                     </Content>
                     <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🎯 강점</ContentTitle>
-                      <ContentParagraph>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        {cardData?.strengths.map((strength, idx) => (
+                          <span key={idx}>
+                            · {strength}
+                            <br />
+                          </span>
+                        ))}
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
                     <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🚀 핵심 일반 역량</ContentTitle>
-                      <ContentParagraph>· 역량1<Tag>높음</Tag><br/>· 역량2<Tag>높음</Tag><br/>· 역량3<Tag>높음</Tag><br/>· 역량4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>{cardData?.general_capabilities.map((skill, idx) => (
+                        <span key={idx}>
+                          · {skill.name} <Tag level={skill.level}>{skill.level == "high" ? "매우 우수" : (skill.level == "medium" ? "우수" : "보통")}</Tag>
+                          <br />
+                        </span>
+                      ))}
+                      </ContentParagraph>
                     </Content>
                     <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 핵심 직무 역량/기술</ContentTitle>
-                      <ContentParagraph>· 직무 역량1<Tag>높음</Tag><br/>· 직무 역량.....2<Tag>높음</Tag><br/>· 직무 역량3<Tag>높음</Tag><br/>· 직무 역량............4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>{cardData?.job_skills.map((skill, idx) => (
+                        <span key={idx}>
+                          · {skill.name} <Tag level={skill.level}>{skill.level == "high" ? "매우 우수" : (skill.level == "medium" ? "우수" : "보통")}</Tag>
+                          <br />
+                        </span>
+                      ))}
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
-                    📈 <b>직무 수행</b> : 이런 성과가 있어요<br/>
-                    👥 <b>협업 성향</b> : 협업할 때 이런 편이에요<br/>
-                    💪 <b>성장 가능성</b> : 이런 성장 가능성이 보여요
+                    📈 <b>직무 수행</b> : {cardData?.performance_summary}<br/>
+                    👥 <b>협업 성향</b> : {cardData?.collaboration_style}<br/>
+                    💪 <b>성장 가능성</b> : {cardData?.growth_potential}
                   </Analysis>
                 </CardFace>
                 <CardBack role={role}>
@@ -342,7 +367,7 @@ export default function Result() {
                       <BackRegion>
                         <BackTitle>📜 자격사항</BackTitle>
                         {data?.certifications.map((certification) => (
-                          <BackContent><b>{certification.name}</b>  |  {certification.score_or_grade}  |  {formatYearMonth(certification.acquired_ym)}</BackContent>
+                          <BackContent><b>{certification.name}</b>  |  {certification.score_or_grade}  ({formatYearMonth(certification.acquired_ym)})</BackContent>
                         ))}
                       </BackRegion>
                       <BackLine></BackLine>

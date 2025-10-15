@@ -108,6 +108,7 @@ const ContentContainer = styled.div`
 
 const Content = styled.div<{ role?: string }>`
   width: 200px;
+  height: 162.67px;
   margin-top: 10px;
   color: black;
   background: ${({ role }) => (role === "company" ? "#f7e7e7ff" : "#dde6f3ff" )};
@@ -144,10 +145,10 @@ const Analysis = styled.div`
   line-height: 25px;
 `;
 
-const Tag = styled.span`
-    background: #fac3c3ff;
-    border: 1px solid #e64040ff;
-    color: #c01010ff;
+const Tag = styled.span<{ level?: string }>`
+    background: ${({ level }) => (level === "high" ? "#c3d4faff" : (level === "medium" ? "#b7f9caff" : "#fac3c3ff"))};
+    border: 1px solid ${({ level }) => (level === "high" ? "#153772ff" : (level === "medium" ? "#0f6834ff" : "#b82323ff"))};
+    color: ${({ level }) => (level === "high" ? "#153772ff" : (level === "medium" ? "#0f6834ff" : "#b82323ff"))};
     border-radius: 15px;
     margin-left: 5px;
     padding: 1px 5px;
