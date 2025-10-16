@@ -112,6 +112,11 @@ const Label = styled.div`
     color: black;
     font-size: 16px;
     line-height: 70px;
+    &.required::after {
+        content: " *";
+        color: #ff7070ff;
+        font-weight: 600;
+    }
 `;
 
 const Input = styled.input.withConfig({
@@ -125,7 +130,7 @@ const Input = styled.input.withConfig({
     padding: 2px 10px;
     &:focus {
         outline: none;
-        border: 2px solid ${(props) => (props.hasError ? "#FB8565" : "#6399fb")};
+        border: 2px solid ${(props) => (props.hasError ? "#fc734dff" : "#f9aaadff")};
         box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
     }
     &::placeholder {
@@ -176,7 +181,7 @@ const Select = styled.select<{ width?: string }>`
     padding: 2px 10px;
     &:focus {
         outline: none;
-        border: 2px solid #6399fb;
+        border: 2px solid #f9aaadff;
         box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
     }
 `;
@@ -211,18 +216,20 @@ const AddButton = styled.button`
     }
 `;
 
-const Padding = styled.div`
-  width: 1000px;
-  height: 80px;
-`
+const ButtonContainer = styled.div`
+  width: 1200px;
+  margin-top: 30px;
+  margin-left: 100px;
+  display: flex;
+  flex-direction: row;
+  gap: 598px;
+`;
 
 const Button = styled.button<{ role?: string }>`
     all: unset;
     width: 200px;
     height: 40px;
     background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
-    margin-top: 30px;
-    margin-left: 900px;
     margin-bottom: 150px;
     color: #FFFFFF;
     text-align: center;
@@ -238,15 +245,6 @@ const Button = styled.button<{ role?: string }>`
     &:active {
       transform: scale(0.95);
     }
-`;
-
-const Line = styled.hr`
-    width: 950px;
-    border: none;
-    height: 1px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    background-color: #9E9E9E;
 `;
 
 export default function JobProfile() {
@@ -265,36 +263,65 @@ export default function JobProfile() {
     const education = ["학력 무관","대학 재학 이상","대학 졸업 이상","석사 이상","박사 이상"];
     
     const [page, setPage] = useState(1);
+    const [submitPage, setSubmitPage] = useState(0);
+
     const [jobInfo, setJobInfo] = useState({ title: "", position: jobs[0], department: "", location: residence[0], employment: employment[0], salary: salary[0], career: career[0], education: education[0], join: "", period: "", homepage: "", deadline: "", contact_email: "", contact_phone: "" });
     const [additionalInfo, setAdditionalInfo] = useState({ role: "", requirement: "", preference: "", capacity: ""});
     const [jobDescriptionFile, setJobDescriptionFile] = useState<File | null>(null);
     const [jobPostingFile, setJobPostingFile] = useState<File | null>(null);
 
+    // Validation
+    const [errors, setErrors] = useState<{ title?: string; deadline?: string}>({});
+
+    useEffect(() => {
+        if (submitPage < 1 || jobInfo.title) {
+          setErrors((prev) => ({ ...prev, title: undefined }));
+        } else {
+          setErrors((prev) => ({ ...prev, title: "공고명을 입력해주세요." }));
+        }
+    }, [jobInfo.title, submitPage]);
+
+    useEffect(() => {
+        if (submitPage < 1 || jobInfo.deadline) {
+          setErrors((prev) => ({ ...prev, deadline: undefined }));
+        } else {
+          setErrors((prev) => ({ ...prev, deadline: "마감일을 입력해주세요." }));
+        }
+    }, [jobInfo.deadline, submitPage]);
+
     const getNextPage = async () => {
-        if (page >= 2) {
+        setSubmitPage(page);
+        if (!jobInfo.title || !jobInfo.deadline) {
+          alert("입력하신 정보를 다시 한 번 확인해주세요!");
+        } else if (page >= 2) {
             try {
+              console.log(token);
                 // POST /api/me/company/job-postings
                 const res = await axios.post(`${baseURL}/api/me/company/job-postings`, {
                     title: jobInfo.title,
-                    // jobInfo.position,
-                    // jobInfo.department,
+                    position: jobInfo.position,
+                    department: jobInfo.department,
                     location_city: jobInfo.location,
                     employment_type: jobInfo.employment,
-                    // salary_band: jobInfo.salary, // 수정 필요
+                    salary_band: jobInfo.salary,
                     career_level: jobInfo.career,
                     education_level: jobInfo.education,
-                    // jobInfo.join,
-                    // jobInfo.period,
-                    // jobInfo.homepage,
+                    start_date: jobInfo.join,
+                    term_months: jobInfo.period,
+                    homepage_url: jobInfo.homepage,
                     deadline_date: jobInfo.deadline,
-                    // jobInfo.contact_email,
-                    // jobInfo.contact_phone,
+                    contact_email: jobInfo.contact_email,
+                    contact_phone: jobInfo.contact_phone,
+                    responsibilities: additionalInfo.role,
+                    requirements_must: additionalInfo.requirement,
+                    requirements_nice: additionalInfo.preference,
+                    competencies: additionalInfo.capacity,
                 }, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-
+                
                 // === TO-DO ===
                 // const formData = new FormData();
                 // Object.entries(additionalInfo).forEach(([key, value]) => {
@@ -334,64 +361,66 @@ export default function JobProfile() {
               <Form>
                 <FormTitle>공고 기본정보 입력</FormTitle>
                 <InputContainer>
-                  <Label>공고명</Label>
-                  <Input placeholder="프론트엔드 개발자" value={jobInfo.title} onChange={(e) => setJobInfo((prev) => ({ ...prev, title: e.target.value }))}></Input>
+                  <Label className="required">공고명</Label>
+                  <Input placeholder="프론트엔드 개발자" value={jobInfo.title} onChange={(e) => setJobInfo((prev) => ({ ...prev, title: e.target.value }))} hasError={!!errors.title}></Input>
+                  {errors.title && <ErrorText>{errors.title}</ErrorText>}
                 </InputContainer>
                 <InputContainer>
-                  <Label>포지션 구분</Label>
+                  <Label className="required">포지션</Label>
                   <Select value={jobInfo.position} onChange={(e) => setJobInfo((prev) => ({ ...prev, position: e.target.value }))}>
                     {jobs.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>부서</Label>
-                  <Input placeholder="개발팀" value={jobInfo.department} onChange={(e) => setJobInfo((prev) => ({ ...prev, department: e.target.value }))}></Input>
+                  <Label className="required">공고 마감</Label>
+                  <Input type="date" value={jobInfo.deadline} onChange={(e) => setJobInfo((prev) => ({ ...prev, deadline: e.target.value }))} hasError={!!errors.deadline}></Input>
+                  {errors.deadline && <ErrorText>{errors.deadline}</ErrorText>}
                 </InputContainer>
                 <InputContainer>
-                  <Label>회사 위치</Label>
+                  <Label className="required">회사 위치</Label>
                   <Select value={jobInfo.location} onChange={(e) => setJobInfo((prev) => ({ ...prev, location: e.target.value }))}>
                     {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>고용 형태</Label>
+                  <Label className="required">고용 형태</Label>
                   <Select value={jobInfo.employment} onChange={(e) => setJobInfo((prev) => ({ ...prev, employment: e.target.value }))}>
                     {employment.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>연봉</Label>
+                  <Label className="required">연봉</Label>
                   <Select value={jobInfo.salary} onChange={(e) => setJobInfo((prev) => ({ ...prev, salary: e.target.value }))}>
                     {salary.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>신입/경력</Label>
+                  <Label className="required">신입/경력</Label>
                   <Select value={jobInfo.career} onChange={(e) => setJobInfo((prev) => ({ ...prev, career: e.target.value }))}>
                     {career.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>학력</Label>
+                  <Label className="required">학력</Label>
                   <Select value={jobInfo.education} onChange={(e) => setJobInfo((prev) => ({ ...prev, education: e.target.value }))}>
                     {education.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>근무 시작일</Label>
-                  <Input placeholder="예상 근무 시작 시기" value={jobInfo.join} onChange={(e) => setJobInfo((prev) => ({ ...prev, join: e.target.value }))}></Input>
+                  <Label>근무 시작</Label>
+                  <Input placeholder="근무 시작일" value={jobInfo.join} onChange={(e) => setJobInfo((prev) => ({ ...prev, join: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>근무 기간</Label>
-                  <Input placeholder="근무 기간 (O년 / O개월)" value={jobInfo.period} onChange={(e) => setJobInfo((prev) => ({ ...prev, period: e.target.value }))}></Input>
+                  <Input placeholder="O년 / O개월 (계약직, 인턴)" value={jobInfo.period} onChange={(e) => setJobInfo((prev) => ({ ...prev, period: e.target.value }))}></Input>
+                </InputContainer>
+                <InputContainer>
+                  <Label>근무 부서</Label>
+                  <Input placeholder="개발팀" value={jobInfo.department} onChange={(e) => setJobInfo((prev) => ({ ...prev, department: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>홈페이지</Label>
                   <Input placeholder="홈페이지 링크" value={jobInfo.homepage} onChange={(e) => setJobInfo((prev) => ({ ...prev, homepage: e.target.value }))}></Input>
-                </InputContainer>
-                <InputContainer>
-                  <Label>공고 마감일</Label>
-                  <Input type="date" value={jobInfo.deadline} onChange={(e) => setJobInfo((prev) => ({ ...prev, deadline: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>문의 메일</Label>
@@ -439,7 +468,10 @@ export default function JobProfile() {
                 </InputContainer>
               </Form>
             )}
-            <Button onClick={getNextPage} role={role}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
+            <ButtonContainer>
+              <Button onClick={() => {setPage(page - 1)}} role={role} style={page === 1 ? { display: 'none' } : {}}>이전으로</Button>
+              <Button onClick={getNextPage} role={role} style={page === 1 ? { marginLeft: '798px' } : {}}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
+            </ButtonContainer>
           </Container>
         )
     }

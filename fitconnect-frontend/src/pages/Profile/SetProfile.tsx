@@ -104,7 +104,7 @@ const Label = styled.div`
 
 const Input = styled.input.withConfig({
     shouldForwardProp: (prop) => prop !== "hasError"
-})<{ width?: string, hasError?: boolean }>`
+})<{ width?: string, role?: string, hasError?: boolean }>`
     width: ${(props) => props.width || "300px"};
     height: 30px;
     background: #FFFFFF;
@@ -113,7 +113,7 @@ const Input = styled.input.withConfig({
     padding: 2px 10px;
     &:focus {
         outline: none;
-        border: 2px solid ${(props) => (props.hasError ? "#FB8565" : "#6399fb")};
+        border: 2px solid ${(props) => (props.hasError ? "#fc734dff" : (props.role === "company" ? "#f9aaadff" : "#6399fb"))};
         box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
     }
     &::placeholder {
@@ -123,7 +123,7 @@ const Input = styled.input.withConfig({
         width: 80px;
         padding: 5.5px;
         margin-right: 10px;
-        background-color: #6399FB;
+        background-color: ${(props) => (props.role === "company" ? "#f9aaadff" : "#6399fb")};
         border: none;
         border-radius: 20px;
         color: white;
@@ -145,7 +145,7 @@ const TextArea = styled.textarea.withConfig({
     padding: 10px 10px;
     &:focus {
         outline: none;
-        border: 2px solid ${(props) => (props.hasError ? "#FB8565" : "#6399fb")};
+        border: 2px solid ${(props) => (props.hasError ? "#fc734dff" : (props.role === "company" ? "#f9aaadff" : "#6399fb"))};
         box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
     }
     &::placeholder {
@@ -155,7 +155,7 @@ const TextArea = styled.textarea.withConfig({
     resize: none;
 `;
 
-const Select = styled.select<{ width?: string }>`
+const Select = styled.select<{ width?: string, role?: string }>`
     width: ${(props) => props.width || "322px"};
     height: 36px;
     background: #FFFFFF;
@@ -164,7 +164,7 @@ const Select = styled.select<{ width?: string }>`
     padding: 2px 10px;
     &:focus {
         outline: none;
-        border: 2px solid #6399fb;
+        border: 2px solid ${(props) => (props.role === "company" ? "#f9aaadff" : "#6399fb")};
         box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
     }
 `;
@@ -293,7 +293,7 @@ export default function SetProfile() {
         } else {
           setErrors((prev) => ({ ...prev, name: "이름을 입력해주세요." }));
         }
-    }, [primaryInfo.birth, submitPage]);
+    }, [primaryInfo.name, submitPage]);
 
     useEffect(() => {
         if ((submitPage < 1 && !primaryInfo.birth) || /^\d{4}-\d{2}-\d{2}$/.test(primaryInfo.birth)) {
@@ -366,6 +366,14 @@ export default function SetProfile() {
           setErrors((prev) => ({ ...prev, certificateDate: undefined }));
         }
     }, [certificateList, submitPage]);
+
+    useEffect(() => {
+        if (submitPage < 1 || basicInfo.name) {
+          setErrors((prev) => ({ ...prev, name: undefined }));
+        } else {
+          setErrors((prev) => ({ ...prev, name: "회사명을 입력해주세요." }));
+        }
+    }, [basicInfo.name, submitPage]);
 
     const getNextPage = async () => {
         setSubmitPage(page);
@@ -476,6 +484,8 @@ export default function SetProfile() {
                 alert("프로필 설정에 실패했습니다.");
                 console.log(err);
             }
+          } else if (role === 'company' && !basicInfo.name) {
+            alert("입력하신 정보를 다시 한 번 확인해주세요!");          
           } else if (role === 'company' && page >= 2) {
             try {
                 // POST /api/me/company/full
@@ -753,38 +763,39 @@ export default function SetProfile() {
               <Form>
                 <FormTitle>기본정보 입력</FormTitle>
                 <InputContainer>
-                  <Label>회사명</Label>
-                  <Input placeholder="회사명" value={basicInfo.name} onChange={(e) => setBasicInfo((prev) => ({ ...prev, name: e.target.value }))}></Input>
+                  <Label className="required">회사명</Label>
+                  <Input role={role} placeholder="회사명" value={basicInfo.name} onChange={(e) => setBasicInfo((prev) => ({ ...prev, name: e.target.value }))} hasError={!!errors.name}></Input>
+                  {errors.name && <ErrorText>{errors.name}</ErrorText>}
                 </InputContainer>
                 <InputContainer>
-                  <Label>업종</Label>
-                  <Select value={basicInfo.industry} onChange={(e) => setBasicInfo((prev) => ({ ...prev, industry: e.target.value }))}>
+                  <Label className="required">업종</Label>
+                  <Select role={role} value={basicInfo.industry} onChange={(e) => setBasicInfo((prev) => ({ ...prev, industry: e.target.value }))}>
                     {industry.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>회사 규모</Label>
-                  <Select value={basicInfo.size} onChange={(e) => setBasicInfo((prev) => ({ ...prev, size: e.target.value }))}>
+                  <Label className="required">회사 규모</Label>
+                  <Select role={role} value={basicInfo.size} onChange={(e) => setBasicInfo((prev) => ({ ...prev, size: e.target.value }))}>
                     {companySize.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>회사 위치</Label>
-                  <Select value={basicInfo.location} onChange={(e) => setBasicInfo((prev) => ({ ...prev, location: e.target.value }))}>
+                  <Label className="required">회사 위치</Label>
+                  <Select role={role} value={basicInfo.location} onChange={(e) => setBasicInfo((prev) => ({ ...prev, location: e.target.value }))}>
                     {residence.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>대표 사이트</Label>
-                  <Input placeholder="https://fitconnect.com" value={basicInfo.homepage} onChange={(e) => setBasicInfo((prev) => ({ ...prev, homepage: e.target.value }))}></Input>
+                  <Input role={role} placeholder="https://fitconnect.com" value={basicInfo.homepage} onChange={(e) => setBasicInfo((prev) => ({ ...prev, homepage: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>채용 사이트</Label>
-                  <Input placeholder="https://fitconnect.com/recruit" value={basicInfo.recruit} onChange={(e) => setBasicInfo((prev) => ({ ...prev, recruit: e.target.value }))}></Input>
+                  <Input role={role} placeholder="https://fitconnect.com/recruit" value={basicInfo.recruit} onChange={(e) => setBasicInfo((prev) => ({ ...prev, recruit: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>한 줄 소개</Label>
-                  <Input placeholder="회사를 한 줄로 소개해주세요!" value={basicInfo.intro} onChange={(e) => setBasicInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
+                  <Input role={role} placeholder="회사를 한 줄로 소개해주세요!" value={basicInfo.intro} onChange={(e) => setBasicInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
                 </InputContainer>
               </Form>
             )}
@@ -793,28 +804,31 @@ export default function SetProfile() {
               <Form>
                 <FormTitle>회사 소개 입력</FormTitle>
                   <InputContainer width="1000px">
-                    <Label>비전/미션</Label>
-                    <Input placeholder="회사의 비전, 미션 등을 자유롭게 소개해 주세요." value={additionalInfo.vision} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, vision: e.target.value }))} width="800px"></Input>
+                    <Label style={{ 'marginBottom': '30px' }}>비전/미션</Label>
+                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 비전, 미션 등을 자유롭게 소개해 주세요." value={additionalInfo.vision} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, vision: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
-                    <Label>사업 영역</Label>
-                    <Input placeholder="회사의 핵심 사업 내용을 입력해 주세요." value={additionalInfo.business} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, business: e.target.value }))} width="800px"></Input>
+                    <Label style={{ 'marginBottom': '30px' }}>사업 영역</Label>
+                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 핵심 사업 내용을 입력해 주세요." value={additionalInfo.business} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, business: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
-                    <Label>인재상</Label>
-                    <Input placeholder="회사가 추구하는 인재의 모습을 소개해 주세요." value={additionalInfo.talent} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, talent: e.target.value }))} width="800px"></Input>
+                    <Label style={{ 'marginBottom': '30px' }}>인재상</Label>
+                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사가 추구하는 인재의 모습을 소개해 주세요." value={additionalInfo.talent} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, talent: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
-                    <Label>조직문화</Label>
-                    <Input placeholder="회사의 조직문화와 일하는 방식을 소개해 주세요." value={additionalInfo.culture} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, culture: e.target.value }))} width="800px"></Input>
+                    <Label style={{ 'marginBottom': '30px' }}>조직문화</Label>
+                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 조직문화와 일하는 방식을 소개해 주세요." value={additionalInfo.culture} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, culture: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
-                    <Label>복리후생</Label>
-                    <Input placeholder="회사의 복리후생을 소개해 주세요." value={additionalInfo.benefits} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, benefits: e.target.value }))} width="800px"></Input>
+                    <Label style={{ 'marginBottom': '30px' }}>복리후생</Label>
+                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 복리후생을 소개해 주세요." value={additionalInfo.benefits} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, benefits: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
               </Form>
             )}
-            <Button onClick={getNextPage} role={role}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
+            <ButtonContainer>
+              <Button onClick={() => {setPage(page - 1)}} role={role} style={page === 1 ? { display: 'none' } : {}}>이전으로</Button>
+              <Button onClick={getNextPage} role={role} style={page === 1 ? { marginLeft: '798px' } : {}}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
+            </ButtonContainer>
           </Container>
         )
     }
