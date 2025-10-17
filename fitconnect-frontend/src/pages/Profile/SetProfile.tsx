@@ -802,7 +802,7 @@ export default function SetProfile() {
             
             {page == 2 && (
               <Form>
-                <FormTitle>회사 소개 입력</FormTitle>
+                <FormTitle style={{ 'marginBottom' : '20px' }}>회사 소개 입력</FormTitle>
                   <InputContainer width="1000px">
                     <Label style={{ 'marginBottom': '30px' }}>비전/미션</Label>
                     <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 비전, 미션 등을 자유롭게 소개해 주세요." value={additionalInfo.vision} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, vision: e.target.value }))} width="800px"></TextArea>

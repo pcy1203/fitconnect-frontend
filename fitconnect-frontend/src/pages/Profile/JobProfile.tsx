@@ -336,7 +336,7 @@ export default function JobProfile() {
                 //     },
                 // });
                 if (res.status === 201) {
-                    navigate("/assessment/interview");
+                    navigate(`/assessment/interview?job=${res.data.data.id}`);
                 }
             } catch (err) {
                 alert("공고 설정에 실패했습니다.");

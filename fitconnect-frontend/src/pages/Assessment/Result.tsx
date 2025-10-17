@@ -247,6 +247,7 @@ export default function Result() {
     const navigate = useNavigate();
     
     const [data, setData] = useState(null);
+    const [companyData, setCompanyData] = useState(null);
     const [cardData, setCardData] = useState(null);
     const [flipped, setFlipped] = useState(false);
 
@@ -256,7 +257,8 @@ export default function Result() {
 
     useEffect(() => {
         if (!loading) {
-          axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
+          if (role === 'talent') {
+            axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
               setData(response.data.data);
               axios.get(`${baseURL}/api/talent_cards/${response.data.data?.basic.user_id}`, { headers: { Authorization: `Bearer ${token}` } })
@@ -270,8 +272,33 @@ export default function Result() {
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
             });
+          } else if (role === 'company') {
+            const query = new URLSearchParams(location.search);
+            const jobId = query.get("job");
+            axios.get(`${baseURL}/api/me/company`, { headers: { Authorization: `Bearer ${token}` } })
+              .then((response) => {
+                setCompanyData(response.data.data);
+              })
+              .catch((error) => {
+                console.error("데이터 불러오기 실패:", error);
+              });
+            axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
+              .then((response) => {
+                setData(response.data.data.find(job => job.id === Number(jobId)));
+              })
+              .catch((error) => {
+                console.error("데이터 불러오기 실패:", error);
+              });
+            axios.get(`${baseURL}/api/job_posting_cards/${jobId}`, { headers: { Authorization: `Bearer ${token}` } })
+              .then((response) => {
+                setCardData(response.data.data[0]);
+              })
+              .catch((error) => {
+                console.error("데이터 불러오기 실패:", error);
+              });
+          }
         }
-    }, [loading]);
+    }, [loading, location.search]);
 
     if (role === "talent") {
         return (
@@ -394,35 +421,58 @@ export default function Result() {
                 <CardFace role={role}>
                   <ProfileContainer role={role}>
                     <ProfileImage><img src={role === "company" ? company : talent} alt="Logo" width={32} height={36}></img></ProfileImage>
-                    <ProfileName>김커넥</ProfileName>
-                    <ProfileContent>🌠 백엔드 개발자</ProfileContent>
-                    <ProfileContent>🗓️ 2025.10.04 마감</ProfileContent>
+                    <ProfileName>{companyData?.basic.name ? (companyData?.basic.name + "　") : "　"}</ProfileName>
+                    <ProfileContent>🌠 {data?.title}</ProfileContent>
+                    <ProfileContent>🗓️ {data?.deadline_date?.replace("-", ".").replace("-", ".")} 마감</ProfileContent>
                   </ProfileContainer>
-                  <Introduction>"백엔드 개발자를 찾습니다."</Introduction>
+                  <Introduction>{companyData?.basic.tagline ? companyData?.basic.tagline : `${data?.title} 공고 지원자를 기다립니다.`}</Introduction>
                   <ContentContainer>
                     <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
-                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                      <ContentParagraph>
+                        · {data?.employment_type} ({data?.career_level})<br/>· 근무 기간 : <br/>· 근무 부서 : {data?.department}<br/>· 연봉 :
+                        </ContentParagraph>
                     </Content>
                     <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>
-                      <ContentParagraph>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요</ContentParagraph>
+                      <ContentParagraph>
+                        {cardData?.responsibilities.map((responsibility, idx) => (
+                          <span key={idx}>
+                            · {responsibility}
+                            <br />
+                          </span>
+                        ))}
+                        </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
                     <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>💡 자격 요건</ContentTitle>
-                      <ContentParagraph>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요</ContentParagraph>
+                      <ContentParagraph>
+                        {cardData?.requirements.map((requirement, idx) => (
+                          <span key={idx}>
+                            · {requirement}
+                            <br />
+                          </span>
+                        ))}
+                        </ContentParagraph>
                     </Content>
                     <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 요구 역량</ContentTitle>
-                      <ContentParagraph>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?</ContentParagraph>
+                      <ContentParagraph>
+                        {cardData?.required_competencies.map((requirement, idx) => (
+                          <span key={idx}>
+                            · {requirement}
+                            <br />
+                          </span>
+                        ))}
+                        </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
-                    💼 <b>기업 정보</b> : 조직문화, 복리후생<br/>
-                    🎤 <b>인재상</b> : 이런 인재를 원해요<br/>
-                    💪 <b>도전 과제</b> : 이런 도전 과제가 있어요
+                    💼 <b>기업 정보</b> : {cardData?.company_info}<br/>
+                    🎤 <b>인재상</b> : {cardData?.talent_persona}<br/>
+                    💪 <b>도전 과제</b> : {cardData?.challenge_task}
                   </Analysis>
                 </CardFace>
                 <CardBack role={role}>
@@ -439,18 +489,18 @@ export default function Result() {
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>📚 공고 정보</BackTitle>
-                        <BackContent>공고명  |  고용 형태  |  신입/경력</BackContent>
-                        <BackContent>근무 기간 (근무 시작일)  |  부서</BackContent>
-                        <BackContent>연봉  |  회사 위치</BackContent>
-                        <BackContent>업무 내용 : </BackContent>
-                        <BackContent>문의 메일  |  문의 연락처</BackContent>
+                        <BackContent>{data?.title}  |  {data?.employment_type}  |  {data?.career_level}</BackContent>
+                        <BackContent>근무 기간 (근무 시작 : {data?.deadline_date?.replace("-", ".").replace("-", ".")})  |  {data?.department}</BackContent>
+                        <BackContent>연봉  |  {data?.location_city}</BackContent>
+                        <BackContent>업무 내용 : {data?.responsibilities}</BackContent>
+                        <BackContent>문의 메일 {data?.contact_email}  |  문의 연락처 {data?.contact_phone}</BackContent>
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>☑️ 자격 요건</BackTitle>
-                        <BackContent>학력</BackContent>
-                        <BackContent>필수 요건 : </BackContent>
-                        <BackContent>우대 사항 : </BackContent>
-                        <BackContent>요구 역량 : </BackContent>
+                        <BackContent>학력 : {data?.education_level}</BackContent>
+                        <BackContent>필수 요건 : {data?.requirements_must}</BackContent>
+                        <BackContent>우대 사항 : {data?.requirements_nice}</BackContent>
+                        <BackContent>요구 역량 : {data?.competencies}</BackContent>
                       </BackRegion>
                       <BackLine></BackLine>
                       <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 공고 확인하기</BackButton>
