@@ -329,15 +329,18 @@ export default function Interview() {
         try {
             if (role == "talent" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/interview/general/start`);
+                console.log(res.data);
                 setSessionId(res.data?.session_id);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "talent" && stage == TECHNICAL) {
-                const profile = await axios.get(`${baseURL}/api/me/talent/full`);
+                const profile = await axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } });
                 const res = await axios.post(`${aiURL}/api/interview/technical/start`, {
                     session_id: sessionId,
+                    access_token: token,
                     data: profile.data.data,
                 });
+                console.log(res.data);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "talent" && stage == SITUATIONAL) {
@@ -346,22 +349,29 @@ export default function Interview() {
                         session_id: sessionId,
                     }
                 });
+                console.log(res.data);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/start`);
+                console.log(res.data);
                 setSessionId(res.data?.session_id);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "company" && stage == TECHNICAL) {
-                const companyProfile = await axios.get(`${baseURL}/api/me/company/full`);
-                const jobProfile = await axios.get(`${baseURL}/api/me/job-postings`);
+                // const companyProfile = await axios.get(`${baseURL}/api/me/company/full`, { headers: { Authorization: `Bearer ${token}` } });
+                const query = new URLSearchParams(location.search);
+                const jobId = query.get("job");
+                // const jobProfile = await axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } });
                 // TO-DO : 백엔드 구현 이후 전달할 데이터 수정 ===============================================================
                 const res = await axios.post(`${aiURL}/api/company-interview/technical/start`, {
                     session_id: sessionId,
-                    company_data: companyProfile.data?.data,
-                    job_data: jobProfile.data?.data,
+                    access_token: token,
+                    job_posting_id: jobId,
+                    // company_data: companyProfile.data?.data,
+                    // job_data: jobProfile.data?.data.find(job => job.id === Number(jobId)),
                 });
+                console.log(res.data);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "company" && stage == SITUATIONAL) {
@@ -370,6 +380,7 @@ export default function Interview() {
                         session_id: sessionId,
                     }
                 });
+                console.log(res.data);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
             }
@@ -390,11 +401,7 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
-                    await axios.get(`${aiURL}/api/interview/general/analysis`, {
-                        params: {
-                            session_id: sessionId,
-                        }
-                    });
+                    await axios.get(`${aiURL}/api/interview/general/analysis/${sessionId}`);
                     getTutorial();
                 }
             } else if (role == "talent" && stage == TECHNICAL) {
@@ -402,13 +409,10 @@ export default function Interview() {
                     session_id: sessionId,
                     answer: answer,
                 });
+                console.log(res.data);
                 setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
-                    await axios.get(`${aiURL}/api/interview/technical/results`, {
-                        params: {
-                            session_id: sessionId,
-                        }
-                    });
+                    await axios.get(`${aiURL}/api/interview/technical/results/${sessionId}`);
                     getTutorial();
                 }
             } else if (role == "talent" && stage == SITUATIONAL) {
@@ -416,25 +420,28 @@ export default function Interview() {
                     session_id: sessionId,
                     answer: answer,
                 });
+                console.log(res.data);
                 setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
-                    await axios.get(`${aiURL}/api/interview/situational/report`, {
-                        params: {
-                            session_id: sessionId,
-                        }
-                    });
+                    await axios.get(`${aiURL}/api/interview/situational/report/${sessionId}`);
                     setFinished(true);
-                    await axios.get(`${aiURL}/api/interview/profile-card`, {
-                        params: {
-                            session_id: sessionId,
-                        }
+                    const cardData = await axios.post(`${aiURL}/api/interview/profile-card/generate-and-post`, {
+                        session_id: sessionId,
+                        access_token: token,
                     });
+                    console.log(cardData);
+                    const vector = await axios.post(`${aiURL}/api/interview/matching-vectors/generate`, {
+                        session_id: sessionId,
+                        access_token: token,
+                    });
+                    console.log(vector);
                 }
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/answer`, {
                     session_id: sessionId,
                     answer: answer,
                 });
+                console.log(res.data);
                 setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
                     await axios.get(`${aiURL}/api/company-interview/general/analysis`, {
@@ -449,6 +456,7 @@ export default function Interview() {
                     session_id: sessionId,
                     answer: answer,
                 });
+                console.log(res.data);
                 setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
                   await axios.get(`${aiURL}/api/company-interview/technical/analysis`, {
@@ -463,6 +471,7 @@ export default function Interview() {
                     session_id: sessionId,
                     answer: answer,
                 });
+                console.log(res.data);
                 setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
                     await axios.get(`${aiURL}/api/interview/situational/analysis`, {

@@ -114,9 +114,8 @@ export default function NavigationBar() {
         } catch (err) {
             console.error("로그아웃 오류 :", err);
         }
-        sessionStorage.removeItem("jwt_token");
+        sessionStorage.clear();
         setToken(null);
-        sessionStorage.removeItem("user_role");
         setRole(null);
         navigate("/");
     };

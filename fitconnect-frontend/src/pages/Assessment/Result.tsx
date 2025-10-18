@@ -285,6 +285,7 @@ export default function Result() {
             axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
               .then((response) => {
                 setData(response.data.data.find(job => job.id === Number(jobId)));
+                console.log(response.data.data);
               })
               .catch((error) => {
                 console.error("데이터 불러오기 실패:", error);
@@ -430,7 +431,7 @@ export default function Result() {
                     <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
                       <ContentParagraph>
-                        · {data?.employment_type} ({data?.career_level})<br/>· 근무 기간 : <br/>· 근무 부서 : {data?.department}<br/>· 연봉 :
+                        · {data?.employment_type} ({data?.career_level})<br/>· 근무 기간 : {data?.term_months}<br/>· 근무 부서 : {data?.department}<br/>· 연봉 : {data?.salary_range}
                         </ContentParagraph>
                     </Content>
                     <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
@@ -480,12 +481,12 @@ export default function Result() {
                     <CardBackRegion role={role}>
                       <BackRegion>
                         <BackTitle>💼 기업 정보</BackTitle>
-                        <BackContent>회사명  |  업종  |  회사 규모  |  회사 위치</BackContent>
-                        <BackContent>비전/미션 :</BackContent>
-                        <BackContent>사업 영역 : </BackContent>
-                        <BackContent>인재상 : </BackContent>
-                        <BackContent>조직문화 :</BackContent>
-                        <BackContent>복리후생 :</BackContent>
+                        <BackContent>{companyData?.basic.name}  |  {companyData?.basic.industry}  |  {companyData?.basic.size}  |  {companyData?.basic.location_city}</BackContent>
+                        <BackContent>비전/미션 : {companyData?.about.vision_mission}</BackContent>
+                        <BackContent>사업 영역 : {companyData?.about.business_domains}</BackContent>
+                        <BackContent>인재상 : {companyData?.about.ideal_talent}</BackContent>
+                        <BackContent>조직문화 : {companyData?.about.culture}</BackContent>
+                        <BackContent>복리후생 : {companyData?.about.benefits}</BackContent>
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>📚 공고 정보</BackTitle>

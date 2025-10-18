@@ -457,7 +457,7 @@ export default function SetProfile() {
                         title: career.role,
                         start_ym: career.join || null,
                         end_ym: career.leave || null,
-                        reason: career.reason,
+                        leave_reason: career.reason,
                         summary: career.description,
                     })),
                     activities: activityList.filter(activity => activity.name).map((activity) => ({

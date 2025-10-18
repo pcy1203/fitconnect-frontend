@@ -6,6 +6,7 @@ type AuthContextType = {
     setToken: (token: string | null) => void;
     role: string | null;
     setRole: (role: string | null) => void;
+    loading: boolean;
 };
 
 type JwtPayload = {
@@ -15,8 +16,8 @@ type JwtPayload = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem("jwt_token"));
-    const [role, setRole] = useState<string | null>(() => localStorage.getItem("user_role"));
+    const [token, setToken] = useState<string | null>(() => sessionStorage.getItem("jwt_token"));
+    const [role, setRole] = useState<string | null>(() => sessionStorage.getItem("user_role"));
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -27,8 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const decoded: JwtPayload = jwtDecode(storedToken);
             const now = Date.now() / 1000;
             if (decoded.exp < now) {
-              sessionStorage.removeItem("jwt_token");
-              sessionStorage.removeItem("user_role");
+              sessionStorage.clear();
               setToken(null);
               setRole(null);
             } else {
@@ -37,8 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
           } catch (err) {
             console.error("Invalid JWT:", err);
-            sessionStorage.removeItem("jwt_token");
-            sessionStorage.removeItem("user_role");
+            sessionStorage.clear();
           }
         }
         setLoading(false);

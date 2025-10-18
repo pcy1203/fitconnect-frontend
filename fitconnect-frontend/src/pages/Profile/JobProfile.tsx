@@ -303,7 +303,7 @@ export default function JobProfile() {
                     department: jobInfo.department,
                     location_city: jobInfo.location,
                     employment_type: jobInfo.employment,
-                    salary_band: jobInfo.salary,
+                    salary_range: jobInfo.salary,
                     career_level: jobInfo.career,
                     education_level: jobInfo.education,
                     start_date: jobInfo.join,
