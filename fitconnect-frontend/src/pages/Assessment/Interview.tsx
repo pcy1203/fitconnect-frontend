@@ -6,6 +6,8 @@ import { baseURL, aiURL } from "../../env";
 import { useAuth } from "../../components/AuthContext";
 import colors from "../../styles/colors";
 import axios from "axios";
+import company from '../../assets/company.png';
+import arrowCompany from '../../assets/arrow-company.png';
 
 const Container = styled.div`
   width: 1200px;
@@ -201,9 +203,9 @@ const CanvasWrapper = styled.div`
   box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
-  align-items: flex-end; /* 막대가 아래에서 위로 올라오도록 */
-  margin: 20px auto;    /* 위아래 여백, 가운데 정렬 */
-  padding: 10px;         /* 캔버스와 여백 */
+  align-items: flex-end;
+  margin: 20px auto;
+  padding: 10px;
 `;
 
 const StyledCanvas = styled.canvas`
@@ -232,6 +234,115 @@ const Label = styled.div`
     line-height: 70px;
 `;
 
+const Paragraph = styled.div`
+  width: 1000px;
+  color: black;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 0px 100px 0px 100px;
+`;
+
+const JobContainer = styled.div`
+  position: relative;
+  top: 0px;
+  left: 300px;
+  width: 610px;
+  height: 1px;
+`;
+
+const JobRegion = styled.div<{ role?: string }>`
+  height: 620px;
+  overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #bbb;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: #ffffffff;
+        border-radius: 10px;
+        border: 2px solid #cccccc;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: #ddd;
+    }
+`;
+
+const JobPosting = styled.div`
+  width: 560px;
+  height: 100px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: 5px;
+  background: rgba(255, 255, 255, 1);
+  border: 2px solid #b2b2b2ff;
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px rgba(171, 171, 171, 0.2);
+  transition: transform 0.1s ease;
+  &:hover {
+    background: rgba(247, 247, 247, 1);
+  }
+  &:hover div {
+    visibility: visible;
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const JobImage = styled.div`
+  margin-left: 15px;
+  margin-top: 15px;
+  width: 30px;
+`;
+
+const JobTitle = styled.div`
+  width: 300px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #242424ff;
+  position: relative;
+  top: -25px;
+  left: 41px;
+`;
+
+const JobContent = styled.div`
+  width: 320px;
+  font-size: 12px;
+  color: #242424ff;
+  position: relative;
+  top: -38px;
+  left: 20px;
+  line-height: 22px;
+`;
+
+const JobButton = styled.div<{ role?: string }>`
+  all: unset;
+  visibility: hidden;
+  width: 50px;
+  height: 22px;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  font-size: 16px;
+  top: -21px;
+  left: 400px;
+  font-weight: 600;
+  color: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  transition: transform 0.1s ease;
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const Input = styled.textarea.withConfig({
     shouldForwardProp: (prop) => prop !== "hasError"
 })<{ width?: string, height?: string, hasError?: boolean, role?: string }>`
@@ -255,11 +366,25 @@ const Input = styled.textarea.withConfig({
 
 export default function Interview() {
     const { token, setToken, role, setRole, loading } = useAuth();
+    const [jobList, setJobList] = useState(null);
     const navigate = useNavigate();
-    
+    const queryJobId = new URLSearchParams(location.search).get("job");
+
     useEffect(() => {
         if (!loading && (!token || !role)) navigate("/auth/login");
     }, [loading, token]);
+
+    useEffect(() => {
+        if (!loading && !queryJobId && role === 'company') {
+            axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              setJobList(response.data.data);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+        }
+    }, [loading, location.search]);
 
     const GENERAL = 1;
     const TECHNICAL = 2;
@@ -474,7 +599,11 @@ export default function Interview() {
     }
 
     const finishInterview = () => {
-        navigate("/assessment/result");
+        if (role == "company") {
+            navigate(`/assessment/result?job=${queryJobId}`);
+        } else {
+            navigate("/assessment/result");
+        }
     }
 
     const drawVolumeBar = () => {
@@ -734,6 +863,27 @@ export default function Interview() {
               <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
               </>
             )}
+          </Container>
+        )
+    } else if (role === "company" && !queryJobId) {
+        return (
+          <Container>
+            <Title style={{'marginBottom': '20px'}}>🎤 AI 분석 인터뷰</Title>
+              <Paragraph>공고를 선택해주세요.</Paragraph>
+              <JobContainer>
+                <JobRegion>
+                  {jobList?.map((job) => (
+                    <JobPosting onClick={() => navigate(`/assessment/interview?job=${job.id}`)} key={job.id}>
+                      <JobImage><img src={company} alt="Logo" width={24*0.8} height={27*0.8}></img></JobImage>
+                      <JobTitle>{job.title}</JobTitle>
+                      <JobButton role="company">
+                        인터뷰 진행하기<img src={arrowCompany} alt="Logo" style={{'transform': 'rotate(180deg)', 'position': 'absolute', 'marginLeft': '5px', 'marginTop': '3px'}} width={24*0.8} height={24*0.8}></img>
+                      </JobButton>
+                      <JobContent>· {job?.employment_type}  |  {job?.career_level}<br/>· {job?.department} | {job?.deadline_date.replace("-", ".").replace("-", ".")} 마감</JobContent>
+                    </JobPosting>
+                  ))}
+                </JobRegion>
+              </JobContainer>
           </Container>
         )
     } else if (role === "company") {

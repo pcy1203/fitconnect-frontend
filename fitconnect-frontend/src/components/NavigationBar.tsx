@@ -1,15 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
-import axios from "axios";
 import styled from "styled-components";
 import colors from "../styles/colors";
 import logo from '../assets/logo.png';
 import talent from '../assets/talent.png';
 import company from '../assets/company.png';
-
-const baseURL = "http://127.0.0.1:8000";  // Backend FastAPI
 
 const MainBar = styled.ul`
     margin: 0;
@@ -35,11 +31,15 @@ const Menu = styled.li<{ role?: string }>`
     justify-content: center;
     font-size: 18px;
     text-align: center;
+    z-index: 15;
     & > a {
         display: block;
         width: 100%;
         height: 100%;
         line-height: 80px;
+        &:hover + ul {
+            display: block;
+        }
     }
     &:hover > a, &:hover > span {
         font-weight: 500;
@@ -47,6 +47,19 @@ const Menu = styled.li<{ role?: string }>`
     }
     &:hover > ul {
         display: block;
+    }
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0%;
+        width: 190px;
+        height: 33px;
+        top: 50px;
+        background-color: #ffffff00;
+        z-index: 15;
+        &:hover + ul {
+            display: block;
+        } 
     }
 `;
 

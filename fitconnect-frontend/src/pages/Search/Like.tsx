@@ -8,8 +8,6 @@ import colors from "../../styles/colors";
 import axios from "axios";
 import talent from '../../assets/talent.png';
 import company from '../../assets/company.png';
-import arrowTalent from '../../assets/arrow-talent.png';
-import arrowCompany from '../../assets/arrow-company.png';
 
 import { CardFace, CardBack, ProfileContainer, ProfileImage, ProfileName, ProfileContent,
   Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag, 
