@@ -162,27 +162,6 @@ const RecordButton = styled.button<{ role?: string }>`
   }
 `;
 
-const AnswerButton = styled.button`
-  all: unset;
-  width: 200px;
-  height: 40px;
-  background: #999999ff;
-  color: #FFFFFF;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid #9E9E9E;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s ease;
-  &:hover {
-    background-color: #c8c8c8ff;
-  }
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
 const Button = styled.button<{ role?: string }>`
   all: unset;
   width: 200px;
@@ -204,6 +183,13 @@ const Button = styled.button<{ role?: string }>`
   }
   &:active {
     transform: scale(0.95);
+  }
+  &:disabled {
+    background-color: #bdbdbd;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -294,6 +280,7 @@ export default function Interview() {
     const [answer, setAnswer] = useState("");
     const [totalQuestions, setTotalQuestions] = useState(1);
     const [additionalInfo, setAdditionalInfo] = useState({ role: "", requirement: "", preference: "", capacity: ""});
+    const [sending, setSending] = useState(false);
 
     const [recording, setRecording] = useState(false);
     const [audioUrls, setAudioUrls] = useState<(string | null)[]>([]);
@@ -305,20 +292,6 @@ export default function Interview() {
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationRef = useRef<number | null>(null);
 
-    // const talentQuestionList = [
-    //   "1️⃣ 간단한 자기소개와 함께, 최근 6개월 동안 가장 몰입했던 경험을 이야기해 주세요.",
-    //   "2️⃣ 가장 의미 있었던 프로젝트나 업무 경험을 말씀해 주세요. 맡으신 역할과 결과도 함께 알려주세요.",
-    //   "3️⃣ 팀원들과 협업할 때 본인만의 강점은 무엇이라고 생각하시나요?",
-    //   "4️⃣ 일을 할 때 가장 중요하게 생각하는 가치는 무엇인가요?",
-    //   "5️⃣ 앞으로 어떤 커리어를 그리고 계신가요?"]
-
-    // const companyQuestionList = [
-    //   "1️⃣ 이번 포지션에서 가장 중요한 역할과 기대하는 역량은 무엇인가요?",
-    //   "2️⃣ 이 포지션에서 뛰어난 성과를 낸 직원은 어떤 특징을 가지고 있었나요?\n(새롭게 만들어진 포지션이라면, 해당 포지션이 만들어진 이유를 알려주세요.)",
-    //   "3️⃣ 팀에서 잘 맞는 성향이나 협업 스타일은 어떤 것인가요?",
-    //   "4️⃣ 이 포지션에서 예상되는 어려움이나 도전 과제는 무엇인가요?",
-    //   "5️⃣ 이 포지션에서 가장 중요하게 생각하는 인재상이나 가치관은 무엇인가요?"]
-
     const getTutorial = () => {
         setStage(stage + 1);
         setTutorial(true);
@@ -327,6 +300,7 @@ export default function Interview() {
     
     const startInterview = async () => {
         try {
+            setSending(true);
             if (role == "talent" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/interview/general/start`);
                 console.log(res.data);
@@ -342,7 +316,7 @@ export default function Interview() {
                 });
                 console.log(res.data);
                 setQuestion(res.data?.question);
-                setTotalQuestions(res.data?.total_questions);
+                setTotalQuestions(Number(res.data?.progress.split("/")[1]));
             } else if (role == "talent" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/interview/situational/start`, {}, {
                     params: {
@@ -352,8 +326,11 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
+                // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
-                const res = await axios.post(`${aiURL}/api/company-interview/general/start`);
+                const res = await axios.post(`${aiURL}/api/company-interview/general/start`, {
+                    access_token: token,
+                });
                 console.log(res.data);
                 setSessionId(res.data?.session_id);
                 setQuestion(res.data?.question);
@@ -363,7 +340,6 @@ export default function Interview() {
                 const query = new URLSearchParams(location.search);
                 const jobId = query.get("job");
                 // const jobProfile = await axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } });
-                // TO-DO : 백엔드 구현 이후 전달할 데이터 수정 ===============================================================
                 const res = await axios.post(`${aiURL}/api/company-interview/technical/start`, {
                     session_id: sessionId,
                     access_token: token,
@@ -372,20 +348,21 @@ export default function Interview() {
                     // job_data: jobProfile.data?.data.find(job => job.id === Number(jobId)),
                 });
                 console.log(res.data);
-                setQuestion(res.data?.question);
+                setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "company" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/situational/start`, {}, {
                     params: {
-                        session_id: sessionId,
+                      session_id: sessionId,
                     }
                 });
                 console.log(res.data);
-                setQuestion(res.data?.question);
+                setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
             }
             setPage(1);
-            setTutorial(false); 
+            setTutorial(false);
+            setSending(false);
         } catch (err) {
             console.error("오류 발생 :", err);
         }
@@ -393,35 +370,35 @@ export default function Interview() {
 
     const getNextPage = async () => {
         try {
+            setSending(true);
             if (role == "talent" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/interview/general/answer/text`, {
                     session_id: sessionId,
                     answer: answer,
                 });
                 console.log(res.data);
-                setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
                     await axios.get(`${aiURL}/api/interview/general/analysis/${sessionId}`);
                     getTutorial();
                 }
+                setQuestion(res.data?.next_question);
             } else if (role == "talent" && stage == TECHNICAL) {
-                const res = await axios.post(`${aiURL}/api/interview/technical/answer/text`, {
+                const res = await axios.post(`${aiURL}/api/interview/technical/answer`, {
                     session_id: sessionId,
                     answer: answer,
                 });
                 console.log(res.data);
-                setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
                     await axios.get(`${aiURL}/api/interview/technical/results/${sessionId}`);
                     getTutorial();
                 }
+                setQuestion(res.data?.next_question);
             } else if (role == "talent" && stage == SITUATIONAL) {
-                const res = await axios.post(`${aiURL}/api/interview/situational/answer/text`, {
+                const res = await axios.post(`${aiURL}/api/interview/situational/answer`, {
                     session_id: sessionId,
                     answer: answer,
                 });
                 console.log(res.data);
-                setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
                     await axios.get(`${aiURL}/api/interview/situational/report/${sessionId}`);
                     setFinished(true);
@@ -436,72 +413,63 @@ export default function Interview() {
                     });
                     console.log(vector);
                 }
+                setQuestion(res.data?.next_question);
+                // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/answer`, {
                     session_id: sessionId,
                     answer: answer,
                 });
                 console.log(res.data);
-                setQuestion(res.data?.next_question);
                 if (page == totalQuestions) {
-                    await axios.get(`${aiURL}/api/company-interview/general/analysis`, {
-                        params: {
-                            session_id: sessionId,
-                        }
-                    });
+                    await axios.get(`${aiURL}/api/company-interview/general/analysis/${sessionId}`);
                     getTutorial();
                 }
+                setQuestion(res.data?.next_question);
             } else if (role == "company" && stage == TECHNICAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/technical/answer`, {
                     session_id: sessionId,
                     answer: answer,
                 });
                 console.log(res.data);
-                setQuestion(res.data?.next_question);
-                if (page == totalQuestions) {
-                  await axios.get(`${aiURL}/api/company-interview/technical/analysis`, {
-                      params: {
-                          session_id: sessionId,
-                      }
-                  });
+                if (res.data?.is_finished) {
+                  await axios.get(`${aiURL}/api/company-interview/technical/analysis/${sessionId}`);
                   getTutorial();
                 }
+                setTotalQuestions(res.data?.total_questions);
+                setQuestion(res.data?.next_question?.question);
             } else if (role == "company" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/situational/answer`, {
                     session_id: sessionId,
                     answer: answer,
                 });
                 console.log(res.data);
-                setQuestion(res.data?.next_question);
-                if (page == totalQuestions) {
-                    await axios.get(`${aiURL}/api/interview/situational/analysis`, {
-                        params: {
-                            session_id: sessionId,
-                        }
-                    });
+                if (res.data?.is_finished) {
+                    // const jobId = new URLSearchParams(location.search).get("job");
+                    const response = await axios.get(`${aiURL}/api/company-interview/situational/analysis/${sessionId}`);
+                    console.log(response);
                     setJobPosting(true);
-                    // TO-DO : AI 구현 이후 공고 정보 로드 (프론트로 보여줘야 함) ===============================================================
-                    // const res = await axios.get(`${baseURL}/api/me/job-postings`);
                 }
+                setQuestion(res.data?.next_question?.question);
             }
             setPage(page + 1);
+            setSending(false);
         } catch (err) {
             console.error("오류 발생 :", err);
         }
     };
 
-    const postJobPosting = () => {
-        // TO-DO : 백엔드 구현 이후 수정된 공고 내용 저장 ===============================================================
-        // await axios.patch(`${baseURL}/api/me/job-postings`, {
-        //     params: {}
-        // });
-
-        // TO-DO : AI 구현 이후 공고 내용 확정 ===============================================================
-        // await axios.get(`${aiURL}/api/interview/job-posting`, {
-        //     params: {
-        //         session_id: sessionId,
-        //     }
-        // });
+    const postJobPosting = async () => {
+        const jobId = new URLSearchParams(location.search).get("job");          
+        const cardData = await axios.post(`${aiURL}/api/company-interview/job-posting`, {
+          session_id: sessionId,
+          access_token: token,       
+          job_posting_id: jobId,
+          responsibilities: additionalInfo.role,
+          requirements_must: additionalInfo.requirement,
+          requirements_nice: additionalInfo.preference,
+          competencies: additionalInfo.capacity,
+        });
         setFinished(true);
     }
 
@@ -666,7 +634,7 @@ export default function Interview() {
                   </FormParagraph>  
                 </FormContent>
               </Form>
-              <Button onClick={startInterview} role={role}>시작하기</Button>
+              <Button onClick={startInterview} disabled={sending} role={role}>{sending ? "질문 생각 중···" : "시작하기"}</Button>
               </>
             )}
 
@@ -686,7 +654,7 @@ export default function Interview() {
                   </FormParagraph>  
                 </FormContent>
               </Form>
-              <Button onClick={startInterview} role={role}>시작하기</Button>
+              <Button onClick={startInterview} disabled={sending} role={role}>{sending ? "질문 생각 중···" : "시작하기"}</Button>
               </>
             )}
 
@@ -706,11 +674,11 @@ export default function Interview() {
                   </FormParagraph>  
                 </FormContent>
               </Form>
-              <Button onClick={startInterview} role={role}>시작하기</Button>
+              <Button onClick={startInterview} disabled={sending} role={role}>{sending ? "질문 생각 중···" : "시작하기"}</Button>
               </>
             )}
             
-            {!tutorial && (
+            {!tutorial && !finished && (
               <>
               <ProgressBarContainer>
                 <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
@@ -725,8 +693,8 @@ export default function Interview() {
                   </CanvasWrapper>
                   <ButtonContainer>
                   {!recording ? 
-                    <RecordButton onClick={startRecording} role={role}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
-                    : <RecordButton onClick={stopRecording} role={role}>⏹️ 녹음 종료</RecordButton>
+                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
                   }
                   {/* {audioUrls[page] && (
                     <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
@@ -740,7 +708,7 @@ export default function Interview() {
               </Form>
               {audioUrls[page] && (
                 <>
-                <Button onClick={getNextPage} role={role}>{page < totalQuestions ? "답변 제출 · 다음으로" : "답변 제출 · 마무리"}</Button>
+                <Button onClick={getNextPage} disabled={sending} role={role}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
                 </>
               )}
               </>
@@ -820,7 +788,7 @@ export default function Interview() {
                   </FormParagraph>  
                 </FormContent>
               </Form>
-              <Button onClick={startInterview} role={role}>시작하기</Button>
+              <Button onClick={startInterview} disabled={sending} role={role}>{sending ? "질문 생각 중···" : "시작하기"}</Button>
               </>
             )}
 
@@ -840,7 +808,7 @@ export default function Interview() {
                   </FormParagraph>  
                 </FormContent>
               </Form>
-              <Button onClick={startInterview} role={role}>시작하기</Button>
+              <Button onClick={startInterview} disabled={sending} role={role}>{sending ? "질문 생각 중···" : "시작하기"}</Button>
               </>
             )}
 
@@ -860,11 +828,11 @@ export default function Interview() {
                   </FormParagraph>  
                 </FormContent>
               </Form>
-              <Button onClick={startInterview} role={role}>시작하기</Button>
+              <Button onClick={startInterview} disabled={sending} role={role}>{sending ? "질문 생각 중···" : "시작하기"}</Button>
               </>
             )}
             
-            {!tutorial && (
+            {!tutorial && !jobPosting && !finished && (
               <>
               <ProgressBarContainer>
                 <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
@@ -879,8 +847,8 @@ export default function Interview() {
                   </CanvasWrapper>
                   <ButtonContainer>
                   {!recording ? 
-                    <RecordButton onClick={startRecording} role={role}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
-                    : <RecordButton onClick={stopRecording} role={role}>⏹️ 녹음 종료</RecordButton>
+                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
                   }
                   {/* {audioUrls[page] && (
                     <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
@@ -894,7 +862,7 @@ export default function Interview() {
               </Form>
               {audioUrls[page] && (
                 <>
-                <Button onClick={getNextPage} role={role}>{page < totalQuestions ? "답변 제출 · 다음으로" : "답변 제출 · 마무리"}</Button>
+                <Button onClick={getNextPage} role={role} disabled={sending}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
                 </>
               )}
               </>
@@ -929,7 +897,7 @@ export default function Interview() {
                   <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Input>
                 </InputContainer>
               </Form>
-              <Button onClick={postJobPosting} role={role}>분석 결과 확인하기</Button>
+              <Button onClick={postJobPosting} role={role}>공고 저장하기</Button>
               </>
             )}
 

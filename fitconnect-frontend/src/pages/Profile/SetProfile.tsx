@@ -440,6 +440,7 @@ export default function SetProfile() {
                 const res = await axios.post(`${baseURL}/api/me/talent/full`, {
                     basic: {
                         name: primaryInfo.name,
+                        email: primaryInfo.email,
                         birth_date: primaryInfo.birth || null,
                         phone: primaryInfo.phone,
                         tagline: primaryInfo.intro,
