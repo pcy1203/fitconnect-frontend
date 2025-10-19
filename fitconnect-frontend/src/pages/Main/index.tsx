@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import image1 from '../../assets/main-1.jpg';
 import image2 from '../../assets/main-2.jpg';
 import logo from '../../assets/logo.png';
+import logoTransparent from '../../assets/logo-transparent.png';
 import talent from '../../assets/talent.png';
 import company from '../../assets/company.png';
 import colors from "../../styles/colors";
@@ -342,7 +343,7 @@ export default function Main() {
           <Text1>나에게 ‘딱 맞는’ 채용 공고는 없을까?<br/>우리 회사에 ‘딱 맞는’ 인재는 없을까?</Text1>
           <Title1>딱 맞는 매칭,</Title1>
           <Text2>인재와 공고에 대한 <b>AI 분석 결과</b>를 바탕으로<br/>구직자와 기업 사이의 <b>완벽한 연결</b>을 만들어갑니다.</Text2>
-          <Logo><img src={logo} width={200*1.2} height={55*1.2} alt="로고" ></img></Logo>
+          <Logo><img src={logoTransparent} width={200*1.2} height={55*1.2} alt="로고" ></img></Logo>
           <Talent><img src={talent} alt="인재" width={24*2} height={27*2}></img></Talent>
           <Company><img src={company} alt="기업" width={24*2} height={27*2}></img></Company>
           <Line></Line>

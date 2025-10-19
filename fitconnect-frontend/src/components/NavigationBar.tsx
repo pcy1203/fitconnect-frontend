@@ -110,13 +110,12 @@ export default function NavigationBar() {
 
     const handleLogout = async () => {
         try {
-            await axios.post(`${baseURL}/auth/logout`, {}, {});  // TO-DO
+            // await axios.post(`${baseURL}/auth/logout`, {}, {});  // TO-DO
         } catch (err) {
             console.error("로그아웃 오류 :", err);
         }
-        localStorage.removeItem("jwt_token");
+        sessionStorage.clear();
         setToken(null);
-        localStorage.removeItem("user_role");
         setRole(null);
         navigate("/");
     };
