@@ -85,8 +85,6 @@ const InterviewButton = styled.button`
     }
 `;
 
-
-
 const Paragraph = styled.div`
   width: 1000px;
   color: black;
@@ -253,7 +251,7 @@ export default function Result() {
               });
             axios.get(`${baseURL}/api/job_posting_cards/${jobId}`, { headers: { Authorization: `Bearer ${token}` } })
               .then((response) => {
-                setCardData(response.data.data[0]);
+                setCardData(response.data.data[response.data.data?.length - 1]);
               })
               .catch((error) => {
                 console.error("데이터 불러오기 실패:", error);

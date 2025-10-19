@@ -8,6 +8,7 @@ import colors from "../../styles/colors";
 import axios from "axios";
 import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
+import { set } from "date-fns";
 
 const Container = styled.div`
   width: 1200px;
@@ -450,7 +451,7 @@ export default function Interview() {
                 });
                 console.log(res.data);
                 setQuestion(res.data?.question);
-                setTotalQuestions(res.data?.total_questions);
+                setTotalQuestions(6);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/start`, {
@@ -476,10 +477,8 @@ export default function Interview() {
                 setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "company" && stage == SITUATIONAL) {
-                const res = await axios.post(`${aiURL}/api/company-interview/situational/start`, {}, {
-                    params: {
-                      session_id: sessionId,
-                    }
+                const res = await axios.post(`${aiURL}/api/company-interview/situational/start`, {
+                    session_id: sessionId,
                 });
                 console.log(res.data);
                 setQuestion(res.data?.next_question?.question);
@@ -517,7 +516,7 @@ export default function Interview() {
                     await axios.get(`${aiURL}/api/interview/technical/results/${sessionId}`);
                     getTutorial();
                 }
-                setQuestion(res.data?.next_question);
+                setQuestion(res.data?.next_question?.question);
             } else if (role == "talent" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/interview/situational/answer`, {
                     session_id: sessionId,
@@ -538,7 +537,7 @@ export default function Interview() {
                     });
                     console.log(vector);
                 }
-                setQuestion(res.data?.next_question);
+                setQuestion(res.data?.next_question?.question);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/answer`, {
@@ -570,11 +569,22 @@ export default function Interview() {
                 });
                 console.log(res.data);
                 if (res.data?.is_finished) {
-                    // const jobId = new URLSearchParams(location.search).get("job");
-                    const response = await axios.get(`${aiURL}/api/company-interview/situational/analysis/${sessionId}`);
+                    const jobId = new URLSearchParams(location.search).get("job");
+                    const response = await axios.post(`${aiURL}/api/company-interview/situational/analysis`, {
+                      session_id: sessionId,
+                      access_token: token,
+                      job_posting_id: Number(jobId),
+                    });
                     console.log(response);
                     setJobPosting(true);
+                    setAdditionalInfo({
+                      role: response.data?.job_posting_data.responsibilities || "",
+                      requirement: response.data?.job_posting_data.requirements_must || "",
+                      preference: response.data?.job_posting_data.requirements_nice || "",
+                      capacity: response.data?.job_posting_data.competencies || "",
+                    });
                 }
+                setTotalQuestions(res.data?.total_questions);
                 setQuestion(res.data?.next_question?.question);
             }
             setPage(page + 1);
@@ -585,17 +595,23 @@ export default function Interview() {
     };
 
     const postJobPosting = async () => {
-        const jobId = new URLSearchParams(location.search).get("job");          
-        const cardData = await axios.post(`${aiURL}/api/company-interview/job-posting`, {
+      try {
+        const jobId = new URLSearchParams(location.search).get("job");        
+        setSending(true);  
+        const cardData = await axios.post(`${aiURL}/api/company-interview/generate`, {
           session_id: sessionId,
           access_token: token,       
-          job_posting_id: jobId,
+          job_posting_id: Number(jobId),
           responsibilities: additionalInfo.role,
           requirements_must: additionalInfo.requirement,
           requirements_nice: additionalInfo.preference,
           competencies: additionalInfo.capacity,
         });
+        setSending(false);
         setFinished(true);
+      } catch (err) {
+        console.error("오류 발생 :", err);
+      }
     }
 
     const finishInterview = () => {
@@ -1047,7 +1063,7 @@ export default function Interview() {
                   <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Input>
                 </InputContainer>
               </Form>
-              <Button onClick={postJobPosting} role={role}>공고 저장하기</Button>
+              <Button onClick={postJobPosting} disabled={sending} role={role}>{sending ? "저장 및 분석 중···" : "저장하기"}</Button>
               </>
             )}
 

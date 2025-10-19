@@ -171,11 +171,11 @@ const HexagonContainer = styled.div`
 `;
 
 export default function Recommendation() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, loading } = useAuth();
     const navigate = useNavigate();
     useEffect(() => {
         if (!token || !role) navigate("/auth/login");
-    }, []);
+    }, [loading, token]);
     
     const [flipped, setFlipped] = useState(false);
     if (role === "talent") {
