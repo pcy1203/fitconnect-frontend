@@ -194,7 +194,7 @@ const WeightContainer = styled.div`
   margin-top: 35px;
   padding: 50px 100px;
   border-radius: 20px;
-  background: #fffffff;
+  background: #ffffff;
   border: 1px solid #9E9E9E;
   border-radius: 20px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
@@ -354,7 +354,7 @@ export default function Recommendation() {
                   <ContentContainer>
                     <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
-                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                      <ContentParagraph><span>· 정규직 (경력 3~5년차)</span><span>· 근무 기간 : 6개월</span><span>· 근무 부서 : 개발팀</span><span>· 연봉 협상</span></ContentParagraph>
                     </Content>
                     <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>

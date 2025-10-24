@@ -8,7 +8,6 @@ import colors from "../../styles/colors";
 import axios from "axios";
 import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
-import { set } from "date-fns";
 
 const Container = styled.div`
   width: 1200px;
@@ -365,6 +364,31 @@ const Input = styled.textarea.withConfig({
     resize: none;
 `;
 
+const CameraAndAudioContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 800px;
+  margin-top: 40px;
+  margin-left: 80px;
+`;
+
+const CameraView = styled.video`
+  width: 400px;
+  height: 280px;
+  border-radius: 5px;
+  background-color: #000;
+  object-fit: cover;
+`;
+
+const AudioPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 380px;
+  gap: 5px;
+`;
+
 export default function Interview() {
     const { token, setToken, role, setRole, loading } = useAuth();
     const [jobList, setJobList] = useState(null);
@@ -417,6 +441,7 @@ export default function Interview() {
     const audioContextRef = useRef<AudioContext | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationRef = useRef<number | null>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
 
     const getTutorial = () => {
         setStage(stage + 1);
@@ -424,6 +449,19 @@ export default function Interview() {
         setAudioUrls([]);
     };
     
+    const initCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        videoRef.current.srcObject = stream;
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => console.error("Video play 실패:", err));
+        }
+      } catch (err) {
+        console.error("카메라 접근 실패:", err);
+      }
+    };
+
     const startInterview = async () => {
         try {
             setSending(true);
@@ -487,6 +525,7 @@ export default function Interview() {
             setPage(1);
             setTutorial(false);
             setSending(false);
+            initCamera();
         } catch (err) {
             console.error("오류 발생 :", err);
         }
@@ -589,6 +628,7 @@ export default function Interview() {
             }
             setPage(page + 1);
             setSending(false);
+            initCamera();
         } catch (err) {
             console.error("오류 발생 :", err);
         }
@@ -831,25 +871,30 @@ export default function Interview() {
               </ProgressBarContainer>
               <Form>
                 <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
-                  <CanvasWrapper>
-                    {recording && (
-                      <StyledCanvas ref={canvasRef} width={200} height={140} />
+                <CameraAndAudioContainer>
+                  <CameraView ref={videoRef} autoPlay muted />
+                  <AudioPanel>
+                    <CanvasWrapper>
+                      {recording && (
+                        <StyledCanvas ref={canvasRef} width={200} height={140} />
+                      )}
+                    </CanvasWrapper>
+                    <ButtonContainer>
+                    {!recording ? 
+                      <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                      : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
+                    }
+                    {/* {audioUrls[page] && (
+                      <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
+                    )} */}
+                    </ButtonContainer>
+                    {audioUrls[page] && (
+                    <div style={{ marginTop: "20px" }}>
+                        <audio controls src={audioUrls[page]}></audio>
+                    </div>
                     )}
-                  </CanvasWrapper>
-                  <ButtonContainer>
-                  {!recording ? 
-                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
-                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
-                  }
-                  {/* {audioUrls[page] && (
-                    <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
-                  )} */}
-                  </ButtonContainer>
-                  {audioUrls[page] && (
-                  <div style={{ marginTop: "20px" }}>
-                      <audio controls src={audioUrls[page]}></audio>
-                  </div>
-                  )}
+                  </AudioPanel>
+                </CameraAndAudioContainer>
               </Form>
               {audioUrls[page] && (
                 <>

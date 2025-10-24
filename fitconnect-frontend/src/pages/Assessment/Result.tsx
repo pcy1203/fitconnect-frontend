@@ -420,8 +420,11 @@ export default function Result() {
                     <Content role={role} style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
                       <ContentParagraph>
-                        · {data?.employment_type} ({data?.career_level})<br/>· 근무 기간 : {data?.term_months}<br/>· 근무 부서 : {data?.department}<br/>· 연봉 : {data?.salary_range}
-                        </ContentParagraph>
+                        <span>· {data?.employment_type} ({data?.career_level})</span>
+                        <span>· 근무 기간 : {data?.term_months}</span>
+                        <span>· 근무 부서 : {data?.department}</span>
+                        <span>· 연봉 : {data?.salary_range}</span>
+                      </ContentParagraph>
                     </Content>
                     <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>
