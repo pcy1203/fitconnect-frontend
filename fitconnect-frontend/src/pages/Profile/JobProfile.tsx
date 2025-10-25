@@ -282,7 +282,7 @@ export default function JobProfile() {
     }, [jobInfo.title, submitPage]);
 
     useEffect(() => {
-        if (submitPage < 1 || jobInfo.deadline) {
+        if ((submitPage < 1 && !jobInfo.deadline) || /^\d{4}-\d{2}-\d{2}$/.test(jobInfo.deadline)) {
           setErrors((prev) => ({ ...prev, deadline: undefined }));
         } else {
           setErrors((prev) => ({ ...prev, deadline: "마감일을 입력해주세요." }));
@@ -393,7 +393,7 @@ export default function JobProfile() {
                 </InputContainer>
                 <InputContainer>
                   <Label className="required">공고 마감</Label>
-                  <Input type="date" value={jobInfo.deadline} onChange={(e) => setJobInfo((prev) => ({ ...prev, deadline: e.target.value }))} hasError={!!errors.deadline}></Input>
+                  <Input placeholder="2025-01-01" value={jobInfo.deadline} onChange={(e) => setJobInfo((prev) => ({ ...prev, deadline: e.target.value }))} hasError={!!errors.deadline}></Input>
                   {errors.deadline && <ErrorText>{errors.deadline}</ErrorText>}
                 </InputContainer>
                 <InputContainer>

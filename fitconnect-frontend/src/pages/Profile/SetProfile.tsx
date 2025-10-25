@@ -271,6 +271,7 @@ export default function SetProfile() {
     const [careerList, setCareerList] = useState([]);
     const [activityList, setActivityList] = useState([]);
     const [certificateList, setCertificateList] = useState([]);
+    const [desiredInfo, setDesiredInfo] = useState({ desiredRole: jobs[0], desiredSalary: salary[0], desiredIndustry: industry[0], desiredCompanySize: companySize[0], residence: residence[1], desiredLocation: residence[0]});
     // const [educationList, setEducationList] = useState([{ school: "", major: "", entrance: "", graduation: "", status: status[0] }]);
     // const [careerList, setCareerList] = useState([{ company: "", role: "", join: "", leave: "", reason: "", description: "" }]);
     // const [activityList, setActivityList] = useState([{ name: "", type: "", description: "" }]);
@@ -371,7 +372,7 @@ export default function SetProfile() {
         if (submitPage < 1 || basicInfo.name) {
           setErrors((prev) => ({ ...prev, name: undefined }));
         } else {
-          setErrors((prev) => ({ ...prev, name: "회사명을 입력해주세요." }));
+          setErrors((prev) => ({ ...prev, name: "이름을 입력해주세요." }));
         }
     }, [basicInfo.name, submitPage]);
 
@@ -445,6 +446,12 @@ export default function SetProfile() {
                         phone: primaryInfo.phone,
                         tagline: primaryInfo.intro,
                         is_submitted: true,
+                        desired_role: desiredInfo.desiredRole,
+                        desired_salary: desiredInfo.desiredSalary,
+                        desired_industry: desiredInfo.desiredIndustry,
+                        desired_company_size: desiredInfo.desiredCompanySize,
+                        residence_location: desiredInfo.residence,
+                        desired_work_location: desiredInfo.desiredLocation
                     },
                     educations: educationList.filter(education => education.school).map((education) => ({
                         school_name: education.school,  // 필수
@@ -707,36 +714,36 @@ export default function SetProfile() {
                 <FormTitle>관심내용 입력</FormTitle>
                 <InputContainer>
                   <Label>희망 직무</Label>
-                  <Select>
+                  <Select value={desiredInfo.desiredRole} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredRole: e.target.value }))}>
                     {jobs.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>희망 연봉</Label>
-                  <Select>
+                  <Select value={desiredInfo.desiredSalary} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredSalary: e.target.value }))}>
                     {salary.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
                   <Label>희망 업종</Label>
-                  <Select>
+                  <Select value={desiredInfo.desiredIndustry} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredIndustry: e.target.value }))}>
                     {industry.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>희망 규모</Label>
+                  <Label value={desiredInfo.desiredCompanySize} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredCompanySize: e.target.value }))}>희망 규모</Label>
                   <Select>
                     {companySize.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>주거지</Label>
+                  <Label value={desiredInfo.residence} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, residence: e.target.value }))}>주거지</Label>
                   <Select>
                     {residence.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label>희망 근무지</Label>
+                  <Label value={desiredInfo.desiredLocation} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredLocation: e.target.value }))}>희망 근무지</Label>
                   <Select>
                     {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
