@@ -282,7 +282,7 @@ export default function JobProfile() {
     }, [jobInfo.title, submitPage]);
 
     useEffect(() => {
-        if (submitPage < 1 || jobInfo.deadline) {
+        if ((submitPage < 1 && !jobInfo.deadline) || /^\d{4}-\d{2}-\d{2}$/.test(jobInfo.deadline)) {
           setErrors((prev) => ({ ...prev, deadline: undefined }));
         } else {
           setErrors((prev) => ({ ...prev, deadline: "마감일을 입력해주세요." }));
@@ -297,6 +297,26 @@ export default function JobProfile() {
             try {
               console.log(token);
                 // POST /api/me/company/job-postings
+                console.log({
+                    title: jobInfo.title,
+                    position: jobInfo.position,
+                    department: jobInfo.department,
+                    location_city: jobInfo.location,
+                    employment_type: jobInfo.employment,
+                    salary_range: jobInfo.salary,
+                    career_level: jobInfo.career,
+                    education_level: jobInfo.education,
+                    start_date: jobInfo.join,
+                    term_months: jobInfo.period,
+                    homepage_url: jobInfo.homepage,
+                    deadline_date: jobInfo.deadline,
+                    contact_email: jobInfo.contact_email,
+                    contact_phone: jobInfo.contact_phone,
+                    responsibilities: additionalInfo.role,
+                    requirements_must: additionalInfo.requirement,
+                    requirements_nice: additionalInfo.preference,
+                    competencies: additionalInfo.capacity,
+                });
                 const res = await axios.post(`${baseURL}/api/me/company/job-postings`, {
                     title: jobInfo.title,
                     position: jobInfo.position,
@@ -373,7 +393,7 @@ export default function JobProfile() {
                 </InputContainer>
                 <InputContainer>
                   <Label className="required">공고 마감</Label>
-                  <Input type="date" value={jobInfo.deadline} onChange={(e) => setJobInfo((prev) => ({ ...prev, deadline: e.target.value }))} hasError={!!errors.deadline}></Input>
+                  <Input placeholder="2025-01-01" value={jobInfo.deadline} onChange={(e) => setJobInfo((prev) => ({ ...prev, deadline: e.target.value }))} hasError={!!errors.deadline}></Input>
                   {errors.deadline && <ErrorText>{errors.deadline}</ErrorText>}
                 </InputContainer>
                 <InputContainer>

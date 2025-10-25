@@ -365,23 +365,43 @@ export default function Main() {
                   </ProfileContainer>
                   <Introduction>"안녕하세요, 백엔드 개발자입니다."</Introduction>
                   <ContentContainer>
-                    <Content role={"talent"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📂 주요 경험/경력</ContentTitle>
-                      <ContentParagraph>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"talent"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🎯 강점</ContentTitle>
-                      <ContentParagraph>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content role={"talent"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🚀 핵심 일반 역량</ContentTitle>
-                      <ContentParagraph>· 역량1<Tag>높음</Tag><br/>· 역량2<Tag>높음</Tag><br/>· 역량3<Tag>높음</Tag><br/>· 역량4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요 <Tag>매우 우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"talent"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 핵심 직무 역량/기술</ContentTitle>
-                      <ContentParagraph>· 직무 역량1<Tag>높음</Tag><br/>· 직무 역량.....2<Tag>높음</Tag><br/>· 직무 역량3<Tag>높음</Tag><br/>· 직무 역량............4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요 <Tag>매우 우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
@@ -401,23 +421,43 @@ export default function Main() {
                   </ProfileContainer>
                   <Introduction>"백엔드 개발자를 찾습니다."</Introduction>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
-                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 정규직 (경력 3~5년차)<br/></span>
+                        <span>· 근무 기간 : 6개월<br/></span>
+                        <span>· 근무 부서 : 개발팀<br/></span>
+                        <span>· 연봉 협상<br/></span>
+                        </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>
-                      <ContentParagraph>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>💡 자격 요건</ContentTitle>
-                      <ContentParagraph>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 요구 역량</ContentTitle>
-                      <ContentParagraph>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
@@ -468,23 +508,43 @@ export default function Main() {
                   </ProfileContainer>
                   <Introduction>"백엔드 개발자를 찾습니다."</Introduction>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
-                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 정규직 (경력 3~5년차)<br/></span>
+                        <span>· 근무 기간 : 6개월<br/></span>
+                        <span>· 근무 부서 : 개발팀<br/></span>
+                        <span>· 연봉 협상<br/></span>
+                        </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>
-                      <ContentParagraph>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>💡 자격 요건</ContentTitle>
-                      <ContentParagraph>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 요구 역량</ContentTitle>
-                      <ContentParagraph>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                        <span>· 이런 업무를 수행해요<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
@@ -505,23 +565,43 @@ export default function Main() {
                   </ProfileContainer>
                   <Introduction>"안녕하세요, 백엔드 개발자입니다."</Introduction>
                   <ContentContainer>
-                    <Content style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📂 주요 경험/경력</ContentTitle>
-                      <ContentParagraph>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🎯 강점</ContentTitle>
-                      <ContentParagraph>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                        <span>· 이런 경험이 있어요<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🚀 핵심 일반 역량</ContentTitle>
-                      <ContentParagraph>· 역량1<Tag>높음</Tag><br/>· 역량2<Tag>높음</Tag><br/>· 역량3<Tag>높음</Tag><br/>· 역량4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요 <Tag>매우 우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 핵심 직무 역량/기술</ContentTitle>
-                      <ContentParagraph>· 직무 역량1<Tag>높음</Tag><br/>· 직무 역량.....2<Tag>높음</Tag><br/>· 직무 역량3<Tag>높음</Tag><br/>· 직무 역량............4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 이런 경험이 있어요 <Tag>매우 우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>우수</Tag><br/></span>
+                        <span>· 이런 경험이 있어요 <Tag>보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
