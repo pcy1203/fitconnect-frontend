@@ -9,7 +9,7 @@ import company from '../../assets/company.png';
 import colors from "../../styles/colors";
 
 import { CardContainer, Card, CardFace, CardBack, ProfileContainer, ProfileImage, ProfileName, ProfileContent,
-  Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag} from "../../components/Card";
+  Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag} from "../../components/CardMain";
 
 const Container = styled.div`
     width: 1200px;

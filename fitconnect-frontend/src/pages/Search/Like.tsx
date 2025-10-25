@@ -8,8 +8,6 @@ import colors from "../../styles/colors";
 import axios from "axios";
 import talent from '../../assets/talent.png';
 import company from '../../assets/company.png';
-import arrowTalent from '../../assets/arrow-talent.png';
-import arrowCompany from '../../assets/arrow-company.png';
 
 import { CardFace, CardBack, ProfileContainer, ProfileImage, ProfileName, ProfileContent,
   Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag, 
@@ -173,11 +171,11 @@ const HexagonContainer = styled.div`
 `;
 
 export default function Recommendation() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, loading } = useAuth();
     const navigate = useNavigate();
     useEffect(() => {
         if (!token || !role) navigate("/auth/login");
-    }, []);
+    }, [loading, token]);
     
     const [flipped, setFlipped] = useState(false);
     if (role === "talent") {

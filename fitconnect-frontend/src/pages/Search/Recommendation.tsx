@@ -35,6 +35,16 @@ const Title = styled.div`
   line-height: 50px;
 `;
 
+const Paragraph = styled.div`
+  width: 1000px;
+  color: black;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 0px 100px 0px 100px;
+`;
+
 const CardContainer = styled.div`
   perspective: 1000px;
   margin-top: 20px;
@@ -62,131 +72,6 @@ const Card = styled.div.withConfig({
                 0 0 20px ${({ role }) => (role === "company" ? colors.company : colors.talent )};
   }
 `;
-
-// const CardFace = styled.div`
-//   backface-visibility: hidden;
-// `;
-
-// const CardBack = styled(CardFace)`
-//   transform: rotateY(180deg);
-//   width: 100%;
-//   margin-top: 40px;
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   justify-content: center;
-// `;
-
-// const ProfileContainer = styled.div`
-//   width: 100%;
-//   height: 90px;
-//   margin-top: -1px;
-//   background: #87B2FF;
-//   border-radius: 15px 15px 0 0;
-// `;
-
-// const ProfileImage = styled.div`
-//   width: 200px;
-//   height: 50px;
-//   background: #FFFFFF;
-//   border-radius: 50px;
-//   text-align: center;
-//   position: relative;
-//   left: 40px;
-//   top: 20px;
-//   & > img {
-//     position: relative;
-//     left: -50px;
-//     margin-top: 5px;
-//   }
-// `;
-
-// const ProfileName = styled.div`
-//   color: black;
-//   position: relative;
-//   left: 120px;
-//   top: -25px;
-//   font-size: 25px;
-//   font-weight: 600;
-// `;
-
-// const ProfileContent = styled.div`
-//   color: black;
-//   font-size: 16px;
-//   font-weight: 500;
-//   position: relative;
-//   left: 256px;
-//   top: -65px;
-// `;
-
-// const Introduction = styled.div`
-//   width: 450px;
-//   margin-top: 25px;
-//   margin-bottom: 10px;
-//   margin-left: 25px;
-//   border-radius: 10px;
-//   color: black;
-//   font-size: 16px;
-//   line-height: 30px;
-//   text-align: center;
-// `;
-
-// const ContentContainer = styled.div`
-//   display: flex;
-//   flex-direction: row;
-//   gap: 20px;
-//   align-items: center;
-//   justify-content: center;
-// `;
-
-// const Content = styled.div`
-//   width: 200px;
-//   margin-top: 10px;
-//   color: black;
-//   background: #dde6f3ff;
-//   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
-// `;
-
-// const ContentTitle = styled.div`
-//   padding-left: 10px;
-//   padding-top: 15px;
-//   font-size: 16px;
-//   font-weight: 600;
-//   color: black;
-// `;
-
-// const ContentParagraph = styled.div`
-//   color: black;
-//   padding-left: 15px;
-//   padding-bottom: 15px;
-//   width: 170px;
-//   padding-top: 10px;
-//   font-size: 12px;
-//   white-space: pre-line;
-//   line-height: 25px;
-// `;
-
-// const Analysis = styled.div`
-//   color: black;
-//   margin-left: 50px;
-//   margin-top: 15px;
-//   width: 400px;
-//   padding-top: 10px;
-//   font-size: 12px;
-//   white-space: pre-line;
-//   line-height: 25px;
-// `;
-
-// const Tag = styled.span`
-//     background: #fac3c3ff;
-//     border: 1px solid #e64040ff;
-//     color: #c01010ff;
-//     border-radius: 15px;
-//     margin-left: 5px;
-//     padding: 1px 5px;
-//     position: relative;
-//     top: -1px;
-// `;
 
 const HexagonContainer = styled.div`
     position: relative;
@@ -302,62 +187,157 @@ const RightArrow = styled.button`
   }
 `;
 
+const WeightContainer = styled.div`
+  width: 500px;
+  padding: 28px;
+  margin-left: 250px;
+  margin-top: 35px;
+  padding: 50px 100px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #9E9E9E;
+  border-radius: 20px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
 
-// const YesButton = styled.button`
-//     all: unset;
-//     width: 150px;
-//     height: 150px;
-//     background: #ffffffff;
-//     color: #FFFFFF;
-//     text-align: center;
-//     font-size: 16px;
-//     font-weight: 500;
-//     cursor: pointer;
-//     border: 3px solid #51c257ff;
-//     border-radius: 100px;
-//     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-//     transition: transform 0.1s ease;
-//     &:hover {
-//       background-color: #ecececff;
-//     }
-//     &:active {
-//       transform: scale(0.95);
-//     }
-//     font-size: 40px;
-// `;
+const WeightParagraph = styled.div`
+  width: 1000px;
+  color: black;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 0px 100px 0px 100px;
+`;
 
-// const NoButton = styled.button`
-//     all: unset;
-//     width: 150px;
-//     height: 150px;
-//     background: #ffffffff;
-//     color: #FFFFFF;
-//     text-align: center;
-//     font-size: 16px;
-//     font-weight: 500;
-//     cursor: pointer;
-//     border: 3px solid #ff6a6aff;
-//     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-//     border-radius: 100px;
-//     transition: transform 0.1s ease;
-//     &:hover {
-//       background-color: #ecececff;
-//     }
-//     &:active {
-//       transform: scale(0.95);
-//     }
-//     font-size: 40px;
-// `;
+const SliderBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Label = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  font-weight: 500;
+  padding-bottom: 5px;
+  color: #000;
+`;
+
+const Value = styled.span<{ role?: string }>`
+  font-weight: 600;
+  color: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+`;
+
+const Description = styled.div`
+  font-size: 12px;
+  color: #000;
+  margin-bottom: 10px;
+`;
+
+const StyledSlider = styled.input<{ role?: string }>`
+  width: 100%;
+  height: 6px;
+  border-radius: 5px;
+  margin-bottom: 25px;
+  appearance: none;
+  background: linear-gradient(90deg, ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )}, ${({ role }) => (role === "company" ? colors.company : colors.talent )});
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+    cursor: grab;
+    transition: 0.2s;
+  }
+
+  &::-webkit-slider-thumb:hover {
+    background: #e9e9e9ff;
+  }
+`;
+
+const WeightButton = styled.button<{ role?: string }>`
+    all: unset;
+    width: 200px;
+    height: 40px;
+    margin-top: 30px;
+    margin-left: 498px;
+    background: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #9E9E9E;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease;
+    &:hover {
+      background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
+    }
+    &:active {
+      transform: scale(0.95);
+    }
+`;
 
 export default function Recommendation() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, loading } = useAuth();
     const navigate = useNavigate();
     useEffect(() => {
         if (!token || !role) navigate("/auth/login");
-    }, []);
+    }, [loading, token]);
+
+    const [weights, setWeights] = useState({
+      jobFit: 50,
+      cultureFit: 50,
+      growth: 50,
+    });
+    
+    const handleChange = (key: string, value: number) => {
+      setWeights({ ...weights, [key]: value });
+    };
+
+    const submitWeights = () => {
+      navigate(`/search/recommendation?jobfit=${weights.jobFit}&culturefit=${weights.cultureFit}&growth=${weights.growth}`);
+    }
     
     const [flipped, setFlipped] = useState(false);
-    if (role === "talent") {
+    if (!(new URLSearchParams(location.search).get("jobfit"))
+      || !(new URLSearchParams(location.search).get("culturefit"))
+      || !(new URLSearchParams(location.search).get("growth"))) {
+      return (
+        <Container>
+          <Title>🔍 {role === "talent" ? "공고" : "인재"} 탐색</Title>
+          <WeightParagraph>가중치를 조정하여 딱 맞는 {role === "talent" ? "공고" : "인재"}를 찾아보세요!</WeightParagraph>
+          <WeightContainer>
+          <SliderBox>
+            <Label>💼 직무 적합성<Value role={role}>{weights.jobFit}</Value></Label>
+            <Description>{role === "talent" ? "나의 직무 수행 역량 · 경험 · 기술과 일치하는 공고 (역할 적합도, 역량 적합도)" : "공고에서 요구하는 역할을 수행 가능하고, 직무 관련 역량을 갖춘 인재 (역할 수행력, 역량 적합도)"}</Description>
+            <StyledSlider role={role} type="range" min="0" max="100" value={weights.jobFit} onChange={(e) => handleChange("jobFit", Number(e.target.value))}/>
+          </SliderBox>
+          <SliderBox>
+            <Label>👥 문화 적합성<Value role={role}>{weights.cultureFit}</Value></Label>
+            <Description>{role === "talent" ? "나의 가치관과 일치하는 비전, 성향에 적합한 조직문화를 갖춘 공고 (비전 신뢰도, 조직/문화 적합도)" : "우리 조직의 문화에 적합하며, 협업과 기여에 긍정적 영향을 줄 인재 (협업 기여도, 조직/문화 적합도)"}</Description>
+            <StyledSlider role={role} type="range" min="0" max="100" value={weights.cultureFit} onChange={(e) => handleChange("cultureFit", Number(e.target.value))}/>
+          </SliderBox>
+          <SliderBox>
+            <Label>📈 성장 가능성<Value role={role}>{weights.growth}</Value></Label>
+            <Description>{role === "talent" ? "나의 커리어 방향성과 일치하며, 성장의 기회를 제공하는 공고 (성장 기회 제공, 커리어 방향)" : "우리 조직의 성장 방향과 일치하며, 발전할 잠재력이 있는 인재 (성장 가능성, 커리어 방향)"}</Description>
+            <StyledSlider role={role} type="range" min="0" max="100" value={weights.growth} onChange={(e) => handleChange("growth", Number(e.target.value))}/>
+          </SliderBox>
+          </WeightContainer>
+          <WeightButton role={role} onClick={submitWeights}>가중치 입력하기</WeightButton>
+        </Container>
+      );
+    } else if (role === "talent") {
         return (
           <Container>
             <Title>🔍 공고 탐색</Title>
@@ -374,7 +354,7 @@ export default function Recommendation() {
                   <ContentContainer>
                     <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
-                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                      <ContentParagraph><span>· 정규직 (경력 3~5년차)</span><span>· 근무 기간 : 6개월</span><span>· 근무 부서 : 개발팀</span><span>· 연봉 협상</span></ContentParagraph>
                     </Content>
                     <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>

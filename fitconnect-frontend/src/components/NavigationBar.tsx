@@ -1,15 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { useAuth } from "./AuthContext";
-
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { baseURL } from "../env";
+
 import styled from "styled-components";
 import colors from "../styles/colors";
 import logo from '../assets/logo.png';
 import talent from '../assets/talent.png';
 import company from '../assets/company.png';
-
-const baseURL = "http://127.0.0.1:8000";  // Backend FastAPI
 
 const MainBar = styled.ul`
     margin: 0;
@@ -35,11 +34,15 @@ const Menu = styled.li<{ role?: string }>`
     justify-content: center;
     font-size: 18px;
     text-align: center;
+    z-index: 15;
     & > a {
         display: block;
         width: 100%;
         height: 100%;
         line-height: 80px;
+        &:hover + ul {
+            display: block;
+        }
     }
     &:hover > a, &:hover > span {
         font-weight: 500;
@@ -47,6 +50,19 @@ const Menu = styled.li<{ role?: string }>`
     }
     &:hover > ul {
         display: block;
+    }
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0%;
+        width: 190px;
+        height: 33px;
+        top: 50px;
+        background-color: #ffffff00;
+        z-index: 15;
+        &:hover + ul {
+            display: block;
+        } 
     }
 `;
 
@@ -105,8 +121,10 @@ const ProfileMenu = styled.li<{ role?: string }>`
 `;
 
 export default function NavigationBar() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, loading } = useAuth();
     const navigate = useNavigate();
+
+    const [name, setName] = useState("");
 
     const handleLogout = async () => {
         try {
@@ -119,6 +137,10 @@ export default function NavigationBar() {
         setRole(null);
         navigate("/");
     };
+
+    useEffect(() => {
+        setName(sessionStorage.getItem("name", token));
+    }, []);
 
   return (
     <nav className="navigation">
@@ -166,7 +188,7 @@ export default function NavigationBar() {
         {token ? 
           <Menu role={role}>
             <span><img src={role === "company" ? company : talent} alt="Logo" width={24} height={27}></img></span>
-            <span style={{ paddingLeft: "8px", fontSize: "15px", lineHeight: "18px", color: "#000" }}>김커넥 님</span>
+            <span style={{ paddingLeft: "8px", fontSize: "15px", lineHeight: "18px", color: "#000" }}>{name ? name + " 님" : "프로필 설정 필요"}</span>
             <SubBar role={role}>
               {role === "company" ?
                 <SubMenu role={role}><Link to="/jobs">등록된 공고 목록</Link></SubMenu>

@@ -132,7 +132,7 @@ export default function Login() {
     
     useEffect(() => {
         if (token && role) navigate("/");
-    }, []);
+    }, [token, role, navigate]);
 
     const handleLogin = async () => {
         try {
@@ -140,11 +140,28 @@ export default function Login() {
             const res = await axios.post(`${baseURL}/auth/login`, { email, password });
             if (res.status === 200) {
                 const token = res.data?.access_token;
+                const role = res.data?.role;
                 sessionStorage.setItem("jwt_token", token);
                 setToken(token);
-                const role = res.data?.role;
                 sessionStorage.setItem("user_role", role);
                 setRole(role);
+                if (role === 'talent') {
+                    axios.get(`${baseURL}/api/me/talent/basic`, { headers: { Authorization: `Bearer ${token}` } })
+                    .then((response) => {
+                        sessionStorage.setItem("name", response.data.data.name);
+                    })
+                    .catch((error) => {
+                        console.error("데이터 불러오기 실패:", error);
+                    });
+                } else if (role === 'company') {
+                    axios.get(`${baseURL}/api/me/company`, { headers: { Authorization: `Bearer ${token}` } })
+                    .then((response) => {
+                        sessionStorage.setItem("name", response.data.data.basic.name);
+                    })
+                    .catch((error) => {
+                        console.error("데이터 불러오기 실패:", error);
+                    });
+                }
                 navigate("/");
             }
         } catch (err) {
