@@ -264,7 +264,7 @@ export default function SetProfile() {
     const industry = ["산업 무관","IT/소프트웨어","게임","핀테크/금융","제조/공장","교육/연구","헬스케어/의료","미디어/콘텐츠","광고","유통/리테일","물류/운송","공공/정부","법률/회계","스타트업/벤처","외국계"];
     const companySize = ["규모 무관","1 ~ 10명","11 ~ 50명","51 ~ 100명","101 ~ 200명","201 ~ 500명","501 ~ 1000명","> 1000명"];
     const residence = ["지역 무관","서울","경기","인천","부산","대구","대전","광주","울산","강원","충북","충남","전북","전남","경북","경남"];
-    
+
     // Talent
     const [primaryInfo, setPrimaryInfo] = useState({ name: "", birth: "", email: "", phone: "", intro: "" });
     const [educationList, setEducationList] = useState([]);

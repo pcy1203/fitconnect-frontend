@@ -6,6 +6,8 @@ import { baseURL, aiURL } from "../../env";
 import { useAuth } from "../../components/AuthContext";
 import colors from "../../styles/colors";
 import axios from "axios";
+import company from '../../assets/company.png';
+import arrowCompany from '../../assets/arrow-company.png';
 
 const Container = styled.div`
   width: 1200px;
@@ -201,9 +203,9 @@ const CanvasWrapper = styled.div`
   box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
-  align-items: flex-end; /* 막대가 아래에서 위로 올라오도록 */
-  margin: 20px auto;    /* 위아래 여백, 가운데 정렬 */
-  padding: 10px;         /* 캔버스와 여백 */
+  align-items: flex-end;
+  margin: 20px auto;
+  padding: 10px;
 `;
 
 const StyledCanvas = styled.canvas`
@@ -232,6 +234,115 @@ const Label = styled.div`
     line-height: 70px;
 `;
 
+const Paragraph = styled.div`
+  width: 1000px;
+  color: black;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 0px 100px 0px 100px;
+`;
+
+const JobContainer = styled.div`
+  position: relative;
+  top: 0px;
+  left: 300px;
+  width: 610px;
+  height: 1px;
+`;
+
+const JobRegion = styled.div<{ role?: string }>`
+  height: 620px;
+  overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #bbb;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: #ffffffff;
+        border-radius: 10px;
+        border: 2px solid #cccccc;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: #ddd;
+    }
+`;
+
+const JobPosting = styled.div`
+  width: 560px;
+  height: 100px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: 5px;
+  background: rgba(255, 255, 255, 1);
+  border: 2px solid #b2b2b2ff;
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px rgba(171, 171, 171, 0.2);
+  transition: transform 0.1s ease;
+  &:hover {
+    background: rgba(247, 247, 247, 1);
+  }
+  &:hover div {
+    visibility: visible;
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const JobImage = styled.div`
+  margin-left: 15px;
+  margin-top: 15px;
+  width: 30px;
+`;
+
+const JobTitle = styled.div`
+  width: 300px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #242424ff;
+  position: relative;
+  top: -25px;
+  left: 41px;
+`;
+
+const JobContent = styled.div`
+  width: 320px;
+  font-size: 12px;
+  color: #242424ff;
+  position: relative;
+  top: -38px;
+  left: 20px;
+  line-height: 22px;
+`;
+
+const JobButton = styled.div<{ role?: string }>`
+  all: unset;
+  visibility: hidden;
+  width: 50px;
+  height: 22px;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  font-size: 16px;
+  top: -21px;
+  left: 400px;
+  font-weight: 600;
+  color: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  transition: transform 0.1s ease;
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const Input = styled.textarea.withConfig({
     shouldForwardProp: (prop) => prop !== "hasError"
 })<{ width?: string, height?: string, hasError?: boolean, role?: string }>`
@@ -253,13 +364,52 @@ const Input = styled.textarea.withConfig({
     resize: none;
 `;
 
+const CameraAndAudioContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 800px;
+  margin-top: 40px;
+  margin-left: 80px;
+`;
+
+const CameraView = styled.video`
+  width: 400px;
+  height: 280px;
+  border-radius: 5px;
+  background-color: #000;
+  object-fit: cover;
+`;
+
+const AudioPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 380px;
+  gap: 5px;
+`;
+
 export default function Interview() {
     const { token, setToken, role, setRole, loading } = useAuth();
+    const [jobList, setJobList] = useState(null);
     const navigate = useNavigate();
-    
+    const queryJobId = new URLSearchParams(location.search).get("job");
+
     useEffect(() => {
         if (!loading && (!token || !role)) navigate("/auth/login");
     }, [loading, token]);
+
+    useEffect(() => {
+        if (!loading && !queryJobId && role === 'company') {
+            axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              setJobList(response.data.data);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+        }
+    }, [loading, location.search]);
 
     const GENERAL = 1;
     const TECHNICAL = 2;
@@ -291,6 +441,7 @@ export default function Interview() {
     const audioContextRef = useRef<AudioContext | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationRef = useRef<number | null>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
 
     const getTutorial = () => {
         setStage(stage + 1);
@@ -298,6 +449,19 @@ export default function Interview() {
         setAudioUrls([]);
     };
     
+    const initCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        videoRef.current.srcObject = stream;
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => console.error("Video play 실패:", err));
+        }
+      } catch (err) {
+        console.error("카메라 접근 실패:", err);
+      }
+    };
+
     const startInterview = async () => {
         try {
             setSending(true);
@@ -325,7 +489,7 @@ export default function Interview() {
                 });
                 console.log(res.data);
                 setQuestion(res.data?.question);
-                setTotalQuestions(res.data?.total_questions);
+                setTotalQuestions(6);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/start`, {
@@ -351,10 +515,8 @@ export default function Interview() {
                 setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
             } else if (role == "company" && stage == SITUATIONAL) {
-                const res = await axios.post(`${aiURL}/api/company-interview/situational/start`, {}, {
-                    params: {
-                      session_id: sessionId,
-                    }
+                const res = await axios.post(`${aiURL}/api/company-interview/situational/start`, {
+                    session_id: sessionId,
                 });
                 console.log(res.data);
                 setQuestion(res.data?.next_question?.question);
@@ -363,6 +525,7 @@ export default function Interview() {
             setPage(1);
             setTutorial(false);
             setSending(false);
+            initCamera();
         } catch (err) {
             console.error("오류 발생 :", err);
         }
@@ -392,7 +555,7 @@ export default function Interview() {
                     await axios.get(`${aiURL}/api/interview/technical/results/${sessionId}`);
                     getTutorial();
                 }
-                setQuestion(res.data?.next_question);
+                setQuestion(res.data?.next_question?.question);
             } else if (role == "talent" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/interview/situational/answer`, {
                     session_id: sessionId,
@@ -413,7 +576,7 @@ export default function Interview() {
                     });
                     console.log(vector);
                 }
-                setQuestion(res.data?.next_question);
+                setQuestion(res.data?.next_question?.question);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/answer`, {
@@ -445,36 +608,58 @@ export default function Interview() {
                 });
                 console.log(res.data);
                 if (res.data?.is_finished) {
-                    // const jobId = new URLSearchParams(location.search).get("job");
-                    const response = await axios.get(`${aiURL}/api/company-interview/situational/analysis/${sessionId}`);
+                    const jobId = new URLSearchParams(location.search).get("job");
+                    const response = await axios.post(`${aiURL}/api/company-interview/situational/analysis`, {
+                      session_id: sessionId,
+                      access_token: token,
+                      job_posting_id: Number(jobId),
+                    });
                     console.log(response);
                     setJobPosting(true);
+                    setAdditionalInfo({
+                      role: response.data?.job_posting_data.responsibilities || "",
+                      requirement: response.data?.job_posting_data.requirements_must || "",
+                      preference: response.data?.job_posting_data.requirements_nice || "",
+                      capacity: response.data?.job_posting_data.competencies || "",
+                    });
                 }
+                setTotalQuestions(res.data?.total_questions);
                 setQuestion(res.data?.next_question?.question);
             }
             setPage(page + 1);
             setSending(false);
+            initCamera();
         } catch (err) {
             console.error("오류 발생 :", err);
         }
     };
 
     const postJobPosting = async () => {
-        const jobId = new URLSearchParams(location.search).get("job");          
-        const cardData = await axios.post(`${aiURL}/api/company-interview/job-posting`, {
+      try {
+        const jobId = new URLSearchParams(location.search).get("job");        
+        setSending(true);  
+        const cardData = await axios.post(`${aiURL}/api/company-interview/generate`, {
           session_id: sessionId,
           access_token: token,       
-          job_posting_id: jobId,
+          job_posting_id: Number(jobId),
           responsibilities: additionalInfo.role,
           requirements_must: additionalInfo.requirement,
           requirements_nice: additionalInfo.preference,
           competencies: additionalInfo.capacity,
         });
+        setSending(false);
         setFinished(true);
+      } catch (err) {
+        console.error("오류 발생 :", err);
+      }
     }
 
     const finishInterview = () => {
-        navigate("/assessment/result");
+        if (role == "company") {
+            navigate(`/assessment/result?job=${queryJobId}`);
+        } else {
+            navigate("/assessment/result");
+        }
     }
 
     const drawVolumeBar = () => {
@@ -686,25 +871,30 @@ export default function Interview() {
               </ProgressBarContainer>
               <Form>
                 <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
-                  <CanvasWrapper>
-                    {recording && (
-                      <StyledCanvas ref={canvasRef} width={200} height={140} />
+                <CameraAndAudioContainer>
+                  <CameraView ref={videoRef} autoPlay muted />
+                  <AudioPanel>
+                    <CanvasWrapper>
+                      {recording && (
+                        <StyledCanvas ref={canvasRef} width={200} height={140} />
+                      )}
+                    </CanvasWrapper>
+                    <ButtonContainer>
+                    {!recording ? 
+                      <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                      : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
+                    }
+                    {/* {audioUrls[page] && (
+                      <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
+                    )} */}
+                    </ButtonContainer>
+                    {audioUrls[page] && (
+                    <div style={{ marginTop: "20px" }}>
+                        <audio controls src={audioUrls[page]}></audio>
+                    </div>
                     )}
-                  </CanvasWrapper>
-                  <ButtonContainer>
-                  {!recording ? 
-                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
-                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
-                  }
-                  {/* {audioUrls[page] && (
-                    <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
-                  )} */}
-                  </ButtonContainer>
-                  {audioUrls[page] && (
-                  <div style={{ marginTop: "20px" }}>
-                      <audio controls src={audioUrls[page]}></audio>
-                  </div>
-                  )}
+                  </AudioPanel>
+                </CameraAndAudioContainer>
               </Form>
               {audioUrls[page] && (
                 <>
@@ -734,6 +924,27 @@ export default function Interview() {
               <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
               </>
             )}
+          </Container>
+        )
+    } else if (role === "company" && !queryJobId) {
+        return (
+          <Container>
+            <Title style={{'marginBottom': '20px'}}>🎤 AI 분석 인터뷰</Title>
+              <Paragraph>공고를 선택해주세요.</Paragraph>
+              <JobContainer>
+                <JobRegion>
+                  {jobList?.map((job) => (
+                    <JobPosting onClick={() => navigate(`/assessment/interview?job=${job.id}`)} key={job.id}>
+                      <JobImage><img src={company} alt="Logo" width={24*0.8} height={27*0.8}></img></JobImage>
+                      <JobTitle>{job.title}</JobTitle>
+                      <JobButton role="company">
+                        인터뷰 진행하기<img src={arrowCompany} alt="Logo" style={{'transform': 'rotate(180deg)', 'position': 'absolute', 'marginLeft': '5px', 'marginTop': '3px'}} width={24*0.8} height={24*0.8}></img>
+                      </JobButton>
+                      <JobContent>· {job?.employment_type}  |  {job?.career_level}<br/>· {job?.department} | {job?.deadline_date.replace("-", ".").replace("-", ".")} 마감</JobContent>
+                    </JobPosting>
+                  ))}
+                </JobRegion>
+              </JobContainer>
           </Container>
         )
     } else if (role === "company") {
@@ -897,7 +1108,7 @@ export default function Interview() {
                   <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Input>
                 </InputContainer>
               </Form>
-              <Button onClick={postJobPosting} role={role}>공고 저장하기</Button>
+              <Button onClick={postJobPosting} disabled={sending} role={role}>{sending ? "저장 및 분석 중···" : "저장하기"}</Button>
               </>
             )}
 

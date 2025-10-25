@@ -14,7 +14,6 @@ import Result from "./pages/Assessment/Result";
 
 import Recommendation from "./pages/Search/Recommendation";
 import Like from "./pages/Search/Like";
-import Weight from "./pages/Search/Weight";
 
 function App() {
     return (
@@ -33,7 +32,6 @@ function App() {
               <Route path="/assessment/result" element={<Result />} />
               
               <Route path="/search/recommendation" element={<Recommendation />} />
-              <Route path="/search/recommendation/weight" element={<Weight />} />
               <Route path="/search/like" element={<Like />} />
             </Route>
           </Routes>

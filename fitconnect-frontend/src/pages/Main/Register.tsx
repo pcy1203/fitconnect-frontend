@@ -183,11 +183,11 @@ export default function Register() {
                 <Form>
                     <InputContainer>
                     <Label>아이디</Label>
-                    <Input placeholder="아이디 (이메일)" value={email} onChange={(e) => setEmail(e.target.value)}></Input>
+                    <Input placeholder="아이디 (이메일)" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => {if (e.key === "Enter") handleRegister();}}></Input>
                     </InputContainer>
                     <InputContainer>
                     <Label>비밀번호</Label>
-                    <Input type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)}></Input>
+                    <Input type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => {if (e.key === "Enter") handleRegister();}}></Input>
                     </InputContainer>
                     <RegisterButton onClick={handleRegister}>가입하기</RegisterButton>
                 </Form>

@@ -63,39 +63,37 @@ const ProfileImage = styled.div`
   top: 20px;
   & > img {
     position: relative;
-    left: -62px;
-    margin-top: 7px;
+    left: -50px;
+    margin-top: 5px;
   }
 `;
 
 const ProfileName = styled.div`
   color: black;
   position: relative;
-  left: 92px;
-  top: -21px;
-  width: 130px;
-  text-align: center;
-  font-size: 20px;
+  left: 120px;
+  top: -25px;
+  font-size: 25px;
   font-weight: 600;
 `;
 
 const ProfileContent = styled.div`
   color: black;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
   position: relative;
   left: 256px;
-  top: -52px;
+  top: -65px;
 `;
 
 const Introduction = styled.div`
   width: 450px;
-  margin-top: 14px;
-  margin-bottom: 2px;
+  margin-top: 25px;
+  margin-bottom: 10px;
   margin-left: 25px;
   border-radius: 10px;
   color: black;
-  font-size: 12px;
+  font-size: 16px;
   line-height: 30px;
   text-align: center;
 `;
@@ -110,7 +108,7 @@ const ContentContainer = styled.div`
 
 const Content = styled.div<{ role?: string }>`
   width: 200px;
-  height: 178px;
+  height: 162.67px;
   margin-top: 10px;
   color: black;
   background: ${({ role }) => (role === "company" ? "#f7e7e7ff" : "#dde6f3ff" )};
@@ -118,9 +116,9 @@ const Content = styled.div<{ role?: string }>`
 `;
 
 const ContentTitle = styled.div`
-  padding-left: 15px;
-  padding-top: 12px;
-  font-size: 13px;
+  padding-left: 10px;
+  padding-top: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: black;
 `;
@@ -130,31 +128,21 @@ const ContentParagraph = styled.div`
   padding-left: 15px;
   padding-bottom: 15px;
   width: 170px;
-  padding-top: 15px;
-  font-size: 10px;
-  line-height: 14px;
-  & > span {
-    display: block;
-    min-height: 30px;
-    width: 170px; 
-    line-height: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  padding-top: 10px;
+  font-size: 12px;
+  white-space: pre-line;
+  line-height: 25px;
 `;
 
 const Analysis = styled.div`
   color: black;
   margin-left: 50px;
-  margin-top: 10px;
+  margin-top: 15px;
   width: 400px;
-  height: 80px;
-  padding-top: 7px;
-  font-size: 10px;
+  padding-top: 10px;
+  font-size: 12px;
   white-space: pre-line;
-  line-height: 20px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 25px;
 `;
 
 const Tag = styled.span<{ level?: string }>`
@@ -162,12 +150,10 @@ const Tag = styled.span<{ level?: string }>`
     border: 1px solid ${({ level }) => (level === "high" ? "#153772ff" : (level === "medium" ? "#0f6834ff" : "#b82323ff"))};
     color: ${({ level }) => (level === "high" ? "#153772ff" : (level === "medium" ? "#0f6834ff" : "#b82323ff"))};
     border-radius: 15px;
-    margin-left: 3px;
-    padding: 1.5px 5px;
-    top: 1px;
-    height: 10px;
-    display: inline-block;
+    margin-left: 5px;
+    padding: 1px 5px;
     position: relative;
+    top: -1px;
 `;
 
 const CardBackContainer = styled.div`
@@ -211,14 +197,14 @@ const BackRegion = styled.div`
 
 const BackTitle = styled.div`
     color: black;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     margin-bottom: 10px;
 `;
 
 const BackContent = styled.div`
     color: black;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 22px;
     font-weight: 400;
     margin-bottom: 5px;
