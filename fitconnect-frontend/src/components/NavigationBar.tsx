@@ -135,11 +135,12 @@ export default function NavigationBar() {
         sessionStorage.clear();
         setToken(null);
         setRole(null);
+        setName("");
         navigate("/");
     };
 
     useEffect(() => {
-        setName(sessionStorage.getItem("name", token));
+        setName(sessionStorage.getItem("name"));
     }, []);
 
   return (

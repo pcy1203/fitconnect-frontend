@@ -141,10 +141,7 @@ export default function Login() {
             if (res.status === 200) {
                 const token = res.data?.access_token;
                 const role = res.data?.role;
-                sessionStorage.setItem("jwt_token", token);
-                setToken(token);
-                sessionStorage.setItem("user_role", role);
-                setRole(role);
+                sessionStorage.removeItem("name");
                 if (role === 'talent') {
                     axios.get(`${baseURL}/api/me/talent/basic`, { headers: { Authorization: `Bearer ${token}` } })
                     .then((response) => {
@@ -162,6 +159,10 @@ export default function Login() {
                         console.error("데이터 불러오기 실패:", error);
                     });
                 }
+                sessionStorage.setItem("jwt_token", token);
+                setToken(token);
+                sessionStorage.setItem("user_role", role);
+                setRole(role);
                 navigate("/");
             }
         } catch (err) {

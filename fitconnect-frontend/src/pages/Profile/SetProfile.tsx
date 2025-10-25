@@ -479,6 +479,7 @@ export default function SetProfile() {
                     },
                 });
                 if (res.status === 201) {
+                    sessionStorage.setItem("name", primaryInfo.name);
                     navigate("/assessment/interview");
                 }
             } catch (err) {
@@ -514,6 +515,7 @@ export default function SetProfile() {
                     },
                 });
                 if (res.status === 201) {
+                    sessionStorage.setItem("name", basicInfo.name);
                     navigate("/profile/jobprofile");
                 }
             } catch (err) {

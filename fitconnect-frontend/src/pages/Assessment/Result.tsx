@@ -268,7 +268,14 @@ export default function Result() {
         }
     }, [loading, location.search]);
 
-    if (role === "talent") {
+    if (!cardData) {
+        return (
+          <Container>
+              <Title>📊 분석 결과: {role === "talent" ? "역량" : "공고"} 카드</Title>
+              <Paragraph style={{'marginTop': '50px'}}>프로필 설정/인터뷰를 먼저 진행해 주세요.</Paragraph>
+          </Container>
+        );
+    } else if (role === "talent") {
         return (
           <Container>
             <Title>📊 분석 결과: 역량 카드</Title>
@@ -401,7 +408,6 @@ export default function Result() {
                   </JobContainer>
               </Container>
             )
-      
     } else if (role === "company") {
         return (
           <Container>

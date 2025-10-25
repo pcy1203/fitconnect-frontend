@@ -297,6 +297,26 @@ export default function JobProfile() {
             try {
               console.log(token);
                 // POST /api/me/company/job-postings
+                console.log({
+                    title: jobInfo.title,
+                    position: jobInfo.position,
+                    department: jobInfo.department,
+                    location_city: jobInfo.location,
+                    employment_type: jobInfo.employment,
+                    salary_range: jobInfo.salary,
+                    career_level: jobInfo.career,
+                    education_level: jobInfo.education,
+                    start_date: jobInfo.join,
+                    term_months: jobInfo.period,
+                    homepage_url: jobInfo.homepage,
+                    deadline_date: jobInfo.deadline,
+                    contact_email: jobInfo.contact_email,
+                    contact_phone: jobInfo.contact_phone,
+                    responsibilities: additionalInfo.role,
+                    requirements_must: additionalInfo.requirement,
+                    requirements_nice: additionalInfo.preference,
+                    competencies: additionalInfo.capacity,
+                });
                 const res = await axios.post(`${baseURL}/api/me/company/job-postings`, {
                     title: jobInfo.title,
                     position: jobInfo.position,
