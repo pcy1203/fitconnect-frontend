@@ -51,19 +51,19 @@ const Menu = styled.li<{ role?: string }>`
     &:hover > ul {
         display: block;
     }
-    &::before {
-        content: "";
-        position: absolute;
-        top: 0%;
-        width: 190px;
-        height: 33px;
-        top: 50px;
-        background-color: #ffffff00;
-        z-index: 15;
-        &:hover + ul {
-            display: block;
-        } 
-    }
+    // &::before {
+    //     content: "";
+    //     position: absolute;
+    //     top: 0%;
+    //     width: 190px;
+    //     height: 33px;
+    //     top: 50px;
+    //     background-color: #ffffff00;
+    //     z-index: 15;
+    //     &:hover + ul {
+    //         display: block;
+    //     } 
+    // }
 `;
 
 const SubBar = styled.ul<{ role?: string }>`

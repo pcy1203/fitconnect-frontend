@@ -272,7 +272,7 @@ export default function Result() {
         return (
           <Container>
               <Title>📊 분석 결과: {role === "talent" ? "역량" : "공고"} 카드</Title>
-              <Paragraph style={{'marginTop': '50px'}}>프로필 설정/인터뷰를 먼저 진행해 주세요.</Paragraph>
+              <Paragraph style={{'marginTop': '50px'}}>카드를 로딩 중이니 잠시만 기다려 주세요!<br/><br/>(프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣)</Paragraph>
           </Container>
         );
     } else if (role === "talent") {
@@ -346,7 +346,7 @@ export default function Result() {
                     <CardBackRegion role={role}>
                       <BackRegion>
                         <BackTitle>👤 인적사항</BackTitle>
-                        <BackContent><b>{data?.basic.name}</b>  |  🎂 {data?.basic.birth_date?.replace("-", ".").replace("-", ".")}  |  ✉️ 이메일  |  📞 {data?.basic.phone}</BackContent>
+                        <BackContent><b>{data?.basic.name}</b>  |  🎂 {data?.basic.birth_date?.replace("-", ".").replace("-", ".")}  |  ✉️ {data?.basic.email}  |  📞 {data?.basic.phone}</BackContent>
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>🏫 학력사항</BackTitle>
@@ -357,7 +357,7 @@ export default function Result() {
                       <BackRegion>
                         <BackTitle>💼 경력사항</BackTitle>
                         {data?.experiences.map((experience) => (
-                          <BackContent><b>{experience.company_name}</b>  |  {experience.title}  ({formatYearMonth(experience.start_ym)} ~ {formatYearMonth(experience.end_ym)})<br/>{experience.summary} {experience.leave_reason ? "(퇴사 사유 : {experience.leave_reason})" : ""}</BackContent>
+                          <BackContent><b>{experience.company_name}</b>  |  {experience.title}  ({formatYearMonth(experience.start_ym)} ~ {formatYearMonth(experience.end_ym)})<br/>{experience.summary} {experience.leave_reason ? `(퇴사 사유 : ${experience.leave_reason})` : ""}</BackContent>
                         ))}
                       </BackRegion>
                       <BackRegion>

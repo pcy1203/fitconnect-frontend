@@ -627,11 +627,33 @@ export default function Interview() {
                     });
                     console.log(response);
                     setJobPosting(true);
+                    // let jobProfile = await axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } });
+                    // jobProfile = jobProfile.data?.data.find(job => job.id === Number(jobId))?.job_posting_data
                     setAdditionalInfo({
-                      role: response.data?.job_posting_data.responsibilities || "",
-                      requirement: response.data?.job_posting_data.requirements_must || "",
-                      preference: response.data?.job_posting_data.requirements_nice || "",
-                      capacity: response.data?.job_posting_data.competencies || "",
+                      role: `[ 기존에 작성한 내용 ]
+
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.responsibilities}` || "",
+                      requirement: `[ 기존에 작성한 내용 ]
+
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.requirements_must}` || "",
+                      preference: `[ 기존에 작성한 내용 ]
+
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.requirements_nice}` || "",
+                      capacity: `[ 기존에 작성한 내용 ]
+
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.competencies}` || "",
                     });
                 }
                 setTotalQuestions(res.data?.total_questions);

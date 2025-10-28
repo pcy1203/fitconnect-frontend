@@ -610,7 +610,7 @@ export default function Recommendation() {
         return (
           <Container>
               <Title>🔮 {role === "talent" ? "공고" : "인재"} 탐색</Title>
-              <Paragraph style={{'marginTop': '50px'}}>프로필 설정/인터뷰를 먼저 진행해 주세요.</Paragraph>
+              <Paragraph style={{'marginTop': '50px'}}>카드를 로딩 중이니 잠시만 기다려 주세요!<br/><br/>(프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣)</Paragraph>
           </Container>
         );
     } else if (role === "talent") {

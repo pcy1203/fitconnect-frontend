@@ -330,7 +330,7 @@ export default function Recommendation() {
     } else if (role === "company") {
         return (
           <Container>
-            <Title>🔍 인재 탐색</Title>
+            <Title>♥️ 보관한 인재</Title>
             <CardContainer>
               <Card role="talent" flipped={flipped} onClick={() => setFlipped(!flipped)}>
                 <CardFace>
