@@ -51,19 +51,19 @@ const Menu = styled.li<{ role?: string }>`
     &:hover > ul {
         display: block;
     }
-    &::before {
-        content: "";
-        position: absolute;
-        top: 0%;
-        width: 190px;
-        height: 33px;
-        top: 50px;
-        background-color: #ffffff00;
-        z-index: 15;
-        &:hover + ul {
-            display: block;
-        } 
-    }
+    // &::before {
+    //     content: "";
+    //     position: absolute;
+    //     top: 0%;
+    //     width: 190px;
+    //     height: 33px;
+    //     top: 50px;
+    //     background-color: #ffffff00;
+    //     z-index: 15;
+    //     &:hover + ul {
+    //         display: block;
+    //     } 
+    // }
 `;
 
 const SubBar = styled.ul<{ role?: string }>`
@@ -121,10 +121,8 @@ const ProfileMenu = styled.li<{ role?: string }>`
 `;
 
 export default function NavigationBar() {
-    const { token, setToken, role, setRole, loading } = useAuth();
+    const { token, setToken, role, setRole, loading, profileName, setProfileName } = useAuth();
     const navigate = useNavigate();
-
-    const [name, setName] = useState("");
 
     const handleLogout = async () => {
         try {
@@ -135,11 +133,12 @@ export default function NavigationBar() {
         sessionStorage.clear();
         setToken(null);
         setRole(null);
+        setProfileName(null);
         navigate("/");
     };
 
     useEffect(() => {
-        setName(sessionStorage.getItem("name", token));
+        setProfileName(sessionStorage.getItem("name"));
     }, []);
 
   return (
@@ -173,28 +172,32 @@ export default function NavigationBar() {
             <SubMenu role={role}><Link to="/search/like">{role === "company" ? "인재 보관함" : "공고 보관함"}</Link></SubMenu>
           </SubBar>
         </Menu>
-        <Menu role={role}><Link to="/jobinterview">면접 도우미</Link>
+        {/* <Menu role={role}><Link to="/jobinterview">면접 도우미</Link>*/}
+        <Menu role={role}><Link>면접 도우미</Link>
           {role === "company" ? 
             <SubBar role={role}>
-              <SubMenu role={role}><Link to="/jobinterview/interview">면접 준비/진행</Link></SubMenu>
-              <SubMenu role={role}><Link to="/jobinterview/debriefing">디브리핑 진행</Link></SubMenu>
+              <SubMenu role={role} style={{'backgroundColor': '#858585ff'}}>면접 준비/진행</SubMenu>
+              <SubMenu role={role} style={{'backgroundColor': '#858585ff'}}>디브리핑 진행</SubMenu>
+              {/* <SubMenu role={role}><Link to="/jobinterview/interview">면접 준비/진행</Link></SubMenu>
+              <SubMenu role={role}><Link to="/jobinterview/debriefing">디브리핑 진행</Link></SubMenu> */}
             </SubBar>
             :
             <SubBar role={role}>
-              <SubMenu role={role}><Link to="/jobinterview/feedback">받은 피드백</Link></SubMenu>
+              <SubMenu role={role} style={{'backgroundColor': '#858585ff'}}>받은 피드백</SubMenu>
+              {/* <SubMenu role={role}><Link to="/jobinterview/feedback">받은 피드백</Link></SubMenu> */}
             </SubBar>
           }
         </Menu>
         {token ? 
           <Menu role={role}>
             <span><img src={role === "company" ? company : talent} alt="Logo" width={24} height={27}></img></span>
-            <span style={{ paddingLeft: "8px", fontSize: "15px", lineHeight: "18px", color: "#000" }}>{name ? name + " 님" : "프로필 설정 필요"}</span>
+            <span style={{ paddingLeft: "8px", fontSize: "15px", lineHeight: "18px", color: "#000" }}>{profileName ? profileName + " 님" : "프로필 설정 필요"}</span>
             <SubBar role={role}>
-              {role === "company" ?
+              {/* {role === "company" ?
                 <SubMenu role={role}><Link to="/jobs">등록된 공고 목록</Link></SubMenu>
                 :
                 <SubMenu role={role}><Link to="/myprofile">내 프로필</Link></SubMenu>
-              }
+              } */}
               <SubMenu role={role}><Link onClick={handleLogout}>로그아웃</Link></SubMenu>
             </SubBar>
           </Menu>

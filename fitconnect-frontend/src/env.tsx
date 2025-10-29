@@ -1,5 +1,6 @@
-const baseURL = "http://54.89.71.175:8000";
-const aiURL = "http://localhost:8000";
+const baseURL = "https://fitconnectback.duckdns.org";
+const aiURL = "https://fitconnectai.duckdns.org";
+// const aiURL = "http://localhost:8000";
 
 export {
     baseURL,

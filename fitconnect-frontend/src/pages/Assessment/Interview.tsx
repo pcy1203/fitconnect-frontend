@@ -394,6 +394,8 @@ export default function Interview() {
     const [jobList, setJobList] = useState(null);
     const navigate = useNavigate();
     const queryJobId = new URLSearchParams(location.search).get("job");
+    const [name, setName] = useState("$이름$");
+    const [jobTitle, setJobTitle] = useState("$공고$");
 
     useEffect(() => {
         if (!loading && (!token || !role)) navigate("/auth/login");
@@ -408,8 +410,16 @@ export default function Interview() {
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
             });
+        } else if (jobTitle === "$공고$" && role === 'company') {
+            axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              setJobTitle(response.data.data.find(job => job.id === Number(queryJobId))?.title);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
         }
-    }, [loading, location.search]);
+    }, [location.search]);
 
     const GENERAL = 1;
     const TECHNICAL = 2;
@@ -417,7 +427,7 @@ export default function Interview() {
     const stages = [
       { num: 1, label: "구조화 면접" },
       { num: 2, label: "직무 적합성 면접" },
-      { num: 3, label: "상황 면접" },
+      { num: 3, label: "문화 적합성 면접" },
     ];
 
     const [page, setPage] = useState(1);
@@ -447,9 +457,11 @@ export default function Interview() {
         setStage(stage + 1);
         setTutorial(true);
         setAudioUrls([]);
+        setName(sessionStorage.getItem("name"));
     };
     
     const initCamera = async () => {
+      if (role === 'company') return;
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoRef.current.srcObject = stream;
@@ -614,13 +626,34 @@ export default function Interview() {
                       access_token: token,
                       job_posting_id: Number(jobId),
                     });
-                    console.log(response);
                     setJobPosting(true);
+                    const jobProfile = await axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } });
+                    const originalJobPosting = jobProfile.data?.data.find(job => job.id === Number(jobId));
                     setAdditionalInfo({
-                      role: response.data?.job_posting_data.responsibilities || "",
-                      requirement: response.data?.job_posting_data.requirements_must || "",
-                      preference: response.data?.job_posting_data.requirements_nice || "",
-                      capacity: response.data?.job_posting_data.competencies || "",
+                      role: `[ 기존에 작성한 내용 ]
+${originalJobPosting.responsibilities}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.responsibilities}` || "",
+                      requirement: `[ 기존에 작성한 내용 ]
+${originalJobPosting.requirements_must}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.requirements_must}` || "",
+                      preference: `[ 기존에 작성한 내용 ]
+${originalJobPosting.requirements_nice}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.requirements_nice}` || "",
+                      capacity: `[ 기존에 작성한 내용 ]
+${originalJobPosting.competencies}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.competencies}` || "",
                     });
                 }
                 setTotalQuestions(res.data?.total_questions);
@@ -789,11 +822,11 @@ export default function Interview() {
                 <FormTitle>시작 전 안내사항</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>'딱 맞는 매칭'</b>을 위해, $이름$ 님을 조금 더 알아가고 싶어요.<br/>
+                  <b>'딱 맞는 매칭'</b>을 위해, {name} 님을 조금 더 알아가고 싶어요.<br/>
                   <br/>
                   📌 AI 분석 인터뷰는 <b>3단계</b>로 이루어져 있으며, 총 소요 시간은 <b>약 30분</b> 정도로 예상돼요.<br/>
                   📌 답변에는 정답이 없으며, <b>자신의 경험을 돌아보는 시간</b>이라는 생각으로 편안하게 진행해 주세요.<br/>
-                  📌 시작 전, <b>마이크 상태와 주변 소음</b>을 한 번 확인해 주세요.<br/>
+                  📌 시작 전, <b>카메라와 마이크 상태 및 주변 소음</b>을 한 번 확인해 주세요.<br/>
                   <br/>
                   모든 준비가 되었다면, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러주세요!
                   </FormParagraph>  
@@ -809,10 +842,10 @@ export default function Interview() {
                 <FormTitle>1️⃣ 구조화 면접</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>구조화 면접</b>은 정해진 질문을 통해 $이름$ 님의 전반적인 경험을 파악하는 단계예요.<br/>
+                  <b>구조화 면접</b>은 정해진 질문을 통해 {name} 님의 전반적인 경험을 파악하는 단계예요.<br/>
                   <br/>
                   ✔️ 구조화 면접은 <b>총 5개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 7분</b> 정도로 예상돼요.<br/>
-                  ✔️ 경력, 강점, 가치관 등 포괄적인 주제를 중심으로 $이름$ 님의 <b>경험과 역량</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ 경력, 강점, 가치관 등 포괄적인 주제를 중심으로 {name} 님의 <b>경험과 역량</b>을 이해하는 데 활용돼요.<br/>
                   ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
                   <br/>
                   너무 부담 갖지 말고, 편안한 마음으로 우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
@@ -829,10 +862,10 @@ export default function Interview() {
                 <FormTitle>2️⃣ 직무 적합성 면접</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>직무 적합성 면접</b>은 맞춤형 질문을 통해 $이름$ 님의 직무 관련 경험과 기술을 구체적으로 알아보는 단계예요.<br/>
+                  <b>직무 적합성 면접</b>은 맞춤형 질문을 통해 {name} 님의 직무 관련 경험과 기술을 구체적으로 알아보는 단계예요.<br/>
                   <br/>
                   ✔️ 직무 적합성 면접은 <b>8 ~ 10개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 15분</b> 정도로 예상돼요.<br/>
-                  ✔️ 문제 해결 경험을 바탕으로 $이름$ 님의 <b>강점과 직무 역량·기술</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ 문제 해결 경험을 바탕으로 {name} 님의 <b>강점과 직무 역량·기술</b>을 이해하는 데 활용돼요.<br/>
                   ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
                   <br/>
                   충분히 생각이 정리되었다면, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
@@ -846,13 +879,13 @@ export default function Interview() {
             {stage == SITUATIONAL && tutorial && (
               <>
               <Form>
-                <FormTitle>3️⃣ 상황 면접</FormTitle>
+                <FormTitle>3️⃣ 문화 적합성 면접</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>상황 면접</b>은 맞춤형 질문을 통해 $이름$ 님의 업무 성향을 알아보는 단계예요.<br/>
+                  <b>문화 적합성 면접</b>은 맞춤형 질문을 통해 {name} 님의 업무 성향을 알아보는 단계예요.<br/>
                   <br/>
-                  ✔️ 상황 면접은 <b>5 ~ 7개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 8분</b> 정도로 예상돼요.<br/>
-                  ✔️ 가상의 상황에서의 판단 내용을 바탕으로 $이름$ 님의 <b>협업 성향과 성장 가능성</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ 문화 적합성 면접은 <b>5 ~ 7개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 8분</b> 정도로 예상돼요.<br/>
+                  ✔️ 특정 상황에서의 행동 내용을 바탕으로 {name} 님의 <b>협업 성향과 성장 가능성</b>을 이해하는 데 활용돼요.<br/>
                   ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
                   <br/>
                   마지막까지 최선을 다해, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
@@ -913,7 +946,7 @@ export default function Interview() {
                   3단계의 인터뷰가 모두 <b>완료</b>되어, AI가 인터뷰 내용을 분석 중이에요.<br/>
                   <br/>
                   🤚 긴 시간 <b>인터뷰에 성실하게 답해주셔서 진심으로 감사드려요</b>.<br/>
-                  🤚 답변 내용을 바탕으로 $이름$ 님의 <b>경험, 강점, 역량, 성향</b>을 파악하고 있어요.<br/>
+                  🤚 답변 내용을 바탕으로 {name} 님의 <b>경험, 강점, 역량, 성향</b>을 파악하고 있어요.<br/>
                   🤚 분석한 내용은 한 눈에 확인 가능하도록 <b>역량 카드</b>로 만들어드려요.<br/>
                   🤚 역량 카드 내용을 바탕으로, <b>'공고 탐색' 탭에서 맞춤형 공고를 추천</b>드려요.<br/>
                   <br/>
@@ -967,13 +1000,13 @@ export default function Interview() {
                 <FormTitle>시작 전 안내사항</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>'딱 맞는 매칭'</b>을 위해, 어떤 인재가 $공고$ 포지션에 적합한지 구체적으로 파악해 볼게요.<br/>
+                  <b>'딱 맞는 매칭'</b>을 위해, 어떤 인재가 {jobTitle} 포지션에 적합한지 구체적으로 파악해 볼게요.<br/>
                   <br/>
                   📌 AI 분석 인터뷰는 <b>3단계</b>로 이루어져 있으며, 총 소요 시간은 <b>약 30분</b> 정도로 예상돼요.<br/>
                   📌 <b>실무진 팀원들, HR(인사팀) 담당자</b>가 함께 참여해 질문을 보고 의견을 나누는 걸 권장드려요.<br/>
                   📌 인터뷰 내용은 공개되지 않으며, 포지션에서 <b>요구하는 역량과 기대하는 역할</b>을 이해하는 데 활용돼요.<br/>
                   📌 인터뷰가 완료되면, AI가 공고 내용을 제안드릴 예정이에요. 내용을 자유롭게 수정 후 완성해주세요.<br/>
-                  📌 시작 전, <b>마이크 상태와 주변 소음</b>을 한 번 확인해 주세요.<br/>
+                  📌 시작 전, <b>카메라와 마이크 상태 및 주변 소음</b>을 한 번 확인해 주세요.<br/>
                   <br/>
                   모든 준비가 되었다면, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러주세요!
                   </FormParagraph>  
@@ -989,10 +1022,10 @@ export default function Interview() {
                 <FormTitle>1️⃣ 구조화 면접</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>구조화 면접</b>은 정해진 질문을 통해 $공고$ 포지션의 전반적인 조건을 파악하는 단계예요.<br/>
+                  <b>구조화 면접</b>은 정해진 질문을 통해 {jobTitle} 포지션의 전반적인 조건을 파악하는 단계예요.<br/>
                   <br/>
                   ✔️ 구조화 면접은 <b>총 5개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 7분</b> 정도로 예상돼요.<br/>
-                  ✔️ 업무, 인재상 등 포괄적인 주제를 중심으로 $공고$ 포지션의 <b>주요 역할</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ 업무, 인재상 등 포괄적인 주제를 중심으로 {jobTitle} 포지션의 <b>주요 역할</b>을 이해하는 데 활용돼요.<br/>
                   ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
                   <br/>
                   우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
@@ -1009,10 +1042,10 @@ export default function Interview() {
                 <FormTitle>2️⃣ 직무 적합성 면접</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>직무 적합성 면접</b>은 맞춤형 질문을 통해 $공고$ 포지션의 요구 역량과 기술을 구체적으로 알아보는 단계예요.<br/>
+                  <b>직무 적합성 면접</b>은 맞춤형 질문을 통해 {jobTitle} 포지션의 요구 역량과 기술을 구체적으로 알아보는 단계예요.<br/>
                   <br/>
                   ✔️ 직무 적합성 면접은 <b>8 ~ 10개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 15분</b> 정도로 예상돼요.<br/>
-                  ✔️ 팀의 KPI와 포지션의 JD를 바탕으로 $공고$ 포지션의 <b>요구 역량</b>을 이해하는 데 활용돼요.<br/>
+                  ✔️ 팀의 KPI와 포지션의 JD를 바탕으로 {jobTitle} 포지션의 <b>요구 역량</b>을 이해하는 데 활용돼요.<br/>
                   ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
                   <br/>
                   우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
@@ -1026,13 +1059,13 @@ export default function Interview() {
             {stage == SITUATIONAL && tutorial && (
               <>
               <Form>
-                <FormTitle>3️⃣ 상황 면접</FormTitle>
+                <FormTitle>3️⃣ 문화 적합성 면접</FormTitle>
                 <FormContent>
                   <FormParagraph>
-                  <b>상황 면접</b>은 맞춤형 질문을 통해 조직/팀의 성격과 일하는 방식을 알아보는 단계예요.<br/>
+                  <b>문화 적합성 면접</b>은 맞춤형 질문을 통해 조직/팀의 성격과 일하는 방식을 알아보는 단계예요.<br/>
                   <br/>
-                  ✔️ 상황 면접은 <b>5 ~ 7개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 8분</b> 정도로 예상돼요.<br/>
-                  ✔️ 가상의 상황에서의 판단 내용을 바탕으로 팀의 <b>인재상과 도전 과제</b>를 이해하는 데 활용돼요.<br/>
+                  ✔️ 문화 적합성 면접은 <b>5 ~ 7개의 질문</b>으로 이루어져 있으며, 소요 시간은 <b>약 8분</b> 정도로 예상돼요.<br/>
+                  ✔️ 특정 상황에서의 판단 내용을 바탕으로 팀의 <b>인재상과 도전 과제</b>를 이해하는 데 활용돼요.<br/>
                   ✔️ 각 질문의 답변은 <b>약 50 ~ 100초</b> 정도로, 너무 짧거나 길지 않게 조절해주세요.<br/>
                   <br/>
                   마지막까지 최선을 다해, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러 면접을 시작해주세요!
@@ -1120,7 +1153,7 @@ export default function Interview() {
                   <FormParagraph>
                   3단계의 인터뷰 및 공고 작성이 모두 <b>완료</b>되어, AI가 인터뷰와 공고 내용을 분석 중이에요.<br/>
                   <br/>
-                  🤚 답변 내용을 바탕으로 $공고$ 포지션의 <b>주요 역할/업무, 요구 역량</b>을 파악하고 있어요.<br/>
+                  🤚 답변 내용을 바탕으로 {jobTitle} 포지션의 <b>주요 역할/업무, 요구 역량</b>을 파악하고 있어요.<br/>
                   🤚 분석한 내용은 한 눈에 확인 가능하도록 <b>공고 카드</b>로 만들어드려요.<br/>
                   🤚 공고 카드 내용을 바탕으로, <b>'인재 탐색' 탭에서 맞춤형 인재를 추천</b>드려요.<br/>
                   <br/>

@@ -72,10 +72,10 @@ const ProfileName = styled.div`
   color: black;
   position: relative;
   left: 92px;
-  top: -21px;
+  top: -20px;
   width: 130px;
   text-align: center;
-  font-size: 20px;
+  font-size: 18.5px;
   font-weight: 600;
 `;
 
@@ -148,7 +148,7 @@ const Analysis = styled.div`
   margin-left: 50px;
   margin-top: 10px;
   width: 400px;
-  height: 80px;
+  height: 95px;
   padding-top: 7px;
   font-size: 10px;
   white-space: pre-line;
@@ -228,6 +228,7 @@ const BackContent = styled.div`
     padding-left: 5px;
     display: list-item;
     list-style-type: "·";
+    white-space: pre-line;
 `;
 
 const BackButton = styled.button`

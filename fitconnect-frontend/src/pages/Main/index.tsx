@@ -9,7 +9,7 @@ import company from '../../assets/company.png';
 import colors from "../../styles/colors";
 
 import { CardContainer, Card, CardFace, CardBack, ProfileContainer, ProfileImage, ProfileName, ProfileContent,
-  Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag} from "../../components/CardMain";
+  Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag} from "../../components/Card";
 
 const Container = styled.div`
     width: 1200px;
@@ -359,35 +359,55 @@ export default function Main() {
                 <CardFace>
                   <ProfileContainer>
                     <ProfileImage><img src={talent} alt="Logo" width={32} height={36}></img></ProfileImage>
-                    <ProfileName>김커넥</ProfileName>
-                    <ProfileContent>🌠 백엔드 개발자 (경력 5년)</ProfileContent>
+                    <ProfileName>김하늘</ProfileName>
+                    <ProfileContent>🌠 프론트엔드 개발자 (경력 3년)</ProfileContent>
                     <ProfileContent>💼 FitConnect 재직 중</ProfileContent>
                   </ProfileContainer>
-                  <Introduction>"안녕하세요, 백엔드 개발자입니다."</Introduction>
+                  <Introduction>"사용자의 경험을 설계하는 개발자입니다."</Introduction>
                   <ContentContainer>
-                    <Content role={"talent"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📂 주요 경험/경력</ContentTitle>
-                      <ContentParagraph>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· React 기반 대시보드 UI 컴포넌트 설계 및 최적화<br/></span>
+                        <span>· Next.js 기반 서비스 성능 개선 (LCP 40% 향상)<br/></span>
+                        <span>· 디자인 시스템 구축 및 Storybook 문서화<br/></span>
+                        <span>· 협업 툴(Jira, Figma, Notion) 기반의 애자일 스프린트 운영<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"talent"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🎯 강점</ContentTitle>
-                      <ContentParagraph>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 복잡한 UI 로직을 모듈화하여 유지보수 효율 개선<br/></span>
+                        <span>· 디자이너 및 백엔드와의 원활한 커뮤니케이션<br/></span>
+                        <span>· 사용자 피드백 기반의 반복적 개선 프로세스 경험<br/></span>
+                        <span>· 성능 측정 및 개선 자동화 도구(Cypress, Lighthouse) 활용<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content role={"talent"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🚀 핵심 일반 역량</ContentTitle>
-                      <ContentParagraph>· 역량1<Tag>높음</Tag><br/>· 역량2<Tag>높음</Tag><br/>· 역량3<Tag>높음</Tag><br/>· 역량4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 문제 해결력 <Tag level="high">매우 우수</Tag><br/></span>
+                        <span>· 협업 및 커뮤니케이션 <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 자기 주도적 학습 <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 기획 이해력 <Tag level="low">보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"talent"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 핵심 직무 역량/기술</ContentTitle>
-                      <ContentParagraph>· 직무 역량1<Tag>높음</Tag><br/>· 직무 역량.....2<Tag>높음</Tag><br/>· 직무 역량3<Tag>높음</Tag><br/>· 직무 역량............4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· React, TypeScript <Tag level="high">매우 우수</Tag><br/></span>
+                        <span>· Next.js, Zustand, TailwindCSS <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 성능 최적화 및 API 연동 <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 테스트 자동화 (Jest, Cypress) <Tag level="low">보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
-                    📈 <b>직무 수행</b> : 이런 성과가 있어요<br/>
-                    👥 <b>협업 성향</b> : 협업할 때 이런 편이에요<br/>
-                    💪 <b>성장 가능성</b> : 이런 성장 가능성이 보여요
+                    📈 <b>직무 수행</b> : 신규 서비스 런칭 시, 사용자 유입률 25% 증가, UI 렌더링 속도 1.4초 → 0.9초 개선<br/>
+                    👥 <b>협업 성향</b> : 문제를 함께 정의하고, 빠르게 시제품을 만들어 피드백을 반복하는 스타일입니다.<br/>
+                    💪 <b>성장 가능성</b> : 풀스택 개발자로의 확장 의지가 높고, 사용자 경험(UX)에 대한 감각이 뛰어나 Product Thinking형 개발자로 성장할 가능성이 큽니다.
                   </Analysis>
                 </CardFace>
               </Card>
@@ -395,35 +415,55 @@ export default function Main() {
                 <CardFace role={"company"}>
                   <ProfileContainer role={"company"}>
                     <ProfileImage><img src={company} alt="Logo" width={32} height={36}></img></ProfileImage>
-                    <ProfileName>김커넥</ProfileName>
-                    <ProfileContent>🌠 백엔드 개발자</ProfileContent>
-                    <ProfileContent>🗓️ 2025.10.04 마감</ProfileContent>
+                    <ProfileName>피플러스</ProfileName>
+                    <ProfileContent>🌠 HR 매니저</ProfileContent>
+                    <ProfileContent>🗓️ 2025.10.31 마감</ProfileContent>
                   </ProfileContainer>
-                  <Introduction>"백엔드 개발자를 찾습니다."</Introduction>
+                  <Introduction>"함께 성장할 문화를 만드는 HR 매니저를 찾습니다."</Introduction>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
-                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 정규직 (경력 3~5년차)<br/></span>
+                        <span>· 근무 부서 : 인사팀 (People Operations)<br/></span>
+                        <span>· 근무 형태 : 하이브리드 (주 1회 재택 가능)<br/></span>
+                        <span>· 연봉 : 협의 후 결정<br/></span>
+                        </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>
-                      <ContentParagraph>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 채용 브랜딩 및 온보딩 프로그램 기획<br/></span>
+                        <span>· 조직문화 진단 및 개선 프로젝트 운영<br/></span>
+                        <span>· 구성원 만족도 조사 및 피드백 시스템 설계<br/></span>
+                        <span>· HR 데이터 기반의 성과 관리 체계 구축<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>💡 자격 요건</ContentTitle>
-                      <ContentParagraph>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 스타트업 또는 IT 기업 HR 경력 3년 이상<br/></span>
+                        <span>· 인재 육성 및 조직문화 개선 경험<br/></span>
+                        <span>· 데이터 기반의 문제 해결 능력<br/></span>
+                        <span>· HR 시스템(Workday, Notion 등) 활용 능숙<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 요구 역량</ContentTitle>
-                      <ContentParagraph>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 커뮤니케이션 및 협업 능력<br/></span>
+                        <span>· 조직 분석 및 변화 관리 능력<br/></span>
+                        <span>· 문제 해결 및 기획력<br/></span>
+                        <span>· 공감 기반 리더십<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
-                    💼 <b>기업 정보</b> : 조직문화, 복리후생<br/>
-                    🎤 <b>인재상</b> : 이런 인재를 원해요<br/>
-                    💪 <b>도전 과제</b> : 이런 도전 과제가 있어요
+                    💼 <b>기업 정보</b> : 수평적인 의사소통, 자유로운 재택근무제,연 200만 원 자기계발비 지원, 1:1 커리어 코칭 및 성장 인터뷰 제도 운영<br/>
+                    🎤 <b>인재상</b> : 사람 중심의 문화를 만들며, 데이터로 더 나은 HR을 고민하는 사람<br/>
+                    💪 <b>도전 과제</b> : 급성장 중인 팀의 조직 구조를 재정비하고, 성장 중심 HR 체계를 완성하는 것이 목표입니다.
                   </Analysis>
                 </CardFace>
               </Card>
@@ -462,35 +502,55 @@ export default function Main() {
                 <CardFace role={"company"}>
                   <ProfileContainer role={"company"}>
                     <ProfileImage><img src={company} alt="Logo" width={32} height={36}></img></ProfileImage>
-                    <ProfileName>김커넥</ProfileName>
-                    <ProfileContent>🌠 백엔드 개발자</ProfileContent>
-                    <ProfileContent>🗓️ 2025.10.04 마감</ProfileContent>
+                    <ProfileName>피플러스</ProfileName>
+                    <ProfileContent>🌠 HR 매니저</ProfileContent>
+                    <ProfileContent>🗓️ 2025.10.31 마감</ProfileContent>
                   </ProfileContainer>
-                  <Introduction>"백엔드 개발자를 찾습니다."</Introduction>
+                  <Introduction>"함께 성장할 문화를 만드는 HR 매니저를 찾습니다."</Introduction>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📜 공고 정보</ContentTitle>
-                      <ContentParagraph>· 정규직 (경력 3~5년차)<br/>· 근무 기간 : 6개월<br/>· 근무 부서 : 개발팀<br/>· 연봉 협상</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 정규직 (경력 3~5년차)<br/></span>
+                        <span>· 근무 부서 : 인사팀 (People Operations)<br/></span>
+                        <span>· 근무 형태 : 하이브리드 (주 1회 재택 가능)<br/></span>
+                        <span>· 연봉 : 협의 후 결정<br/></span>
+                        </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>📋 주요 역할/업무</ContentTitle>
-                      <ContentParagraph>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요<br/>· 이런 업무를 수행해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 채용 브랜딩 및 온보딩 프로그램 기획<br/></span>
+                        <span>· 조직문화 진단 및 개선 프로젝트 운영<br/></span>
+                        <span>· 구성원 만족도 조사 및 피드백 시스템 설계<br/></span>
+                        <span>· HR 데이터 기반의 성과 관리 체계 구축<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content role={"company"} style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="company" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>💡 자격 요건</ContentTitle>
-                      <ContentParagraph>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요<br/>· 이런 것을 요구해요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 스타트업 또는 IT 기업 HR 경력 3년 이상<br/></span>
+                        <span>· 인재 육성 및 조직문화 개선 경험<br/></span>
+                        <span>· 데이터 기반의 문제 해결 능력<br/></span>
+                        <span>· HR 시스템(Workday, Notion 등) 활용 능숙<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content role={"company"} style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 요구 역량</ContentTitle>
-                      <ContentParagraph>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?<br/>· 이런 역량이 있나요?</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 커뮤니케이션 및 협업 능력<br/></span>
+                        <span>· 조직 분석 및 변화 관리 능력<br/></span>
+                        <span>· 문제 해결 및 기획력<br/></span>
+                        <span>· 공감 기반 리더십<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
-                    💼 <b>기업 정보</b> : 조직문화, 복리후생<br/>
-                    🎤 <b>인재상</b> : 이런 인재를 원해요<br/>
-                    💪 <b>도전 과제</b> : 이런 도전 과제가 있어요
+                    💼 <b>기업 정보</b> : 수평적인 의사소통, 자유로운 재택근무제,연 200만 원 자기계발비 지원, 1:1 커리어 코칭 및 성장 인터뷰 제도 운영<br/>
+                    🎤 <b>인재상</b> : 사람 중심의 문화를 만들며, 데이터로 더 나은 HR을 고민하는 사람<br/>
+                    💪 <b>도전 과제</b> : 급성장 중인 팀의 조직 구조를 재정비하고, 성장 중심 HR 체계를 완성하는 것이 목표입니다.
                   </Analysis>
                 </CardFace>
               </Card>
@@ -499,35 +559,55 @@ export default function Main() {
                 <CardFace>
                   <ProfileContainer>
                     <ProfileImage><img src={talent} alt="Logo" width={32} height={36}></img></ProfileImage>
-                    <ProfileName>김커넥</ProfileName>
-                    <ProfileContent>🌠 백엔드 개발자 (경력 5년)</ProfileContent>
+                    <ProfileName>김하늘</ProfileName>
+                    <ProfileContent>🌠 프론트엔드 개발자 (경력 3년)</ProfileContent>
                     <ProfileContent>💼 FitConnect 재직 중</ProfileContent>
                   </ProfileContainer>
-                  <Introduction>"안녕하세요, 백엔드 개발자입니다."</Introduction>
+                  <Introduction>"사용자의 경험을 설계하는 개발자입니다."</Introduction>
                   <ContentContainer>
-                    <Content style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>📂 주요 경험/경력</ContentTitle>
-                      <ContentParagraph>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요<br/>· 이런 경험이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· React 기반 대시보드 UI 컴포넌트 설계 및 최적화<br/></span>
+                        <span>· Next.js 기반 서비스 성능 개선 (LCP 40% 향상)<br/></span>
+                        <span>· 디자인 시스템 구축 및 Storybook 문서화<br/></span>
+                        <span>· 협업 툴(Jira, Figma, Notion) 기반의 애자일 스프린트 운영<br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🎯 강점</ContentTitle>
-                      <ContentParagraph>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요<br/>· 이런 강점이 있어요</ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 복잡한 UI 로직을 모듈화하여 유지보수 효율 개선<br/></span>
+                        <span>· 디자이너 및 백엔드와의 원활한 커뮤니케이션<br/></span>
+                        <span>· 사용자 피드백 기반의 반복적 개선 프로세스 경험<br/></span>
+                        <span>· 성능 측정 및 개선 자동화 도구(Cypress, Lighthouse) 활용<br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <ContentContainer>
-                    <Content style={{ borderRadius: '0 20px 0 20px' }}>
+                    <Content role="talent" style={{ borderRadius: '0 20px 0 20px' }}>
                       <ContentTitle>🚀 핵심 일반 역량</ContentTitle>
-                      <ContentParagraph>· 역량1<Tag>높음</Tag><br/>· 역량2<Tag>높음</Tag><br/>· 역량3<Tag>높음</Tag><br/>· 역량4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· 문제 해결력 <Tag level="high">매우 우수</Tag><br/></span>
+                        <span>· 협업 및 커뮤니케이션 <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 자기 주도적 학습 <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 기획 이해력 <Tag level="low">보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
-                    <Content style={{ borderRadius: '20px 0 20px 0' }}>
+                    <Content role="talent" style={{ borderRadius: '20px 0 20px 0' }}>
                       <ContentTitle>✏️ 핵심 직무 역량/기술</ContentTitle>
-                      <ContentParagraph>· 직무 역량1<Tag>높음</Tag><br/>· 직무 역량.....2<Tag>높음</Tag><br/>· 직무 역량3<Tag>높음</Tag><br/>· 직무 역량............4<Tag>높음</Tag></ContentParagraph>
+                      <ContentParagraph>
+                        <span>· React, TypeScript <Tag level="high">매우 우수</Tag><br/></span>
+                        <span>· Next.js, Zustand, TailwindCSS <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 성능 최적화 및 API 연동 <Tag level="medium">우수</Tag><br/></span>
+                        <span>· 테스트 자동화 (Jest, Cypress) <Tag level="low">보통</Tag><br/></span>
+                      </ContentParagraph>
                     </Content>
                   </ContentContainer>
                   <Analysis>
-                    📈 <b>직무 수행</b> : 이런 성과가 있어요<br/>
-                    👥 <b>협업 성향</b> : 협업할 때 이런 편이에요<br/>
-                    💪 <b>성장 가능성</b> : 이런 성장 가능성이 보여요
+                    📈 <b>직무 수행</b> : 신규 서비스 런칭 시, 사용자 유입률 25% 증가, UI 렌더링 속도 1.4초 → 0.9초 개선<br/>
+                    👥 <b>협업 성향</b> : 문제를 함께 정의하고, 빠르게 시제품을 만들어 피드백을 반복하는 스타일입니다.<br/>
+                    💪 <b>성장 가능성</b> : 풀스택 개발자로의 확장 의지가 높고, 사용자 경험(UX)에 대한 감각이 뛰어나 Product Thinking형 개발자로 성장할 가능성이 큽니다.
                   </Analysis>
                 </CardFace>
                 <CardBack>

@@ -268,7 +268,14 @@ export default function Result() {
         }
     }, [loading, location.search]);
 
-    if (role === "talent") {
+    if (!cardData && !(role === "company" && !queryJobId)) {
+        return (
+          <Container>
+              <Title>📊 분석 결과: {role === "talent" ? "역량" : "공고"} 카드</Title>
+              <Paragraph style={{'marginTop': '50px'}}>카드를 불러오는 중이니 잠시만 기다려 주세요!<br/><br/>(프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣)</Paragraph>
+          </Container>
+        );
+    } else if (role === "talent") {
         return (
           <Container>
             <Title>📊 분석 결과: 역량 카드</Title>
@@ -339,7 +346,7 @@ export default function Result() {
                     <CardBackRegion role={role}>
                       <BackRegion>
                         <BackTitle>👤 인적사항</BackTitle>
-                        <BackContent><b>{data?.basic.name}</b>  |  🎂 {data?.basic.birth_date?.replace("-", ".").replace("-", ".")}  |  ✉️ 이메일  |  📞 {data?.basic.phone}</BackContent>
+                        <BackContent><b>{data?.basic.name}</b>  |  🎂 {data?.basic.birth_date?.replace("-", ".").replace("-", ".")}  |  ✉️ {data?.basic.email}  |  📞 {data?.basic.phone}</BackContent>
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>🏫 학력사항</BackTitle>
@@ -350,7 +357,7 @@ export default function Result() {
                       <BackRegion>
                         <BackTitle>💼 경력사항</BackTitle>
                         {data?.experiences.map((experience) => (
-                          <BackContent><b>{experience.company_name}</b>  |  {experience.title}  ({formatYearMonth(experience.start_ym)} ~ {formatYearMonth(experience.end_ym)})<br/>{experience.summary} {experience.leave_reason ? "(퇴사 사유 : {experience.leave_reason})" : ""}</BackContent>
+                          <BackContent><b>{experience.company_name}</b>  |  {experience.title}  ({formatYearMonth(experience.start_ym)} ~ {formatYearMonth(experience.end_ym)})<br/>{experience.summary} {experience.leave_reason ? `(퇴사 사유 : ${experience.leave_reason})` : ""}</BackContent>
                         ))}
                       </BackRegion>
                       <BackRegion>
@@ -401,7 +408,6 @@ export default function Result() {
                   </JobContainer>
               </Container>
             )
-      
     } else if (role === "company") {
         return (
           <Container>
@@ -421,9 +427,9 @@ export default function Result() {
                       <ContentTitle>📜 공고 정보</ContentTitle>
                       <ContentParagraph>
                         <span>· {data?.employment_type} ({data?.career_level})</span>
-                        <span>· 근무 기간 : {data?.term_months}</span>
                         <span>· 근무 부서 : {data?.department}</span>
-                        <span>· 연봉 : {data?.salary_range}</span>
+                        <span>· 근무 기간 : {data?.term_months}</span>
+                        <span>· 연봉 : {data?.salary_range ? data?.salary_range : "협의 후 결정"}</span>
                       </ContentParagraph>
                     </Content>
                     <Content role={role} style={{ borderRadius: '0 20px 0 20px' }}>
@@ -483,17 +489,21 @@ export default function Result() {
                       <BackRegion>
                         <BackTitle>📚 공고 정보</BackTitle>
                         <BackContent>{data?.title}  |  {data?.employment_type}  |  {data?.career_level}</BackContent>
-                        <BackContent>근무 기간 (근무 시작 : {data?.deadline_date?.replace("-", ".").replace("-", ".")})  |  {data?.department}</BackContent>
-                        <BackContent>연봉  |  {data?.location_city}</BackContent>
-                        <BackContent>업무 내용 : {data?.responsibilities}</BackContent>
+                        <BackContent>{data?.term_months} (근무 시작 : {data?.deadline_date?.replace("-", ".").replace("-", ".")})  |  {data?.department}</BackContent>
+                        <BackContent>{data?.salary_range ? data?.salary_range : "연봉 협의 후 결정"}  |  {data?.location_city}</BackContent>
+                        <BackContent>업무 내용 : <br/>
+                          {data?.responsibilities}</BackContent>
                         <BackContent>문의 메일 {data?.contact_email}  |  문의 연락처 {data?.contact_phone}</BackContent>
                       </BackRegion>
                       <BackRegion>
                         <BackTitle>☑️ 자격 요건</BackTitle>
                         <BackContent>학력 : {data?.education_level}</BackContent>
-                        <BackContent>필수 요건 : {data?.requirements_must}</BackContent>
-                        <BackContent>우대 사항 : {data?.requirements_nice}</BackContent>
-                        <BackContent>요구 역량 : {data?.competencies}</BackContent>
+                        <BackContent>필수 요건 : <br/>
+                          {data?.requirements_must}</BackContent>
+                        <BackContent>우대 사항 : <br/>
+                          {data?.requirements_nice}</BackContent>
+                        <BackContent>요구 역량 : <br/>
+                          {data?.competencies}</BackContent>
                       </BackRegion>
                       <BackLine></BackLine>
                       <BackButton onClick={(e) => {e.stopPropagation();}}>🔗 공고 확인하기</BackButton>

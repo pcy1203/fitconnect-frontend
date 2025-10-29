@@ -185,8 +185,21 @@ const Hexagon = ({ score = [0, 0, 0, 0, 0, 0], role = "talent" }) => {
         
         {score.map((v, i) => {
           const coords = getPoint(i, v / 100).split(",").map(Number);
-          return <circle key={i} cx={coords[0]} cy={coords[1]} r={3} fill={role === "company" ? "#527bff" : "#ff5852ff"}/>;
+          const angle = angleStep * i - Math.PI / 2;
+          const textX = 140 + Math.cos(angle) * (maxRadius * (v / 100) - 25);
+          const textY = 140 + Math.sin(angle) * (maxRadius * (v / 100) - 25);
+          return (
+            <g key={i}>
+              <circle cx={coords[0]} cy={coords[1]} r={3} fill={role === "company" ? "#527bff" : "#ff5852ff"}/>
+              {/* <circle cx={textX} cy={textY - 4} r={12} fill="rgba(255, 255, 255, 0.9)"/> */}
+              <text x={textX} y={textY} fontSize="9" textAnchor="middle" fill="#333" fontWeight="600">
+              {v}%
+            </text>
+          </g>
+          );
         })}
+        {/* return <circle key={i} cx={coords[0]} cy={coords[1]} r={3} fill={role === "company" ? "#527bff" : "#ff5852ff"}/>; */}
+
 
         {labels.map((label, i) => {
           const angle = angleStep * i - Math.PI / 2;

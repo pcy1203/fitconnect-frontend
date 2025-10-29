@@ -125,7 +125,7 @@ const SignupButton = styled.button`
 `;
 
 export default function Login() {
-    const { token, setToken, role, setRole } = useAuth();
+    const { token, setToken, role, setRole, profileName, setProfileName } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -141,14 +141,12 @@ export default function Login() {
             if (res.status === 200) {
                 const token = res.data?.access_token;
                 const role = res.data?.role;
-                sessionStorage.setItem("jwt_token", token);
-                setToken(token);
-                sessionStorage.setItem("user_role", role);
-                setRole(role);
+                sessionStorage.removeItem("name");
                 if (role === 'talent') {
                     axios.get(`${baseURL}/api/me/talent/basic`, { headers: { Authorization: `Bearer ${token}` } })
                     .then((response) => {
                         sessionStorage.setItem("name", response.data.data.name);
+                        setProfileName(response.data.data.name);
                     })
                     .catch((error) => {
                         console.error("데이터 불러오기 실패:", error);
@@ -157,11 +155,16 @@ export default function Login() {
                     axios.get(`${baseURL}/api/me/company`, { headers: { Authorization: `Bearer ${token}` } })
                     .then((response) => {
                         sessionStorage.setItem("name", response.data.data.basic.name);
+                        setProfileName(response.data.data.basic.name);
                     })
                     .catch((error) => {
                         console.error("데이터 불러오기 실패:", error);
                     });
                 }
+                sessionStorage.setItem("jwt_token", token);
+                setToken(token);
+                sessionStorage.setItem("user_role", role);
+                setRole(role);
                 navigate("/");
             }
         } catch (err) {

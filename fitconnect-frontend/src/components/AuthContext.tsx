@@ -7,6 +7,8 @@ type AuthContextType = {
     role: string | null;
     setRole: (role: string | null) => void;
     loading: boolean;
+    profileName: string | null;
+    setProfileName: (role: string | null) => void;
 };
 
 type JwtPayload = {
@@ -19,10 +21,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [token, setToken] = useState<string | null>(() => sessionStorage.getItem("jwt_token"));
     const [role, setRole] = useState<string | null>(() => sessionStorage.getItem("user_role"));
     const [loading, setLoading] = useState(true);
+    const [profileName, setProfileName] = useState<string | null>(() => sessionStorage.getItem("name"));
 
     useEffect(() => {
         const storedToken = sessionStorage.getItem("jwt_token");
         const storedRole = sessionStorage.getItem("user_role");
+        const storedProfileName = sessionStorage.getItem("name");
         if (storedToken) {
           try {
             const decoded: JwtPayload = jwtDecode(storedToken);
@@ -55,8 +59,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         else sessionStorage.removeItem("user_role");
     };
 
+  const handleSetProfileName = (value: string | null) => {
+        setProfileName(value);
+        if (value) sessionStorage.setItem("name", value);
+        else sessionStorage.removeItem("name");
+    };
+
     return (
-      <AuthContext.Provider value={{ token, setToken: handleSetToken, role, setRole: handleSetRole, loading }}>
+      <AuthContext.Provider value={{ token, setToken: handleSetToken, role, setRole: handleSetRole, loading, profileName, setProfileName: handleSetProfileName }}>
         {children}
       </AuthContext.Provider>
     );
