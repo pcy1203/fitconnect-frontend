@@ -43,6 +43,30 @@ const Form = styled.div`
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 `;
 
+const FullScreen = styled.div`
+  width: 100vw;
+  min-height: calc(100% + 80px);
+  position: absolute;
+  left: 0px;
+  top: -80px;
+  z-index: 20;
+  background: #F7F8FA;
+`;
+
+const FormInterview = styled.div`
+  width: 1000px;
+  left: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 0 30px;
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #9E9E9E;
+  border-radius: 20px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
 const FormTitle = styled.div`
   width: 800px;
   color: black;
@@ -92,7 +116,7 @@ const Step = styled.div<{ role?: string, active?: boolean }>`
 `;
 
 const StepLabel = styled.span<{ role?: string, active?: boolean }>`
-  font-size: 16px;
+  font-size: 14px;
   line-height: 16px;
   color:${({ role, active }) => (active ? (role === "company" ? colors.company : colors.talent ) : "#6b6b6bff")};
   font-weight: ${({ active }) => (active ? 600 : 400)};
@@ -113,9 +137,9 @@ const Divider = styled.div`
 `;
 
 const ProgressBarContainer = styled.div`
-  width: 600px;
-  margin-left: 300px;
-  margin-bottom: 40px;
+  width: 350px;
+  margin-left: 730px;
+  top: -59px;
   height: 20px;
   background: #e0e0e0;
   border-radius: 10px;
@@ -132,8 +156,9 @@ const Progress = styled.div<{ progress?: number, role?: string }>`
 
 const ProgressText = styled.div`
   position: absolute;
+  width: 50px;
   top: 3px;
-  left: 550px;
+  left: 310px;
   font-size: 14px;
   color: #000000;
 `;
@@ -195,26 +220,88 @@ const Button = styled.button<{ role?: string }>`
   }
 `;
 
+const ChatContainer = styled.div`
+  width: 600px;
+  height: 400px;
+  position: relative;
+  background-color: #F7F8FA;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ role }) => (role === "company" ? colors.company_lighter : colors.talent_lighter )};
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #ffffffff;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
+  }
+`;
+
+const ChatQuestion = styled.div<{ role?: string }>`
+  width: 400px;
+  margin-left: 20px;
+  font-size: 10px;
+  color: black;
+  padding: 10px 20px 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  background-color: ${({ role }) => (role === "company" ? colors.company_lighter : colors.talent_lighter )};
+`;
+
+const ChatAnswer = styled.div`
+  width: 400px;
+  font-size: 10px;
+  color: black;
+  margin-left: 80px;
+  padding: 10px 20px 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  background-color: #ffffff;
+`;
+
 const CanvasWrapper = styled.div`
-  width: 200px;      
+  width: 0.5px;      
   height: 160px;
   background: #f0f0f0;
   border-radius: 15px;
   box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1);
   display: flex;
+  position: relative;
+  left: 475px;
+  top: -380px;
   justify-content: center;
   align-items: flex-end;
   margin: 20px auto;
   padding: 10px;
 `;
 
+const MicIcon = styled.div`
+  width: 30px;
+  height: 20px;
+  font-size: 14px;
+  border-radius: 20px;
+  position: relative;
+  top: 38px;
+  left: -5px;
+  text-align: center;
+  background: #f0f0f0;
+`;
+
 const StyledCanvas = styled.canvas`
-  width: 200px;
+  width: 40px;
   height: 140px;
   border-radius: 10px;
   display: block;
 `;
-
 
 const InputContainer = styled.div<{ width?: string }>`
     width: ${(props) => props.width || "500px"};
@@ -364,18 +451,20 @@ const Input = styled.textarea.withConfig({
     resize: none;
 `;
 
-const CameraAndAudioContainer = styled.div`
+const CameraAndChatContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  width: 800px;
+  width: 1010px;
+  gap: 20px;
   margin-top: 40px;
   margin-left: 80px;
 `;
 
 const CameraView = styled.video`
-  width: 400px;
+  width: 450px;
   height: 280px;
+  margin-left: 30px;
   border-radius: 5px;
   background-color: #000;
   object-fit: cover;
@@ -385,9 +474,69 @@ const AudioPanel = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 380px;
+  width: 0px;
+  height: 0px;
   gap: 5px;
 `;
+
+const Timer = styled.div`
+  position: absolute;
+  background: #ffffff;
+  top: -15px;
+  right: 20px;
+  border: 1px solid #9E9E9E;
+  padding: 10px 15px 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+`;
+
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+  }
+}
 
 export default function Interview() {
     const { token, setToken, role, setRole, loading } = useAuth();
@@ -397,9 +546,10 @@ export default function Interview() {
     const [name, setName] = useState("$이름$");
     const [jobTitle, setJobTitle] = useState("$공고$");
 
-    useEffect(() => {
-        if (!loading && (!token || !role)) navigate("/auth/login");
-    }, [loading, token]);
+    setRole("talent");
+    // useEffect(() => {
+    //     if (!loading && (!token || !role)) navigate("/auth/login");
+    // }, [loading, token]);
 
     useEffect(() => {
         if (!loading && !queryJobId && role === 'company') {
@@ -445,6 +595,7 @@ export default function Interview() {
     const [recording, setRecording] = useState(false);
     const [audioUrls, setAudioUrls] = useState<(string | null)[]>([]);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
     const chunks = useRef<Blob[]>([]);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -453,11 +604,20 @@ export default function Interview() {
     const animationRef = useRef<number | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
 
+    const [finalTranscript, setFinalTranscript] = useState('');
+    const [interimTranscript, setInterimTranscript] = useState('');
+    const [isBrowserSTTSupported, setIsBrowserSTTSupported] = useState(false);
+
+    useEffect(() => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      setIsBrowserSTTSupported(!!SpeechRecognition);
+    }, []);
+
     const getTutorial = () => {
-        setStage(stage + 1);
-        setTutorial(true);
-        setAudioUrls([]);
-        setName(sessionStorage.getItem("name"));
+      setStage(stage + 1);
+      setTutorial(true);
+      setAudioUrls([]);
+      setName(sessionStorage.getItem("name"));
     };
     
     const initCamera = async () => {
@@ -726,13 +886,55 @@ ${response.data?.job_posting_data.competencies}` || "",
 
             const barHeight = displayedRms * canvas.height * 5;
 
-            ctx.fillStyle = role == "company" ? colors.company : colors.talent;
+            ctx.fillStyle = role == "company" ? colors.company_light : colors.talent_light;
             ctx.fillRect(canvas.width / 2 - 25, canvas.height - barHeight, 50, barHeight);
         };
 
         draw();
     };
 
+    const startBrowserSTT = () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn('브라우저가 Web Speech API를 지원하지 않습니다.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'ko-KR';
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let interim = '';
+        let final = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            final += transcript + ' ';
+          } else {
+            interim += transcript;
+          }
+        }
+        if (final) {
+          setFinalTranscript(prev => prev + final);
+        }
+        setInterimTranscript(interim);
+      };
+      recognition.onerror = (event) => {
+        console.error('음성 인식 오류:', event.error);
+        if (event.error === 'no-speech') {
+          console.log('무음 감지 - 자동 재시작');
+        }
+      };
+      recognition.onend = () => {
+        if (recording) {
+          recognition.start();
+        }
+      };
+      recognition.start();
+      recognitionRef.current = recognition;
+    }
+    
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -757,7 +959,6 @@ ${response.data?.job_posting_data.competencies}` || "",
 
                 const blob = new Blob(chunks.current, { type: "audio/webm" });
                 const url = URL.createObjectURL(blob);
-
                 setAudioUrls((prev) => {
                     const urlArray = [...prev];
                     urlArray[page] = url;
@@ -765,10 +966,12 @@ ${response.data?.job_posting_data.competencies}` || "",
                 });
 
                 const file = new File([blob], `recording_${page}.webm`, { type: "audio/webm" });
-
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append("language", "ko");
+                if (finalTranscript) {
+                  formData.append('browser_transcript', finalTranscript);
+                }
 
                 try {
                     const res = await axios.post(`${aiURL}/api/stt/transcribe`, formData, {
@@ -781,26 +984,43 @@ ${response.data?.job_posting_data.competencies}` || "",
                 }
             };
             mediaRecorderRef.current.start();
+            if (isBrowserSTTSupported) {
+              startBrowserSTT();
+            }
             setRecording(true);
+            setFinalTranscript('');
+            setInterimTranscript('');
         } catch (err) {
             console.error("마이크 접근 실패:", err);
         }
     };
 
     const stopRecording = () => {
-        if (mediaRecorderRef.current && recording) {
-            mediaRecorderRef.current.stop();
-            setRecording(false);
-        }
+      if (mediaRecorderRef.current && recording) {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        setRecording(false);
+      }
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+      setInterimTranscript('');
     };
 
     useEffect(() => {
-        if (recording && canvasRef.current && analyserRef.current) {
-            drawVolumeBar();
-        } else {
-            if (animationRef.current) cancelAnimationFrame(animationRef.current);
-        }
+      if (recording && canvasRef.current && analyserRef.current) {
+        drawVolumeBar();
+      } else {
+        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      }
     }, [recording]);
+
+    const [seconds, setSeconds] = useState(0);
+    // useEffect(() => {
+    //   const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
+    //   return () => clearInterval(timer);
+    // }, []);
 
     if (role === "talent") {
         return (
@@ -897,44 +1117,82 @@ ${response.data?.job_posting_data.competencies}` || "",
             )}
             
             {!tutorial && !finished && (
-              <>
-              <ProgressBarContainer>
-                <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
-                <ProgressText>{page} / {totalQuestions}</ProgressText>
-              </ProgressBarContainer>
-              <Form>
-                <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
-                <CameraAndAudioContainer>
+              <FullScreen>
+                <Container>
+                  <StepContainer style={{marginTop: '50px', position: 'relative', left: '-200px'}}>
+                    {stages.map((stageElement, idx) => (
+                      <StepGroup key={stageElement.num}>
+                        <Step role={role} active={stage === stageElement.num}>{stageElement.num}</Step>
+                        <StepLabel role={role} active={stage === stageElement.num}>{stageElement.label}</StepLabel>
+                        {idx < stages.length - 1 && <Divider />}
+                      </StepGroup>
+                    ))}
+                  </StepContainer>
+                  <ProgressBarContainer>
+                    <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
+                    <ProgressText>{page} / {totalQuestions}</ProgressText>
+                  </ProgressBarContainer>
+                <FormInterview style={{top: '-13px'}}>
+                  <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
+                  <Timer>
+                    ⏰ {(Math.floor(seconds / 60)).toString().padStart(2, '0')}:{(seconds % 60).toString().padStart(2, '0')}
+                  </Timer>
+                </FormInterview>
+                <CameraAndChatContainer>
                   <CameraView ref={videoRef} autoPlay muted />
-                  <AudioPanel>
-                    <CanvasWrapper>
-                      {recording && (
-                        <StyledCanvas ref={canvasRef} width={200} height={140} />
-                      )}
-                    </CanvasWrapper>
-                    <ButtonContainer>
-                    {!recording ? 
-                      <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
-                      : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
-                    }
-                    {/* {audioUrls[page] && (
-                      <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
-                    )} */}
-                    </ButtonContainer>
-                    {audioUrls[page] && (
-                    <div style={{ marginTop: "20px" }}>
-                        <audio controls src={audioUrls[page]}></audio>
-                    </div>
+                  <ChatContainer>
+                    <ChatQuestion>
+                      최근 6개월 동안 가장 몰입했던 일은 무엇인가요? 왜 그 경험에 몰입했고, 어떤 결과를 얻었는지 말씀해 주세요.
+                    </ChatQuestion>
+                    <ChatAnswer>
+                      {!isBrowserSTTSupported ? "⚠️ 브라우저가 실시간 음성 인식을 지원하지 않아요." : (finalTranscript ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>)}
+                    </ChatAnswer>
+                    <ChatQuestion>
+                      최근 6개월 동안 가장 몰입했던 일은 무엇인가요? 왜 그 경험에 몰입했고, 어떤 결과를 얻었는지 말씀해 주세요.
+                    </ChatQuestion>
+                    <ChatAnswer>
+                      {(finalTranscript) ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>}
+                    </ChatAnswer>
+                    <ChatQuestion>
+                      최근 6개월 동안 가장 몰입했던 일은 무엇인가요? 왜 그 경험에 몰입했고, 어떤 결과를 얻었는지 말씀해 주세요.
+                    </ChatQuestion>
+                    <ChatAnswer>
+                      {(finalTranscript) ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>}
+                    </ChatAnswer>
+                  </ChatContainer>
+                </CameraAndChatContainer>
+                <AudioPanel>
+                  <CanvasWrapper>
+                    {recording && (
+                      <StyledCanvas ref={canvasRef} width={10} height={140} style={{position: 'relative', left: '10px'}}/>
                     )}
-                  </AudioPanel>
-                </CameraAndAudioContainer>
-              </Form>
-              {audioUrls[page] && (
-                <>
-                <Button onClick={getNextPage} disabled={sending} role={role}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
-                </>
-              )}
-              </>
+                    {!recording && (
+                      <StyledCanvas style={{color: 'transparent'}} ref={canvasRef} width={10} height={140} />
+                    )}
+                    <MicIcon>🎙️</MicIcon>
+                  </CanvasWrapper>
+                  <ButtonContainer style={{position: 'relative', top: '-300px', left: '315px', height: '0px'}}>
+                  {!recording ? 
+                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
+                  }
+                  {/* {audioUrls[page] && (
+                    <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
+                  )} */}
+                  </ButtonContainer>
+                  {audioUrls[page] && !recording && (
+                  <div style={{position: 'relative', top: '-400px', left: '310px'}}>
+                      <audio controls src={audioUrls[page]}></audio>
+                  </div>
+                  )}
+                </AudioPanel>
+                {audioUrls[page] && (
+                  <div style={{height: '0px'}}>
+                    <Button style={{position: 'relative', margin: '0px 0px 50px 0px', left: '214px', top: '-40px'}} onClick={getNextPage} disabled={sending} role={role}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
+                  </div>
+                )}
+                </Container>
+              </FullScreen>
             )}
 
             {finished && (
