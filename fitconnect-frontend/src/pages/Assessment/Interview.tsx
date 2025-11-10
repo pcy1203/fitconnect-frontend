@@ -8,6 +8,7 @@ import colors from "../../styles/colors";
 import axios from "axios";
 import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
+import companyInterview from '../../assets/company-interview.jpg';
 
 const Container = styled.div`
   width: 1200px;
@@ -89,6 +90,7 @@ const FormParagraph = styled.p`
   margin-left: 40px;
   margin-top: 30px;
   margin-bottom: 30px;
+  margin-right: 40px;
   color: black;
   line-height: 30px;
 `;
@@ -220,7 +222,7 @@ const Button = styled.button<{ role?: string }>`
   }
 `;
 
-const ChatContainer = styled.div`
+const ChatContainer = styled.div<{ role?: string }>`
   width: 600px;
   height: 400px;
   position: relative;
@@ -485,6 +487,31 @@ const CameraView = styled.video.withConfig({
   }
 `;
 
+const ImageView = styled.img.withConfig({
+    shouldForwardProp: (prop) => prop !== "recording"
+})<{ recording?: boolean, role?: string }>`
+  width: 410px;
+  height: 280px;
+  margin-left: 30px;
+  border-radius: 5px;
+  background-color: #000;
+  object-fit: cover;
+  opacity: 0.7;
+
+  ${({ recording, role }) =>
+    recording &&
+    `
+      border-color: ${(role === "company" ? colors.company : colors.talent )};
+      animation: pulse 1s infinite;
+    `}
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    50% { box-shadow: 0 0 12px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    100% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+  }
+`;
+
 const AudioPanel = styled.div`
   display: flex;
   flex-direction: column;
@@ -605,10 +632,9 @@ export default function Interview() {
     const [name, setName] = useState("$이름$");
     const [jobTitle, setJobTitle] = useState("$공고$");
 
-    setRole("talent");
-    // useEffect(() => {
-    //     if (!loading && (!token || !role)) navigate("/auth/login");
-    // }, [loading, token]);
+    useEffect(() => {
+        if (!loading && (!token || !role)) navigate("/auth/login");
+    }, [loading, token]);
 
     useEffect(() => {
         if (!loading && !queryJobId && role === 'company') {
@@ -1243,10 +1269,10 @@ ${response.data?.job_posting_data.competencies}` || "",
                 </FormInterview>
                 <CameraAndChatContainer>
                   <CameraView recording={!!recording} role={role} ref={videoRef} autoPlay muted />
-                  <ChatContainer ref={chatRef}>
+                  <ChatContainer role={role} ref={chatRef}>
                     {Array.from({ length: Math.max(chatQuestions.length, chatAnswers.length) }).map((_, index) => (
                       <div key={index}>
-                        {<ChatQuestion style={index === chatQuestions.length - 1 ? { border: "2px solid #848484ff", fontWeight: "550" } : {}}>{chatQuestions[index]}</ChatQuestion>}
+                        {<ChatQuestion role={role} style={index === chatQuestions.length - 1 ? { border: "2px solid #848484ff", fontWeight: "550" } : {}}>{chatQuestions[index]}</ChatQuestion>}
                         {index < chatAnswers.length && (
                           <ChatAnswer>{chatAnswers[index]}</ChatAnswer>
                         )}
@@ -1438,6 +1464,78 @@ ${response.data?.job_posting_data.competencies}` || "",
             )}
             
             {!tutorial && !jobPosting && !finished && (
+              <FullScreen>
+                <Container>
+                  <StepContainer style={{marginTop: '50px', position: 'relative', left: '-200px'}}>
+                    {stages.map((stageElement, idx) => (
+                      <StepGroup key={stageElement.num}>
+                        <Step role={role} active={stage === stageElement.num}>{stageElement.num}</Step>
+                        <StepLabel role={role} active={stage === stageElement.num}>{stageElement.label}</StepLabel>
+                        {idx < stages.length - 1 && <Divider />}
+                      </StepGroup>
+                    ))}
+                  </StepContainer>
+                  <ProgressBarContainer>
+                    <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
+                    <ProgressText>{page} / {totalQuestions}</ProgressText>
+                  </ProgressBarContainer>
+                <FormInterview style={{top: '-13px'}}>
+                  <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
+                  <Timer>
+                    ⏰ {(Math.floor(seconds / 60)).toString().padStart(2, '0')}:{(seconds % 60).toString().padStart(2, '0')}
+                  </Timer>
+                </FormInterview>
+                <CameraAndChatContainer>
+                  <ImageView recording={!!recording} role={role} src={companyInterview} />
+                  <ChatContainer role={role} ref={chatRef}>
+                    {Array.from({ length: Math.max(chatQuestions.length, chatAnswers.length) }).map((_, index) => (
+                      <div key={index}>
+                        {<ChatQuestion role={role} style={index === chatQuestions.length - 1 ? { border: "2px solid #848484ff", fontWeight: "550" } : {}}>{chatQuestions[index]}</ChatQuestion>}
+                        {index < chatAnswers.length && (
+                          <ChatAnswer>{chatAnswers[index]}</ChatAnswer>
+                        )}
+                      </div>
+                    ))}
+                    <ChatAnswer style={{marginBottom: "0px", border: "2px solid #848484ff"}}>
+                      {!isBrowserSTTSupported ? <span style={{color: "gray"}}>⚠️ 브라우저가 실시간 음성 인식을 지원하지 않아요.</span> : (finalTranscript ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>)}
+                    </ChatAnswer>
+                  </ChatContainer>
+                </CameraAndChatContainer>
+                <AudioPanel>
+                  <CanvasWrapper>
+                    {recording && (
+                      <StyledCanvas ref={canvasRef} width={10} height={140} style={{position: 'relative', left: '10px'}}/>
+                    )}
+                    {!recording && (
+                      <StyledCanvas style={{color: 'transparent'}} ref={canvasRef} width={10} height={140} />
+                    )}
+                    <MicIcon>🎙️</MicIcon>
+                  </CanvasWrapper>
+                  <ButtonContainer style={{position: 'relative', top: '-300px', left: '315px', height: '0px'}}>
+                  {!recording ? 
+                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
+                  }
+                  {/* {audioUrls[page] && (
+                    <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
+                  )} */}
+                  </ButtonContainer>
+                  {audioUrls[page] && !recording && (
+                  <div style={{position: 'relative', top: '-400px', left: '310px'}}>
+                      <audio controls src={audioUrls[page]}></audio>
+                  </div>
+                  )}
+                </AudioPanel>
+                {audioUrls[page] && (
+                  <div style={{height: '0px'}}>
+                    <Button style={{position: 'relative', margin: '0px 0px 50px 0px', left: '214px', top: '-40px'}} onClick={getNextPage} disabled={sending} role={role}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
+                  </div>
+                )}
+                </Container>
+              </FullScreen>
+            )}
+
+            {/* {!tutorial && !jobPosting && !finished && (
               <>
               <ProgressBarContainer>
                 <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
@@ -1455,9 +1553,9 @@ ${response.data?.job_posting_data.competencies}` || "",
                     <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
                     : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
                   }
-                  {/* {audioUrls[page] && (
+                  {/ {audioUrls[page] && (
                     <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
-                  )} */}
+                  )} /}
                   </ButtonContainer>
                   {audioUrls[page] && (
                   <div style={{ marginTop: "20px" }}>
@@ -1471,7 +1569,7 @@ ${response.data?.job_posting_data.competencies}` || "",
                 </>
               )}
               </>
-            )}
+            )} */}
 
             {jobPosting && !finished && (
               <>
@@ -1525,6 +1623,13 @@ ${response.data?.job_posting_data.competencies}` || "",
               <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
               </>
             )}
+
+            {sending &&
+              <LoadingOverlay>
+                <Spinner role={role} />
+                <LoadingText>{tutorial ? `　페르소나 설정을 위한 질문을 생각 중이에요···　` : (page < totalQuestions ? "　다음 질문을 생각하고 있어요···　" : `　답변 내용을 바탕으로 ${jobTitle} 포지션을 분석하고 있어요···　`)}</LoadingText>
+              </LoadingOverlay>
+            }
           </Container>
         )
     }
