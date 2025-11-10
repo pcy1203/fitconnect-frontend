@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 import { baseURL, aiURL } from "../../env";
 import { useAuth } from "../../components/AuthContext";
@@ -461,13 +461,28 @@ const CameraAndChatContainer = styled.div`
   margin-left: 80px;
 `;
 
-const CameraView = styled.video`
+const CameraView = styled.video.withConfig({
+    shouldForwardProp: (prop) => prop !== "recording"
+})<{ recording?: boolean, role?: string }>`
   width: 450px;
   height: 280px;
   margin-left: 30px;
   border-radius: 5px;
   background-color: #000;
   object-fit: cover;
+
+  ${({ recording, role }) =>
+    recording &&
+    `
+      border-color: ${(role === "company" ? colors.company : colors.talent )};
+      animation: pulse 1s infinite;
+    `}
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    50% { box-shadow: 0 0 12px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    100% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+  }
 `;
 
 const AudioPanel = styled.div`
@@ -491,6 +506,50 @@ const Timer = styled.div`
   font-weight: 600;
   color: black;
 `;
+
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(247, 248, 250, 0.76);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: ${fadeIn} 0.3s ease-in-out;
+  z-index: 9999;
+`;
+
+const Spinner = styled.div<{ role?: string }>`
+  width: 60px;
+  height: 60px;
+  border: 10px solid #d1d5db;
+  border-top: 10px solid ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+  margin-bottom: 20px;
+`;
+
+const LoadingText = styled.div`
+  font-size: 20px;
+  color: #2e2e2eff;
+  background-color: #d1d5db;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+`;
+
 
 interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
@@ -539,7 +598,7 @@ declare global {
 }
 
 export default function Interview() {
-    const { token, setToken, role, setRole, loading } = useAuth();
+    const { token, setToken, role, setRole, loading, profileName } = useAuth();
     const [jobList, setJobList] = useState(null);
     const navigate = useNavigate();
     const queryJobId = new URLSearchParams(location.search).get("job");
@@ -588,6 +647,8 @@ export default function Interview() {
     const [sessionId, setSessionId] = useState(null);
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
+    const [chatQuestions, setChatQuestions] = useState([]);
+    const [chatAnswers, setChatAnswers] = useState([]);
     const [totalQuestions, setTotalQuestions] = useState(1);
     const [additionalInfo, setAdditionalInfo] = useState({ role: "", requirement: "", preference: "", capacity: ""});
     const [sending, setSending] = useState(false);
@@ -611,23 +672,26 @@ export default function Interview() {
     useEffect(() => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       setIsBrowserSTTSupported(!!SpeechRecognition);
+      setName(profileName);
     }, []);
 
     const getTutorial = () => {
       setStage(stage + 1);
       setTutorial(true);
       setAudioUrls([]);
-      setName(sessionStorage.getItem("name"));
+      setName(profileName);
     };
     
     const initCamera = async () => {
       if (role === 'company') return;
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoRef.current.srcObject = stream;
-        const playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(err => console.error("Video play 실패:", err));
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          const playPromise = videoRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(err => console.error("Video play 실패:", err));
+          }
         }
       } catch (err) {
         console.error("카메라 접근 실패:", err);
@@ -637,12 +701,15 @@ export default function Interview() {
     const startInterview = async () => {
         try {
             setSending(true);
+            setChatQuestions([]);
+            setChatAnswers([]);
             if (role == "talent" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/interview/general/start`);
                 console.log(res.data);
                 setSessionId(res.data?.session_id);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.question]);
             } else if (role == "talent" && stage == TECHNICAL) {
                 const profile = await axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } });
                 const res = await axios.post(`${aiURL}/api/interview/technical/start`, {
@@ -652,7 +719,8 @@ export default function Interview() {
                 });
                 console.log(res.data);
                 setQuestion(res.data?.question);
-                setTotalQuestions(Number(res.data?.progress.split("/")[1]));
+                setTotalQuestions(Number(res.data?.progress?.split("/")[1]));
+                setChatQuestions([res.data?.question]);
             } else if (role == "talent" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/interview/situational/start`, {}, {
                     params: {
@@ -662,6 +730,7 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.question);
                 setTotalQuestions(6);
+                setChatQuestions([res.data?.question]);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/start`, {
@@ -671,6 +740,7 @@ export default function Interview() {
                 setSessionId(res.data?.session_id);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.question]);
             } else if (role == "company" && stage == TECHNICAL) {
                 // const companyProfile = await axios.get(`${baseURL}/api/me/company/full`, { headers: { Authorization: `Bearer ${token}` } });
                 const query = new URLSearchParams(location.search);
@@ -686,6 +756,7 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.next_question?.question]);
             } else if (role == "company" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/situational/start`, {
                     session_id: sessionId,
@@ -693,6 +764,7 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.next_question?.question]);
             }
             setPage(1);
             setTutorial(false);
@@ -709,7 +781,7 @@ export default function Interview() {
             if (role == "talent" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/interview/general/answer/text`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -717,10 +789,11 @@ export default function Interview() {
                     getTutorial();
                 }
                 setQuestion(res.data?.next_question);
+                setChatQuestions([...chatQuestions, res.data?.next_question]);
             } else if (role == "talent" && stage == TECHNICAL) {
                 const res = await axios.post(`${aiURL}/api/interview/technical/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -728,10 +801,11 @@ export default function Interview() {
                     getTutorial();
                 }
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
             } else if (role == "talent" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/interview/situational/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -749,11 +823,12 @@ export default function Interview() {
                     console.log(vector);
                 }
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -761,10 +836,11 @@ export default function Interview() {
                     getTutorial();
                 }
                 setQuestion(res.data?.next_question);
+                setChatQuestions([...chatQuestions, res.data?.next_question]);
             } else if (role == "company" && stage == TECHNICAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/technical/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (res.data?.is_finished) {
@@ -773,10 +849,11 @@ export default function Interview() {
                 }
                 setTotalQuestions(res.data?.total_questions);
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
             } else if (role == "company" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/situational/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (res.data?.is_finished) {
@@ -818,7 +895,10 @@ ${response.data?.job_posting_data.competencies}` || "",
                 }
                 setTotalQuestions(res.data?.total_questions);
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
             }
+            setChatAnswers([...chatAnswers, finalTranscript ? finalTranscript : "(답변 없음)"]);
+            setFinalTranscript('');
             setPage(page + 1);
             setSending(false);
             initCamera();
@@ -1017,10 +1097,33 @@ ${response.data?.job_posting_data.competencies}` || "",
     }, [recording]);
 
     const [seconds, setSeconds] = useState(0);
-    // useEffect(() => {
-    //   const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
-    //   return () => clearInterval(timer);
-    // }, []);
+    const [timerActive, setTimerActive] = useState(false);
+    
+    useEffect(() => {
+      if (!tutorial && !finished) {
+        setTimerActive(true);
+        setSeconds(0);
+      } else {
+        setTimerActive(false);
+      }
+    }, [tutorial, finished]);
+
+    useEffect(() => {
+      if (!timerActive) return;
+      const timer = setInterval(() => {
+        setSeconds((second) => second + 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }, [timerActive]);
+
+    const chatRef = useRef(null);
+
+    useEffect(() => {
+      const chatContainer = chatRef.current;
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, [page, finalTranscript]);
 
     if (role === "talent") {
         return (
@@ -1139,25 +1242,18 @@ ${response.data?.job_posting_data.competencies}` || "",
                   </Timer>
                 </FormInterview>
                 <CameraAndChatContainer>
-                  <CameraView ref={videoRef} autoPlay muted />
-                  <ChatContainer>
-                    <ChatQuestion>
-                      최근 6개월 동안 가장 몰입했던 일은 무엇인가요? 왜 그 경험에 몰입했고, 어떤 결과를 얻었는지 말씀해 주세요.
-                    </ChatQuestion>
-                    <ChatAnswer>
-                      {!isBrowserSTTSupported ? "⚠️ 브라우저가 실시간 음성 인식을 지원하지 않아요." : (finalTranscript ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>)}
-                    </ChatAnswer>
-                    <ChatQuestion>
-                      최근 6개월 동안 가장 몰입했던 일은 무엇인가요? 왜 그 경험에 몰입했고, 어떤 결과를 얻었는지 말씀해 주세요.
-                    </ChatQuestion>
-                    <ChatAnswer>
-                      {(finalTranscript) ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>}
-                    </ChatAnswer>
-                    <ChatQuestion>
-                      최근 6개월 동안 가장 몰입했던 일은 무엇인가요? 왜 그 경험에 몰입했고, 어떤 결과를 얻었는지 말씀해 주세요.
-                    </ChatQuestion>
-                    <ChatAnswer>
-                      {(finalTranscript) ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>}
+                  <CameraView recording={!!recording} role={role} ref={videoRef} autoPlay muted />
+                  <ChatContainer ref={chatRef}>
+                    {Array.from({ length: Math.max(chatQuestions.length, chatAnswers.length) }).map((_, index) => (
+                      <div key={index}>
+                        {<ChatQuestion style={index === chatQuestions.length - 1 ? { border: "2px solid #848484ff", fontWeight: "550" } : {}}>{chatQuestions[index]}</ChatQuestion>}
+                        {index < chatAnswers.length && (
+                          <ChatAnswer>{chatAnswers[index]}</ChatAnswer>
+                        )}
+                      </div>
+                    ))}
+                    <ChatAnswer style={{marginBottom: "0px", border: "2px solid #848484ff"}}>
+                      {!isBrowserSTTSupported ? <span style={{color: "gray"}}>⚠️ 브라우저가 실시간 음성 인식을 지원하지 않아요.</span> : (finalTranscript ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>)}
                     </ChatAnswer>
                   </ChatContainer>
                 </CameraAndChatContainer>
@@ -1215,6 +1311,13 @@ ${response.data?.job_posting_data.competencies}` || "",
               <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
               </>
             )}
+
+            {sending &&
+              <LoadingOverlay>
+                <Spinner />
+                <LoadingText>{tutorial ? `　${name} 님을 위한 질문을 생각 중이에요···　` : (page < totalQuestions ? "　다음 질문을 생각하고 있어요···　" : `　${name} 님의 답변 내용을 분석하고 있어요···　`)}</LoadingText>
+              </LoadingOverlay>
+            }
           </Container>
         )
     } else if (role === "company" && !queryJobId) {
