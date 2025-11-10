@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 import { baseURL, aiURL } from "../../env";
 import { useAuth } from "../../components/AuthContext";
@@ -8,6 +8,7 @@ import colors from "../../styles/colors";
 import axios from "axios";
 import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
+import companyInterview from '../../assets/company-interview.jpg';
 
 const Container = styled.div`
   width: 1200px;
@@ -43,6 +44,30 @@ const Form = styled.div`
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 `;
 
+const FullScreen = styled.div`
+  width: 100vw;
+  min-height: calc(100% + 80px);
+  position: absolute;
+  left: 0px;
+  top: -80px;
+  z-index: 20;
+  background: #F7F8FA;
+`;
+
+const FormInterview = styled.div`
+  width: 1000px;
+  left: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 0 30px;
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #9E9E9E;
+  border-radius: 20px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
 const FormTitle = styled.div`
   width: 800px;
   color: black;
@@ -65,6 +90,7 @@ const FormParagraph = styled.p`
   margin-left: 40px;
   margin-top: 30px;
   margin-bottom: 30px;
+  margin-right: 40px;
   color: black;
   line-height: 30px;
 `;
@@ -92,7 +118,7 @@ const Step = styled.div<{ role?: string, active?: boolean }>`
 `;
 
 const StepLabel = styled.span<{ role?: string, active?: boolean }>`
-  font-size: 16px;
+  font-size: 14px;
   line-height: 16px;
   color:${({ role, active }) => (active ? (role === "company" ? colors.company : colors.talent ) : "#6b6b6bff")};
   font-weight: ${({ active }) => (active ? 600 : 400)};
@@ -113,9 +139,9 @@ const Divider = styled.div`
 `;
 
 const ProgressBarContainer = styled.div`
-  width: 600px;
-  margin-left: 300px;
-  margin-bottom: 40px;
+  width: 350px;
+  margin-left: 730px;
+  top: -59px;
   height: 20px;
   background: #e0e0e0;
   border-radius: 10px;
@@ -132,8 +158,9 @@ const Progress = styled.div<{ progress?: number, role?: string }>`
 
 const ProgressText = styled.div`
   position: absolute;
+  width: 50px;
   top: 3px;
-  left: 550px;
+  left: 310px;
   font-size: 14px;
   color: #000000;
 `;
@@ -195,26 +222,88 @@ const Button = styled.button<{ role?: string }>`
   }
 `;
 
+const ChatContainer = styled.div<{ role?: string }>`
+  width: 600px;
+  height: 400px;
+  position: relative;
+  background-color: #F7F8FA;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ role }) => (role === "company" ? colors.company_lighter : colors.talent_lighter )};
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #ffffffff;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ role }) => (role === "company" ? colors.company_light : colors.talent_light )};
+  }
+`;
+
+const ChatQuestion = styled.div<{ role?: string }>`
+  width: 400px;
+  margin-left: 20px;
+  font-size: 10px;
+  color: black;
+  padding: 10px 20px 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  background-color: ${({ role }) => (role === "company" ? colors.company_lighter : colors.talent_lighter )};
+`;
+
+const ChatAnswer = styled.div`
+  width: 400px;
+  font-size: 10px;
+  color: black;
+  margin-left: 80px;
+  padding: 10px 20px 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  background-color: #ffffff;
+`;
+
 const CanvasWrapper = styled.div`
-  width: 200px;      
+  width: 0.5px;      
   height: 160px;
   background: #f0f0f0;
   border-radius: 15px;
   box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1);
   display: flex;
+  position: relative;
+  left: 475px;
+  top: -380px;
   justify-content: center;
   align-items: flex-end;
   margin: 20px auto;
   padding: 10px;
 `;
 
+const MicIcon = styled.div`
+  width: 30px;
+  height: 20px;
+  font-size: 14px;
+  border-radius: 20px;
+  position: relative;
+  top: 38px;
+  left: -5px;
+  text-align: center;
+  background: #f0f0f0;
+`;
+
 const StyledCanvas = styled.canvas`
-  width: 200px;
+  width: 40px;
   height: 140px;
   border-radius: 10px;
   display: block;
 `;
-
 
 const InputContainer = styled.div<{ width?: string }>`
     width: ${(props) => props.width || "500px"};
@@ -364,33 +453,179 @@ const Input = styled.textarea.withConfig({
     resize: none;
 `;
 
-const CameraAndAudioContainer = styled.div`
+const CameraAndChatContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  width: 800px;
+  width: 1010px;
+  gap: 20px;
   margin-top: 40px;
   margin-left: 80px;
 `;
 
-const CameraView = styled.video`
-  width: 400px;
+const CameraView = styled.video.withConfig({
+    shouldForwardProp: (prop) => prop !== "recording"
+})<{ recording?: boolean, role?: string }>`
+  width: 450px;
   height: 280px;
+  margin-left: 30px;
   border-radius: 5px;
   background-color: #000;
   object-fit: cover;
+
+  ${({ recording, role }) =>
+    recording &&
+    `
+      border-color: ${(role === "company" ? colors.company : colors.talent )};
+      animation: pulse 1s infinite;
+    `}
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    50% { box-shadow: 0 0 12px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    100% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+  }
+`;
+
+const ImageView = styled.img.withConfig({
+    shouldForwardProp: (prop) => prop !== "recording"
+})<{ recording?: boolean, role?: string }>`
+  width: 410px;
+  height: 280px;
+  margin-left: 30px;
+  border-radius: 5px;
+  background-color: #000;
+  object-fit: cover;
+  opacity: 0.7;
+
+  ${({ recording, role }) =>
+    recording &&
+    `
+      border-color: ${(role === "company" ? colors.company : colors.talent )};
+      animation: pulse 1s infinite;
+    `}
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    50% { box-shadow: 0 0 12px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+    100% { box-shadow: 0 0 10px ${({ role }) => (role === "company" ? colors.company : colors.talent )}; }
+  }
 `;
 
 const AudioPanel = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 380px;
+  width: 0px;
+  height: 0px;
   gap: 5px;
 `;
 
+const Timer = styled.div`
+  position: absolute;
+  background: #ffffff;
+  top: -15px;
+  right: 20px;
+  border: 1px solid #9E9E9E;
+  padding: 10px 15px 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+`;
+
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(247, 248, 250, 0.76);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: ${fadeIn} 0.3s ease-in-out;
+  z-index: 9999;
+`;
+
+const Spinner = styled.div<{ role?: string }>`
+  width: 60px;
+  height: 60px;
+  border: 10px solid #d1d5db;
+  border-top: 10px solid ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+  margin-bottom: 20px;
+`;
+
+const LoadingText = styled.div`
+  font-size: 20px;
+  color: #2e2e2eff;
+  background-color: #d1d5db;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+`;
+
+
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+  }
+}
+
 export default function Interview() {
-    const { token, setToken, role, setRole, loading } = useAuth();
+    const { token, setToken, role, setRole, loading, profileName } = useAuth();
     const [jobList, setJobList] = useState(null);
     const navigate = useNavigate();
     const queryJobId = new URLSearchParams(location.search).get("job");
@@ -438,6 +673,8 @@ export default function Interview() {
     const [sessionId, setSessionId] = useState(null);
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
+    const [chatQuestions, setChatQuestions] = useState([]);
+    const [chatAnswers, setChatAnswers] = useState([]);
     const [totalQuestions, setTotalQuestions] = useState(1);
     const [additionalInfo, setAdditionalInfo] = useState({ role: "", requirement: "", preference: "", capacity: ""});
     const [sending, setSending] = useState(false);
@@ -445,6 +682,7 @@ export default function Interview() {
     const [recording, setRecording] = useState(false);
     const [audioUrls, setAudioUrls] = useState<(string | null)[]>([]);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
     const chunks = useRef<Blob[]>([]);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -453,21 +691,33 @@ export default function Interview() {
     const animationRef = useRef<number | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
 
+    const [finalTranscript, setFinalTranscript] = useState('');
+    const [interimTranscript, setInterimTranscript] = useState('');
+    const [isBrowserSTTSupported, setIsBrowserSTTSupported] = useState(false);
+
+    useEffect(() => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      setIsBrowserSTTSupported(!!SpeechRecognition);
+      setName(profileName);
+    }, []);
+
     const getTutorial = () => {
-        setStage(stage + 1);
-        setTutorial(true);
-        setAudioUrls([]);
-        setName(sessionStorage.getItem("name"));
+      setStage(stage + 1);
+      setTutorial(true);
+      setAudioUrls([]);
+      setName(profileName);
     };
     
     const initCamera = async () => {
       if (role === 'company') return;
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoRef.current.srcObject = stream;
-        const playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(err => console.error("Video play 실패:", err));
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          const playPromise = videoRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(err => console.error("Video play 실패:", err));
+          }
         }
       } catch (err) {
         console.error("카메라 접근 실패:", err);
@@ -477,12 +727,15 @@ export default function Interview() {
     const startInterview = async () => {
         try {
             setSending(true);
+            setChatQuestions([]);
+            setChatAnswers([]);
             if (role == "talent" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/interview/general/start`);
                 console.log(res.data);
                 setSessionId(res.data?.session_id);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.question]);
             } else if (role == "talent" && stage == TECHNICAL) {
                 const profile = await axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } });
                 const res = await axios.post(`${aiURL}/api/interview/technical/start`, {
@@ -492,7 +745,8 @@ export default function Interview() {
                 });
                 console.log(res.data);
                 setQuestion(res.data?.question);
-                setTotalQuestions(Number(res.data?.progress.split("/")[1]));
+                setTotalQuestions(Number(res.data?.progress?.split("/")[1]));
+                setChatQuestions([res.data?.question]);
             } else if (role == "talent" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/interview/situational/start`, {}, {
                     params: {
@@ -502,6 +756,7 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.question);
                 setTotalQuestions(6);
+                setChatQuestions([res.data?.question]);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/start`, {
@@ -511,6 +766,7 @@ export default function Interview() {
                 setSessionId(res.data?.session_id);
                 setQuestion(res.data?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.question]);
             } else if (role == "company" && stage == TECHNICAL) {
                 // const companyProfile = await axios.get(`${baseURL}/api/me/company/full`, { headers: { Authorization: `Bearer ${token}` } });
                 const query = new URLSearchParams(location.search);
@@ -526,6 +782,7 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.next_question?.question]);
             } else if (role == "company" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/situational/start`, {
                     session_id: sessionId,
@@ -533,6 +790,7 @@ export default function Interview() {
                 console.log(res.data);
                 setQuestion(res.data?.next_question?.question);
                 setTotalQuestions(res.data?.total_questions);
+                setChatQuestions([res.data?.next_question?.question]);
             }
             setPage(1);
             setTutorial(false);
@@ -549,7 +807,7 @@ export default function Interview() {
             if (role == "talent" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/interview/general/answer/text`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -557,10 +815,11 @@ export default function Interview() {
                     getTutorial();
                 }
                 setQuestion(res.data?.next_question);
+                setChatQuestions([...chatQuestions, res.data?.next_question]);
             } else if (role == "talent" && stage == TECHNICAL) {
                 const res = await axios.post(`${aiURL}/api/interview/technical/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -568,10 +827,11 @@ export default function Interview() {
                     getTutorial();
                 }
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
             } else if (role == "talent" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/interview/situational/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -589,11 +849,12 @@ export default function Interview() {
                     console.log(vector);
                 }
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
                 // ====================================================================================
             } else if (role == "company" && stage == GENERAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/general/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (page == totalQuestions) {
@@ -601,10 +862,11 @@ export default function Interview() {
                     getTutorial();
                 }
                 setQuestion(res.data?.next_question);
+                setChatQuestions([...chatQuestions, res.data?.next_question]);
             } else if (role == "company" && stage == TECHNICAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/technical/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (res.data?.is_finished) {
@@ -613,10 +875,11 @@ export default function Interview() {
                 }
                 setTotalQuestions(res.data?.total_questions);
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
             } else if (role == "company" && stage == SITUATIONAL) {
                 const res = await axios.post(`${aiURL}/api/company-interview/situational/answer`, {
                     session_id: sessionId,
-                    answer: answer,
+                    answer: finalTranscript ? finalTranscript : answer,  // answer,
                 });
                 console.log(res.data);
                 if (res.data?.is_finished) {
@@ -658,7 +921,10 @@ ${response.data?.job_posting_data.competencies}` || "",
                 }
                 setTotalQuestions(res.data?.total_questions);
                 setQuestion(res.data?.next_question?.question);
+                setChatQuestions([...chatQuestions, res.data?.next_question?.question]);
             }
+            setChatAnswers([...chatAnswers, finalTranscript ? finalTranscript : "(답변 없음)"]);
+            setFinalTranscript('');
             setPage(page + 1);
             setSending(false);
             initCamera();
@@ -726,13 +992,55 @@ ${response.data?.job_posting_data.competencies}` || "",
 
             const barHeight = displayedRms * canvas.height * 5;
 
-            ctx.fillStyle = role == "company" ? colors.company : colors.talent;
+            ctx.fillStyle = role == "company" ? colors.company_light : colors.talent_light;
             ctx.fillRect(canvas.width / 2 - 25, canvas.height - barHeight, 50, barHeight);
         };
 
         draw();
     };
 
+    const startBrowserSTT = () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn('브라우저가 Web Speech API를 지원하지 않습니다.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'ko-KR';
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let interim = '';
+        let final = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            final += transcript + ' ';
+          } else {
+            interim += transcript;
+          }
+        }
+        if (final) {
+          setFinalTranscript(prev => prev + final);
+        }
+        setInterimTranscript(interim);
+      };
+      recognition.onerror = (event) => {
+        console.error('음성 인식 오류:', event.error);
+        if (event.error === 'no-speech') {
+          console.log('무음 감지 - 자동 재시작');
+        }
+      };
+      recognition.onend = () => {
+        if (recording) {
+          recognition.start();
+        }
+      };
+      recognition.start();
+      recognitionRef.current = recognition;
+    }
+    
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -757,7 +1065,6 @@ ${response.data?.job_posting_data.competencies}` || "",
 
                 const blob = new Blob(chunks.current, { type: "audio/webm" });
                 const url = URL.createObjectURL(blob);
-
                 setAudioUrls((prev) => {
                     const urlArray = [...prev];
                     urlArray[page] = url;
@@ -765,10 +1072,12 @@ ${response.data?.job_posting_data.competencies}` || "",
                 });
 
                 const file = new File([blob], `recording_${page}.webm`, { type: "audio/webm" });
-
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append("language", "ko");
+                if (finalTranscript) {
+                  formData.append('browser_transcript', finalTranscript);
+                }
 
                 try {
                     const res = await axios.post(`${aiURL}/api/stt/transcribe`, formData, {
@@ -781,26 +1090,66 @@ ${response.data?.job_posting_data.competencies}` || "",
                 }
             };
             mediaRecorderRef.current.start();
+            if (isBrowserSTTSupported) {
+              startBrowserSTT();
+            }
             setRecording(true);
+            setFinalTranscript('');
+            setInterimTranscript('');
         } catch (err) {
             console.error("마이크 접근 실패:", err);
         }
     };
 
     const stopRecording = () => {
-        if (mediaRecorderRef.current && recording) {
-            mediaRecorderRef.current.stop();
-            setRecording(false);
-        }
+      if (mediaRecorderRef.current && recording) {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        setRecording(false);
+      }
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+      setInterimTranscript('');
     };
 
     useEffect(() => {
-        if (recording && canvasRef.current && analyserRef.current) {
-            drawVolumeBar();
-        } else {
-            if (animationRef.current) cancelAnimationFrame(animationRef.current);
-        }
+      if (recording && canvasRef.current && analyserRef.current) {
+        drawVolumeBar();
+      } else {
+        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      }
     }, [recording]);
+
+    const [seconds, setSeconds] = useState(0);
+    const [timerActive, setTimerActive] = useState(false);
+    
+    useEffect(() => {
+      if (!tutorial && !finished) {
+        setTimerActive(true);
+        setSeconds(0);
+      } else {
+        setTimerActive(false);
+      }
+    }, [tutorial, finished]);
+
+    useEffect(() => {
+      if (!timerActive) return;
+      const timer = setInterval(() => {
+        setSeconds((second) => second + 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }, [timerActive]);
+
+    const chatRef = useRef(null);
+
+    useEffect(() => {
+      const chatContainer = chatRef.current;
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, [page, finalTranscript]);
 
     if (role === "talent") {
         return (
@@ -897,44 +1246,75 @@ ${response.data?.job_posting_data.competencies}` || "",
             )}
             
             {!tutorial && !finished && (
-              <>
-              <ProgressBarContainer>
-                <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
-                <ProgressText>{page} / {totalQuestions}</ProgressText>
-              </ProgressBarContainer>
-              <Form>
-                <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
-                <CameraAndAudioContainer>
-                  <CameraView ref={videoRef} autoPlay muted />
-                  <AudioPanel>
-                    <CanvasWrapper>
-                      {recording && (
-                        <StyledCanvas ref={canvasRef} width={200} height={140} />
-                      )}
-                    </CanvasWrapper>
-                    <ButtonContainer>
-                    {!recording ? 
-                      <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
-                      : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
-                    }
-                    {/* {audioUrls[page] && (
-                      <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
-                    )} */}
-                    </ButtonContainer>
-                    {audioUrls[page] && (
-                    <div style={{ marginTop: "20px" }}>
-                        <audio controls src={audioUrls[page]}></audio>
-                    </div>
+              <FullScreen>
+                <Container>
+                  <StepContainer style={{marginTop: '50px', position: 'relative', left: '-200px'}}>
+                    {stages.map((stageElement, idx) => (
+                      <StepGroup key={stageElement.num}>
+                        <Step role={role} active={stage === stageElement.num}>{stageElement.num}</Step>
+                        <StepLabel role={role} active={stage === stageElement.num}>{stageElement.label}</StepLabel>
+                        {idx < stages.length - 1 && <Divider />}
+                      </StepGroup>
+                    ))}
+                  </StepContainer>
+                  <ProgressBarContainer>
+                    <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
+                    <ProgressText>{page} / {totalQuestions}</ProgressText>
+                  </ProgressBarContainer>
+                <FormInterview style={{top: '-13px'}}>
+                  <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
+                  <Timer>
+                    ⏰ {(Math.floor(seconds / 60)).toString().padStart(2, '0')}:{(seconds % 60).toString().padStart(2, '0')}
+                  </Timer>
+                </FormInterview>
+                <CameraAndChatContainer>
+                  <CameraView recording={!!recording} role={role} ref={videoRef} autoPlay muted />
+                  <ChatContainer role={role} ref={chatRef}>
+                    {Array.from({ length: Math.max(chatQuestions.length, chatAnswers.length) }).map((_, index) => (
+                      <div key={index}>
+                        {<ChatQuestion role={role} style={index === chatQuestions.length - 1 ? { border: "2px solid #848484ff", fontWeight: "550" } : {}}>{chatQuestions[index]}</ChatQuestion>}
+                        {index < chatAnswers.length && (
+                          <ChatAnswer>{chatAnswers[index]}</ChatAnswer>
+                        )}
+                      </div>
+                    ))}
+                    <ChatAnswer style={{marginBottom: "0px", border: "2px solid #848484ff"}}>
+                      {!isBrowserSTTSupported ? <span style={{color: "gray"}}>⚠️ 브라우저가 실시간 음성 인식을 지원하지 않아요.</span> : (finalTranscript ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>)}
+                    </ChatAnswer>
+                  </ChatContainer>
+                </CameraAndChatContainer>
+                <AudioPanel>
+                  <CanvasWrapper>
+                    {recording && (
+                      <StyledCanvas ref={canvasRef} width={10} height={140} style={{position: 'relative', left: '10px'}}/>
                     )}
-                  </AudioPanel>
-                </CameraAndAudioContainer>
-              </Form>
-              {audioUrls[page] && (
-                <>
-                <Button onClick={getNextPage} disabled={sending} role={role}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
-                </>
-              )}
-              </>
+                    {!recording && (
+                      <StyledCanvas style={{color: 'transparent'}} ref={canvasRef} width={10} height={140} />
+                    )}
+                    <MicIcon>🎙️</MicIcon>
+                  </CanvasWrapper>
+                  <ButtonContainer style={{position: 'relative', top: '-300px', left: '315px', height: '0px'}}>
+                  {!recording ? 
+                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
+                  }
+                  {/* {audioUrls[page] && (
+                    <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
+                  )} */}
+                  </ButtonContainer>
+                  {audioUrls[page] && !recording && (
+                  <div style={{position: 'relative', top: '-400px', left: '310px'}}>
+                      <audio controls src={audioUrls[page]}></audio>
+                  </div>
+                  )}
+                </AudioPanel>
+                {audioUrls[page] && (
+                  <div style={{height: '0px'}}>
+                    <Button style={{position: 'relative', margin: '0px 0px 50px 0px', left: '214px', top: '-40px'}} onClick={getNextPage} disabled={sending} role={role}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
+                  </div>
+                )}
+                </Container>
+              </FullScreen>
             )}
 
             {finished && (
@@ -957,6 +1337,13 @@ ${response.data?.job_posting_data.competencies}` || "",
               <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
               </>
             )}
+
+            {sending &&
+              <LoadingOverlay>
+                <Spinner />
+                <LoadingText>{tutorial ? `　${name} 님을 위한 질문을 생각 중이에요···　` : (page < totalQuestions ? "　다음 질문을 생각하고 있어요···　" : `　${name} 님의 답변 내용을 분석하고 있어요···　`)}</LoadingText>
+              </LoadingOverlay>
+            }
           </Container>
         )
     } else if (role === "company" && !queryJobId) {
@@ -1077,6 +1464,78 @@ ${response.data?.job_posting_data.competencies}` || "",
             )}
             
             {!tutorial && !jobPosting && !finished && (
+              <FullScreen>
+                <Container>
+                  <StepContainer style={{marginTop: '50px', position: 'relative', left: '-200px'}}>
+                    {stages.map((stageElement, idx) => (
+                      <StepGroup key={stageElement.num}>
+                        <Step role={role} active={stage === stageElement.num}>{stageElement.num}</Step>
+                        <StepLabel role={role} active={stage === stageElement.num}>{stageElement.label}</StepLabel>
+                        {idx < stages.length - 1 && <Divider />}
+                      </StepGroup>
+                    ))}
+                  </StepContainer>
+                  <ProgressBarContainer>
+                    <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
+                    <ProgressText>{page} / {totalQuestions}</ProgressText>
+                  </ProgressBarContainer>
+                <FormInterview style={{top: '-13px'}}>
+                  <FormTitle style={{ whiteSpace: 'pre-line' }}>{question}</FormTitle>
+                  <Timer>
+                    ⏰ {(Math.floor(seconds / 60)).toString().padStart(2, '0')}:{(seconds % 60).toString().padStart(2, '0')}
+                  </Timer>
+                </FormInterview>
+                <CameraAndChatContainer>
+                  <ImageView recording={!!recording} role={role} src={companyInterview} />
+                  <ChatContainer role={role} ref={chatRef}>
+                    {Array.from({ length: Math.max(chatQuestions.length, chatAnswers.length) }).map((_, index) => (
+                      <div key={index}>
+                        {<ChatQuestion role={role} style={index === chatQuestions.length - 1 ? { border: "2px solid #848484ff", fontWeight: "550" } : {}}>{chatQuestions[index]}</ChatQuestion>}
+                        {index < chatAnswers.length && (
+                          <ChatAnswer>{chatAnswers[index]}</ChatAnswer>
+                        )}
+                      </div>
+                    ))}
+                    <ChatAnswer style={{marginBottom: "0px", border: "2px solid #848484ff"}}>
+                      {!isBrowserSTTSupported ? <span style={{color: "gray"}}>⚠️ 브라우저가 실시간 음성 인식을 지원하지 않아요.</span> : (finalTranscript ? finalTranscript : <span style={{color: "gray"}}>녹음을 시작하면 실시간으로 텍스트가 표시돼요.</span>)}
+                    </ChatAnswer>
+                  </ChatContainer>
+                </CameraAndChatContainer>
+                <AudioPanel>
+                  <CanvasWrapper>
+                    {recording && (
+                      <StyledCanvas ref={canvasRef} width={10} height={140} style={{position: 'relative', left: '10px'}}/>
+                    )}
+                    {!recording && (
+                      <StyledCanvas style={{color: 'transparent'}} ref={canvasRef} width={10} height={140} />
+                    )}
+                    <MicIcon>🎙️</MicIcon>
+                  </CanvasWrapper>
+                  <ButtonContainer style={{position: 'relative', top: '-300px', left: '315px', height: '0px'}}>
+                  {!recording ? 
+                    <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
+                    : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
+                  }
+                  {/* {audioUrls[page] && (
+                    <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
+                  )} */}
+                  </ButtonContainer>
+                  {audioUrls[page] && !recording && (
+                  <div style={{position: 'relative', top: '-400px', left: '310px'}}>
+                      <audio controls src={audioUrls[page]}></audio>
+                  </div>
+                  )}
+                </AudioPanel>
+                {audioUrls[page] && (
+                  <div style={{height: '0px'}}>
+                    <Button style={{position: 'relative', margin: '0px 0px 50px 0px', left: '214px', top: '-40px'}} onClick={getNextPage} disabled={sending} role={role}>{page < totalQuestions ? (sending ? "질문 생각 중···" : "답변 제출 · 다음으로") : (sending ? "내용 분석 중···" : "답변 제출 · 마무리")}</Button>
+                  </div>
+                )}
+                </Container>
+              </FullScreen>
+            )}
+
+            {/* {!tutorial && !jobPosting && !finished && (
               <>
               <ProgressBarContainer>
                 <Progress progress={100 * (page / totalQuestions)} role={role}></Progress>
@@ -1094,9 +1553,9 @@ ${response.data?.job_posting_data.competencies}` || "",
                     <RecordButton onClick={startRecording} role={role} disabled={sending}>{audioUrls[page] ? "🎙️ 다시 녹음하기" : "🎙️ 녹음 시작"}</RecordButton>
                     : <RecordButton onClick={stopRecording} role={role} disabled={sending}>⏹️ 녹음 종료</RecordButton>
                   }
-                  {/* {audioUrls[page] && (
+                  {/ {audioUrls[page] && (
                     <AnswerButton onClick={() => alert(answer)} role={role}>✍️ 답변 내용 확인하기</AnswerButton>
-                  )} */}
+                  )} /}
                   </ButtonContainer>
                   {audioUrls[page] && (
                   <div style={{ marginTop: "20px" }}>
@@ -1110,7 +1569,7 @@ ${response.data?.job_posting_data.competencies}` || "",
                 </>
               )}
               </>
-            )}
+            )} */}
 
             {jobPosting && !finished && (
               <>
@@ -1164,6 +1623,13 @@ ${response.data?.job_posting_data.competencies}` || "",
               <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
               </>
             )}
+
+            {sending &&
+              <LoadingOverlay>
+                <Spinner role={role} />
+                <LoadingText>{tutorial ? `　페르소나 설정을 위한 질문을 생각 중이에요···　` : (page < totalQuestions ? "　다음 질문을 생각하고 있어요···　" : `　답변 내용을 바탕으로 ${jobTitle} 포지션을 분석하고 있어요···　`)}</LoadingText>
+              </LoadingOverlay>
+            }
           </Container>
         )
     }
