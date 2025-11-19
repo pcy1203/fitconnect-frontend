@@ -89,6 +89,13 @@ const ButtonContainer = styled.div`
     left: 680px;
 `;
 
+const TwoButtonsWrapper = styled.div`
+  width: 400px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
 const Button = styled.button<{ role?: string }>`
   all: unset;
   width: 400px;
@@ -554,7 +561,7 @@ const formatYearMonth = (dateStr: string) => {
 };
 
 export default function Recommendation() {
-    const { token, setToken, role, setRole, loading } = useAuth();
+    const { token, setToken, role, setRole, loading, profileName } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const queryJobId = new URLSearchParams(location.search).get("job");
@@ -574,6 +581,7 @@ export default function Recommendation() {
     const [page, setPage] = useState(0);
     const [endPage, setEndPage] = useState(0);
     const [jobList, setJobList] = useState(null);
+    const [jobTitle, setJobTitle] = useState("");
     const [matchingData, setMatchingData] = useState(null);
     const [data, setData] = useState(null);
     const [companyData, setCompanyData] = useState(null);
@@ -638,6 +646,8 @@ export default function Recommendation() {
               setPage(0);
               setEndPage(response.data.data.matches.length - 1);
               setMatchingData(response.data.data.matches);
+              axios.get(`${baseURL}/api/job-postings/${queryJobId}`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => setJobTitle(res.data.data?.title));
             })
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
@@ -927,7 +937,11 @@ export default function Recommendation() {
                 </>
               )}
               <ButtonContainer>
-                <Button role={role}><span>💙 보관하기</span></Button>
+                <TwoButtonsWrapper>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>💙 보관하기</span></Button>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}} 
+                    onClick={() => {}}><span>🔗 공고 확인하기</span></Button>
+                </TwoButtonsWrapper>
                 <Line></Line>
                 <ReactionContainer>
                   <ReactionTitle>아쉬운 점에 대한 반응을 누르면, 더 적합한 인재를 찾아드려요.</ReactionTitle>
@@ -1107,7 +1121,15 @@ export default function Recommendation() {
               </>
               )}
               <ButtonContainer>
-                <Button role={role}><span>❤️ 보관하기</span></Button>
+                <TwoButtonsWrapper>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>❤️ 보관하기</span></Button>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}} 
+                    onClick={() => {
+                      window.open(
+                        `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(data?.basic.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + data?.basic.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n" + "채용 담당자 드림")}`,
+                        "_blank"
+                      );}}><span>✉️ 이메일 보내기</span></Button>
+                </TwoButtonsWrapper>
                 <Line></Line>
                 <ReactionContainer>
                   <ReactionTitle>아쉬운 점에 대한 반응을 누르면, 더 적합한 인재를 찾아드려요.</ReactionTitle>
