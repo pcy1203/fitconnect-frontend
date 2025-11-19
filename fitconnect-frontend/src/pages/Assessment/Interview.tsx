@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 
-import { baseURL, aiURL } from "../../env";
+import { baseURL, aiURL, googleApiKey } from "../../env";
 import { useAuth } from "../../components/AuthContext";
 import colors from "../../styles/colors";
 import axios from "axios";
 import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
 import companyInterview from '../../assets/company-interview.jpg';
+import { set } from "date-fns";
 
 const Container = styled.div`
   width: 1200px;
@@ -307,20 +308,19 @@ const StyledCanvas = styled.canvas`
 
 const InputContainer = styled.div<{ width?: string }>`
     width: ${(props) => props.width || "500px"};
-    display: flex;
+    margin-left: 175px;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
 `
 
 const Label = styled.div`
-    width: 80px;
-    height: 70px;
+    width: 800px;
+    height: 50px;
     position: relative;
-    padding-left: 40px;
+    padding-left: 5px;
     color: black;
     font-size: 16px;
-    line-height: 70px;
+    line-height: 50px;
 `;
 
 const Paragraph = styled.div`
@@ -577,6 +577,93 @@ const LoadingText = styled.div`
   letter-spacing: 0.5px;
 `;
 
+const SelectContainer = styled.div`
+    margin-left: 285px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+    margin-top: 45px;
+`;
+
+const Select = styled.div`
+    width: 300px;
+    height: 350px;
+    background: #FFFFFF;
+    border: 1px solid #9E9E9E;
+    border-radius: 20px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    &:hover {
+      background-color: #EFEFEF;
+    }
+    &:active {
+      transform: scale(0.95);
+    }
+    & > div:first-child {
+      margin-left: 110px;
+      margin-top: 45px;
+      font-size: 60px;
+    }
+`;
+
+const SelectName = styled.div`
+    color: #000;
+    font-size: 20px;
+    width: 300px;
+    text-align: center;
+    margin-top: 20px;
+    & > p {
+      font-size: 13px;
+      line-height: 30px;
+    }
+`;
+
+const Textarea = styled.textarea.withConfig({
+    shouldForwardProp: (prop) => prop !== "hasError"
+})<{ width?: string, height?: string, hasError?: boolean, role?: string }>`
+    width: ${(props) => props.width || "300px"};
+    height: ${(props) => props.height || "30px"};
+    background: #FFFFFF;
+    color: #000000;
+    border: 1px solid #9E9E9E;
+    padding: 10px 10px;
+    &:focus {
+        outline: none;
+        border: 2px solid ${ colors.company };
+        box-shadow: 0 0 6px rgba(99, 153, 251, 0.5);
+    }
+    &::placeholder {
+        color: #dbdbdb;
+    }
+    font-family: inherit;
+    resize: none;
+`;
+
+const LargeButton = styled.button<{ role?: string }>`
+  all: unset;
+  width: 500px;
+  height: 50px;
+  background: #FFFFFF;
+  color: #000000;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 30px;
+  border: 3px solid ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  border-radius: 25px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+  &:hover {
+    background-color: #f2f2f2ff;
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+  & > span {
+    position: relative;
+    top: -1px;
+  }
+`;
 
 interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
@@ -624,11 +711,136 @@ declare global {
   }
 }
 
+let gapiInited = false;
+let tokenClient;
+let accessToken = null;
+
+const initGapi = () => {
+  return new Promise((resolve) => {
+    const script1 = document.createElement('script');
+    script1.src = 'https://apis.google.com/js/api.js';
+    script1.async = true;
+    script1.defer = true;
+    script1.onload = () => {
+      window.gapi.load('client', async () => {
+        await window.gapi.client.init({
+          apiKey: googleApiKey,
+          discoveryDocs: [
+            'https://sheets.googleapis.com/$discovery/rest?version=v4',
+            'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
+          ],
+        });
+        gapiInited = true;
+        console.log('GAPI initialized');
+        resolve();
+      });
+    };
+    document.body.appendChild(script1);
+
+    const script2 = document.createElement('script');
+    script2.src = 'https://accounts.google.com/gsi/client';
+    script2.async = true;
+    script2.defer = true;
+    script2.onload = () => {
+      console.log('GIS loaded');
+    };
+    document.body.appendChild(script2);
+  });
+};
+
+const loginGoogle = async () => {
+  return new Promise((resolve, reject) => {
+    try {
+      tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '197209784534-srthfmmp0qnaocpak06m2ggj6inpnjng.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets',
+        callback: (response) => {
+          if (response.error) {
+            console.error('Token error:', response);
+            reject(response);
+            return;
+          }
+          accessToken = response.access_token;
+          console.log('Access token received');
+          resolve(accessToken);
+        },
+      });
+
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    } catch (error) {
+      console.error('Login error:', error);
+      reject(error);
+    }
+  });
+};
+
+const createSheetFromTemplate = async (templateId) => {
+  if (!accessToken) {
+    throw new Error('Not authenticated. Please login first.');
+  }
+  const newName = "User Sheet - " + Date.now();
+  if (templateId) {
+    const response = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${templateId}/copy`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newName,
+        }),
+      }
+    );
+
+    const result = await response.json();
+    return result.id;
+  } else {
+    const response = await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          properties: {
+            title: newName,
+          },
+        }),
+      }
+    );
+    const result = await response.json();
+    return result.spreadsheetId;
+  }
+};
+
+export const readSheet = async (sheetId, range = "A1:Z1000") => {
+  if (!accessToken) {
+    throw new Error('Not authenticated. Please login first.');
+  }
+  const response = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  const result = await response.json();
+  return result.values;
+};
+
 export default function Interview() {
     const { token, setToken, role, setRole, loading, profileName } = useAuth();
     const [jobList, setJobList] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
     const queryJobId = new URLSearchParams(location.search).get("job");
+    const interviewType = new URLSearchParams(location.search).get("type");
     const [name, setName] = useState("$이름$");
     const [jobTitle, setJobTitle] = useState("$공고$");
 
@@ -664,6 +876,10 @@ export default function Interview() {
       { num: 2, label: "직무 적합성 면접" },
       { num: 3, label: "문화 적합성 면접" },
     ];
+    const documentStages = [
+      { num: 1, label: "구조화 질문" },
+      { num: 2, label: "직무/문화 적합성 질문" },
+    ];
 
     const [page, setPage] = useState(1);
     const [stage, setStage] = useState(0);  // General (1) -> Technical (2) -> Situational (3)
@@ -695,10 +911,19 @@ export default function Interview() {
     const [interimTranscript, setInterimTranscript] = useState('');
     const [isBrowserSTTSupported, setIsBrowserSTTSupported] = useState(false);
 
+    const [jobInfo, setJobInfo] = useState({"Q1": "", "Q2": "", "Q3": "", "Q4": "", "Q5": ""});
+    const [sheetId, setSheetId] = useState(null);
+    const [sheetUrl, setSheetUrl] = useState(null);
+    const [making, setMaking] = useState(false);
+
     useEffect(() => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       setIsBrowserSTTSupported(!!SpeechRecognition);
       setName(profileName);
+    }, []);
+
+    useEffect(() => {
+      initGapi();
     }, []);
 
     const getTutorial = () => {
@@ -1151,6 +1376,37 @@ ${response.data?.job_posting_data.competencies}` || "",
       }
     }, [page, finalTranscript]);
 
+    const handleSelect = (type: string) => {
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set("type", type);
+      navigate(`${location.pathname}?${searchParams.toString()}`);
+    };
+
+  const handleCreateSheet = async () => {
+    try {
+      setMaking(true);
+      await loginGoogle();
+      const newId = await createSheetFromTemplate("1zD2NoxwO2prTBbNZZTXhbUN-LcyIbO-i505gH1xk_cg");
+      setSheetId(newId);
+      const url = "https://docs.google.com/spreadsheets/d/" + newId;
+      setSheetUrl(url);
+      window.open(url, "_blank");
+      setMaking(false);
+    } catch (error) {
+      console.error("Error in handleCreateSheet:", error);
+      alert("에러 발생: " + JSON.stringify(error));
+      setMaking(false);
+    }
+  };
+
+  const handleReadSheet = async () => {
+    if (!sheetId) return alert("시트가 아직 없어요");
+    const data = await readSheet(sheetId);
+    console.log("Sheet Data", data);
+    alert(JSON.stringify(data));
+    // jobPosting 정보를 넣어야 함
+  };
+
     if (role === "talent") {
         return (
           <Container>
@@ -1367,7 +1623,196 @@ ${response.data?.job_posting_data.competencies}` || "",
               </JobContainer>
           </Container>
         )
-    } else if (role === "company") {
+    } else if (role === "company" && !interviewType) {
+        return (
+          <Container>
+            <Title style={{'marginBottom': '20px'}}>🎤 AI 분석 인터뷰</Title>
+            <Paragraph>진행 방식을 선택해주세요.</Paragraph>
+            <SelectContainer>
+              <Select onClick={() => handleSelect("interview")}>
+                  <div>🎙️</div>
+                  <SelectName>
+                    <b>음성 인터뷰</b> 방식<br/>
+                    <hr style={{"width": "200px", "marginTop": "15px"}}></hr>
+                    <p>· AI의 질문에 실시간으로 답변<br/>· 페르소나 회의를 효과적으로 지원<br/>· 공고 내용이 없는 경우 추천</p>
+                  </SelectName>
+              </Select>
+              <Select onClick={() => {handleSelect("document");}}>
+                  <div>📜</div>
+                  <SelectName>
+                    <b>문서 작성</b> 방식<br/>
+                    <hr style={{"width": "200px", "marginTop": "15px"}}></hr>
+                    <p>· AI가 제시한 질문에 답변 작성<br/>· 팀원들의 답변 내용을 수합하여 분석<br/>· 여러 차례 채용 경험이 있는 경우 추천</p>
+                  </SelectName>
+              </Select>
+            </SelectContainer>
+          </Container>
+        )
+    } else if (role === "company" && interviewType == "document")  {
+        return (
+          <Container>
+            <Title>🎤 AI 분석 인터뷰</Title>
+              <StepContainer>
+                {documentStages.map((stageElement, idx) => (
+                  <StepGroup key={stageElement.num}>
+                    <Step role={role} active={stage === stageElement.num}>{stageElement.num}</Step>
+                    <StepLabel role={role} active={stage === stageElement.num}>{stageElement.label}</StepLabel>
+                    {idx < documentStages.length - 1 && <Divider />}
+                  </StepGroup>
+                ))}
+              </StepContainer>
+            
+              {!stage && (
+                <>
+                <Form>
+                  <FormTitle>시작 전 안내사항</FormTitle>
+                  <FormContent>
+                    <FormParagraph>
+                    <b>'딱 맞는 매칭'</b>을 위해, 어떤 인재가 {jobTitle} 포지션에 적합한지 구체적으로 파악해 볼게요.<br/>
+                    <br/>
+                    📌 AI 분석 인터뷰(문서 작성)는 <b>2단계</b>로 이루어져 있어요.<br/>
+                    📌 1단계: <b>구조화 질문</b>에 대해 논의한 후 답변 내용을 사이트에 작성해 주세요.<br/>
+                    📌 2단계: AI의 <b>직무/문화 적합성 질문</b>이 포함된 구글 스프레드시트를 확인해 주세요.<br/>
+                    📌 3단계: <b>실무진 팀원들, HR(인사팀) 담당자</b>가 각자 질문에 대한 의견을 작성해 주세요.<br/>
+                    📌 문서 내용은 공개되지 않으며, 포지션에서 <b>요구하는 역량과 기대하는 역할</b>을 이해하는 데 활용돼요.<br/>
+                    📌 문서 제출이 완료되면, AI가 공고 내용을 제안드릴 예정이에요. 내용을 자유롭게 수정 후 완성해주세요.<br/>
+                    <br/>
+                    안내사항을 모두 확인했다면, 우측 하단의 <b>'시작하기'</b> 버튼을 눌러주세요!
+                    </FormParagraph>  
+                  </FormContent>
+                </Form>
+                <Button onClick={getTutorial} role={role}>작성 시작하기</Button>
+                </>
+              )}
+
+              {stage == GENERAL && (
+                <>
+                <Form>
+                  <FormTitle>공고 세부내용 입력</FormTitle>
+                  <FormContent>
+                    <FormParagraph>
+                    📝 <b>실무진 팀원들 · HR(인사팀) 담당자끼리 논의 후 작성해 주세요!</b><br/><br/>
+                    <b>구조화 질문</b>은 고정된 질문을 통해 {jobTitle} 포지션의 전반적인 조건을 파악하는 단계예요.<br/>
+                    업무, 인재상 등 포괄적인 주제를 중심으로 {jobTitle} 포지션의 <b>주요 역할</b>을 이해하여,<br/>
+                    직무/문화 적합성 질문을 만들고 공고에 들어갈 내용을 작성하는 데 활용돼요.<br/><br/>
+                    📢 작성 완료 버튼을 누르면, **직무/문화 적합성 질문이 포함된 구글 스프레드시트**가 만들어져요! (로그인 필요)
+                    </FormParagraph>
+                  </FormContent>
+                  <InputContainer width="1000px">
+                    <Label style={{ 'marginTop': '20px' }}>우리 팀/회사의 핵심 가치는 무엇인가요?</Label>
+                    <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="내용을 입력해주세요." value={jobInfo.Q1} onChange={(e) => setJobInfo((prev) => ({ ...prev, Q1: e.target.value }))} width="800px"></Textarea>
+                  </InputContainer>
+                  <InputContainer width="1000px">
+                    <Label>이 포지션에서 수행할 주요 업무는 무엇인가요?</Label>
+                    <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="내용을 입력해주세요." value={jobInfo.Q2} onChange={(e) => setJobInfo((prev) => ({ ...prev, Q2: e.target.value }))} width="800px"></Textarea>
+                  </InputContainer>
+                  <InputContainer width="1000px">
+                    <Label>이 포지션에서 가장 중요하게 생각하는 인재상이나 가치관은 무엇인가요?</Label>
+                    <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="내용을 입력해주세요." value={jobInfo.Q3} onChange={(e) => setJobInfo((prev) => ({ ...prev, Q3: e.target.value }))} width="800px"></Textarea>
+                  </InputContainer>
+                  <InputContainer width="1000px">
+                    <Label>팀의 업무 방식과 문화를 설명해주세요.</Label>
+                    <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="내용을 입력해주세요." value={jobInfo.Q4} onChange={(e) => setJobInfo((prev) => ({ ...prev, Q4: e.target.value }))} width="800px"></Textarea>
+                  </InputContainer>
+                  <InputContainer width="1000px">
+                    <Label>회사나 팀이 최근 집중하고 있는 전략적 방향성이나 중장기 목표는 무엇인가요?</Label>
+                    <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="내용을 입력해주세요." value={jobInfo.Q5} onChange={(e) => setJobInfo((prev) => ({ ...prev, Q5: e.target.value }))} width="800px"></Textarea>
+                  </InputContainer>
+                </Form>
+                <Button onClick={() => {getTutorial(); handleCreateSheet(); window.scrollTo({ top: 0, behavior: 'smooth' });}} role={role}>다음으로</Button>
+                </>
+              )}
+            
+              {stage == TECHNICAL && (
+                <>
+                <Form>
+                  <FormTitle>직무/문화 적합성 질문 답변 작성</FormTitle>
+                  <FormContent>
+                    <FormParagraph>
+                    📝 <b>실무진 팀원들 · HR(인사팀) 담당자끼리 구글 스프레드시트에 답변을 작성해 주세요!</b><br/><br/>
+                    <b>직무/문화 적합성 질문</b>은 맞춤형 질문을 통해 {jobTitle} 포지션의 요구 역량과 기술,<br/>
+                    그리고 조직/팀의 성격과 일하는 방식을 파악하는 단계예요.<br/> 
+                    작성 내용은 {jobTitle} 포지션의 <b>요구 역량과 인재상</b>을 심층적으로 이해하는 데 활용돼요.<br/><br/>
+                    
+                    📢 아래 링크를 통해 팀원들 모두가 <b>구글 스프레드시트에 답변을 작성</b>할 수 있도록 해주세요.<br/>
+                    답변 작성이 완료된 후 버튼을 눌러주시면, <b>공고 내용을 추천</b>해드려요!<br/>
+                    </FormParagraph>
+                  </FormContent>
+                  <div style={{'height': '30px'}}></div>
+                  {sheetUrl ? (
+                    <LargeButton role={role} onClick={() => window.open(sheetUrl, "_blank")}>🔗 새 탭에서 스프레드시트 열기</LargeButton>
+                  ) : (making ? (
+                    <LargeButton onClick={handleCreateSheet} style={{border: "2px solid #ccc"}} role={role}>🔗 스프레드시트 생성 중 <span style={{ "fontSize": "18px", "top": "-2px" }}>(클릭하여 생성)</span></LargeButton>
+                  ) : (
+                    <LargeButton onClick={handleCreateSheet} role={role}>🔗 구글 스프레드시트 생성하기</LargeButton>
+                  ))}
+                </Form>
+                <Button onClick={() => {getTutorial(); handleReadSheet();}} disabled={!sheetUrl} role={role}>{sheetUrl ? "시트 제출하기" : "시트 생성 필요"}</Button>
+                </>
+              )}
+
+              {jobPosting && !finished && (
+                <>
+                <Form>
+                  <FormTitle>AI 공고 내용 추천</FormTitle>
+                  <FormContent style={{ 'marginBottom': '30px' }}>
+                    <FormParagraph>
+                    2단계의 답변 작성이 모두 <b>완료</b>되어, AI가 공고에 들어갈 내용을 추천드려요.<br/>
+                    <br/>
+                    ✍️ 긴 시간 <b>질문에 성실히 답해주셔서 진심으로 감사드려요</b>.<br/>
+                    ✍️ AI가 작성한 내용을 바탕으로, <b>공고 내용을 수정하여 최종 완성</b>해주세요!<br/>
+                    </FormParagraph>  
+                  </FormContent>
+                  <InputContainer width="1000px">
+                    <Label style={{ 'marginBottom': '30px' }}>업무 내용</Label>
+                    <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="담당하게 될 업무 내용을 소개해주세요." value={additionalInfo.role} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, role: e.target.value }))} width="800px"></Input>
+                  </InputContainer>
+                  <InputContainer width="1000px">
+                    <Label style={{ 'marginBottom': '30px' }}>필수 요건</Label>
+                    <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="지원 자격/요건을 작성해주세요." value={additionalInfo.requirement} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, requirement: e.target.value }))} width="800px"></Input>
+                  </InputContainer>
+                  <InputContainer width="1000px">
+                    <Label style={{ 'marginBottom': '30px' }}>우대 사항</Label>
+                    <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="우대 사항을 작성해주세요." value={additionalInfo.preference} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, preference: e.target.value }))} width="800px"></Input>
+                  </InputContainer>
+                  <InputContainer width="1000px">
+                    <Label style={{ 'marginBottom': '30px' }}>요구 역량</Label>
+                    <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Input>
+                  </InputContainer>
+                </Form>
+                <Button onClick={postJobPosting} disabled={sending} role={role}>{sending ? "저장 및 분석 중···" : "저장하기"}</Button>
+                </>
+              )}
+
+              {finished && (
+                <>
+                <Form>
+                  <FormTitle>인터뷰 종료</FormTitle>
+                  <FormContent>
+                    <FormParagraph>
+                    3단계의 인터뷰 및 공고 작성이 모두 <b>완료</b>되어, AI가 인터뷰와 공고 내용을 분석 중이에요.<br/>
+                    <br/>
+                    🤚 답변 내용을 바탕으로 {jobTitle} 포지션의 <b>주요 역할/업무, 요구 역량</b>을 파악하고 있어요.<br/>
+                    🤚 분석한 내용은 한 눈에 확인 가능하도록 <b>공고 카드</b>로 만들어드려요.<br/>
+                    🤚 공고 카드 내용을 바탕으로, <b>'인재 탐색' 탭에서 맞춤형 인재를 추천</b>드려요.<br/>
+                    <br/>
+                    만들어진 공고 카드가 궁금하다면, 우측 하단의 <b>'분석 결과 확인하기'</b> 버튼을 눌러주세요!
+                    </FormParagraph>  
+                  </FormContent>
+                </Form>
+                <Button onClick={finishInterview} role={role}>분석 결과 확인하기</Button>
+                </>
+              )}
+
+              {sending &&
+                <LoadingOverlay>
+                  <Spinner role={role} />
+                  <LoadingText>{tutorial ? `　페르소나 설정을 위한 질문을 생각 중이에요···　` : (page < totalQuestions ? "　다음 질문을 생각하고 있어요···　" : `　답변 내용을 바탕으로 ${jobTitle} 포지션을 분석하고 있어요···　`)}</LoadingText>
+                </LoadingOverlay>
+              }
+          </Container>
+        )
+    } else if (role === "company" && interviewType == "interview") {
         return (
           <Container>
             <Title>🎤 AI 분석 인터뷰</Title>

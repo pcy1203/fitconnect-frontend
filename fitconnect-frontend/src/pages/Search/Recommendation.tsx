@@ -89,6 +89,13 @@ const ButtonContainer = styled.div`
     left: 680px;
 `;
 
+const TwoButtonsWrapper = styled.div`
+  width: 400px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
 const Button = styled.button<{ role?: string }>`
   all: unset;
   width: 400px;
@@ -289,13 +296,12 @@ const WeightButton = styled.button<{ role?: string }>`
     }
 `;
 
-
 const JobContainer = styled.div`
-  position: relative;
-  top: 0px;
-  left: 300px;
-  width: 610px;
-  height: 1px;
+    position: relative;
+    top: 0px;
+    left: 300px;
+    width: 610px;
+    height: 1px;
 `;
 
 const JobRegion = styled.div<{ role?: string }>`
@@ -323,79 +329,230 @@ const JobRegion = styled.div<{ role?: string }>`
 `;
 
 const JobPosting = styled.div`
-  width: 560px;
-  height: 100px;
-  margin-top: 15px;
-  margin-bottom: 15px;
-  margin-left: 5px;
-  background: rgba(255, 255, 255, 1);
-  border: 2px solid #b2b2b2ff;
-  border-radius: 5px;
-  box-shadow: 1px 1px 1px rgba(171, 171, 171, 0.2);
-  transition: transform 0.1s ease;
-  &:hover {
-    background: rgba(247, 247, 247, 1);
-  }
-  &:hover div {
-    visibility: visible;
-  }
-  &:active {
-    transform: scale(0.98);
-  }
+    width: 560px;
+    height: 100px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 5px;
+    background: rgba(255, 255, 255, 1);
+    border: 2px solid #b2b2b2ff;
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px rgba(171, 171, 171, 0.2);
+    transition: transform 0.1s ease;
+    &:hover {
+      background: rgba(247, 247, 247, 1);
+    }
+    &:hover div {
+      visibility: visible;
+    }
+    &:active {
+      transform: scale(0.98);
+    }
 `;
 
 const JobImage = styled.div`
-  margin-left: 15px;
-  margin-top: 15px;
-  width: 30px;
+    margin-left: 15px;
+    margin-top: 15px;
+    width: 30px;
 `;
 
 const JobTitle = styled.div`
-  width: 300px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #242424ff;
-  position: relative;
-  top: -25px;
-  left: 41px;
+    width: 300px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #242424ff;
+    position: relative;
+    top: -25px;
+    left: 41px;
 `;
 
 const JobContent = styled.div`
-  width: 320px;
-  font-size: 12px;
-  color: #242424ff;
-  position: relative;
-  top: -38px;
-  left: 20px;
-  line-height: 22px;
+    width: 320px;
+    font-size: 12px;
+    color: #242424ff;
+    position: relative;
+    top: -38px;
+    left: 20px;
+    line-height: 22px;
 `;
 
 const JobButton = styled.div<{ role?: string }>`
-  all: unset;
-  visibility: hidden;
-  width: 50px;
-  height: 22px;
-  text-align: center;
-  position: relative;
-  cursor: pointer;
-  font-size: 16px;
-  top: -21px;
-  left: 400px;
-  font-weight: 600;
-  color: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
-  transition: transform 0.1s ease;
-  &:active {
-    transform: scale(0.95);
-  }
+    all: unset;
+    visibility: hidden;
+    width: 50px;
+    height: 22px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    font-size: 16px;
+    top: -21px;
+    left: 400px;
+    font-weight: 600;
+    color: ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+    transition: transform 0.1s ease;
+    &:active {
+      transform: scale(0.95);
+    }
 `;
 
 const LoadingParagraph = styled.div`
-  width: 1000px;
-  color: black;
-  font-size: 16px;
-  font-weight: 400;
+    width: 1000px;
+    color: black;
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+    margin-top: 200px;
+`;
+
+const BalloonButton = styled.div`
+    position: absolute;
+    top: -40px;
+    margin-left: 230px;
+    background-color: #ffffff;
+    border: 2px solid #b2b2b2;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    
+    &::before {
+        content: "";
+        position: absolute;
+        top: 60px;
+        left: 20px;
+        transform: translateY(-50%);
+        width: 10px;
+        height: 10px;
+        background-color: #ffffff;
+        border: 2px solid #b2b2b2;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 80px;
+        left: 5px;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        background-color: #ffffff;
+        border: 2px solid #b2b2b2;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    &:hover {
+      background-color: #f8f8f8;
+      transform: translateY(-2px);
+    }
+`;
+
+const PopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PopupContainer = styled.div`
+  width: 600px;
+  height: 500px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 30px 40px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  animation: fadeIn 0.3s ease;
+  position: relative;
+`;
+
+const PopupScrollArea = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 20px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+`;
+
+const PopupTitle = styled.h3`
   text-align: center;
-  margin-top: 200px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: black;
+`;
+
+const PopupTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  color: black;
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    width: 25%;
+    background: #f5f5f5;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 16px;
+    vertical-align: middle;
+  }
+`;
+
+const MatchingTag = styled.div`
+  color: black;
+  width: 100px;
+  margin-top: 10px;
+  margin-left: 9px;
+  text-align: center;
+  font-size: 10px;
+  background-color: ${colors.company_lighter};
+  border: 1px solid ${colors.company};
+  border-radius: 50px;
+  padding: 5px;
+  font-weight: 400;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  border: none;
+  background: none;
+  font-size: 25px;
+  cursor: pointer;
+  color: #666;
+  &:hover {
+    color: #000;
+  }
 `;
 
 const formatYearMonth = (dateStr: string) => {
@@ -404,7 +561,7 @@ const formatYearMonth = (dateStr: string) => {
 };
 
 export default function Recommendation() {
-    const { token, setToken, role, setRole, loading } = useAuth();
+    const { token, setToken, role, setRole, loading, profileName } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const queryJobId = new URLSearchParams(location.search).get("job");
@@ -424,10 +581,12 @@ export default function Recommendation() {
     const [page, setPage] = useState(0);
     const [endPage, setEndPage] = useState(0);
     const [jobList, setJobList] = useState(null);
+    const [jobTitle, setJobTitle] = useState("");
     const [matchingData, setMatchingData] = useState(null);
     const [data, setData] = useState(null);
     const [companyData, setCompanyData] = useState(null);
     const [cardData, setCardData] = useState(null);
+    const [showPopup, setShowPopup] = useState(false);
     
     const handleChange = (key: string, value: number) => {
       setWeights({ ...weights, [key]: value });
@@ -487,6 +646,8 @@ export default function Recommendation() {
               setPage(0);
               setEndPage(response.data.data.matches.length - 1);
               setMatchingData(response.data.data.matches);
+              axios.get(`${baseURL}/api/job-postings/${queryJobId}`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => setJobTitle(res.data.data?.title));
             })
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
@@ -776,7 +937,11 @@ export default function Recommendation() {
                 </>
               )}
               <ButtonContainer>
-                <Button role={role}><span>💙 보관하기</span></Button>
+                <TwoButtonsWrapper>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>💙 보관하기</span></Button>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}} 
+                    onClick={() => {}}><span>🔗 공고 확인하기</span></Button>
+                </TwoButtonsWrapper>
                 <Line></Line>
                 <ReactionContainer>
                   <ReactionTitle>아쉬운 점에 대한 반응을 누르면, 더 적합한 인재를 찾아드려요.</ReactionTitle>
@@ -788,8 +953,8 @@ export default function Recommendation() {
                   <ReactionButton>🧭 커리어 방향의 불일치</ReactionButton>
                 </ReactionContainer>
               </ButtonContainer>
-              <LeftArrow onClick={getPreviousPage} style={page === 0 ? { display: 'none' } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></LeftArrow>
-              <RightArrow onClick={getNextPage} style={page === endPage ? { display: 'none' } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></RightArrow>
+              <LeftArrow onClick={getPreviousPage} style={page === 0 ? { visibility: "hidden", pointerEvents: "none" } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></LeftArrow>
+              <RightArrow onClick={getNextPage} style={page === endPage ? { visibility: "hidden", pointerEvents: "none" } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></RightArrow>
           </Container>
         );
     } else if (role === "company") {
@@ -903,6 +1068,9 @@ export default function Recommendation() {
               <HexagonContainer>
                 <Hexagon score={[matchingData[page]?.scores.roles, matchingData[page]?.scores.growth, matchingData[page]?.scores.career,
                   matchingData[page]?.scores.culture, matchingData[page]?.scores.vision, matchingData[page]?.scores.skills]} role={role} />
+                <BalloonButton onClick={() => setShowPopup(true)}>
+                  🤔 매칭 분석
+                </BalloonButton>
               </HexagonContainer>
               </>
               )}
@@ -953,7 +1121,15 @@ export default function Recommendation() {
               </>
               )}
               <ButtonContainer>
-                <Button role={role}><span>❤️ 보관하기</span></Button>
+                <TwoButtonsWrapper>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>❤️ 보관하기</span></Button>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}} 
+                    onClick={() => {
+                      window.open(
+                        `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(data?.basic.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + data?.basic.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n" + "채용 담당자 드림")}`,
+                        "_blank"
+                      );}}><span>✉️ 이메일 보내기</span></Button>
+                </TwoButtonsWrapper>
                 <Line></Line>
                 <ReactionContainer>
                   <ReactionTitle>아쉬운 점에 대한 반응을 누르면, 더 적합한 인재를 찾아드려요.</ReactionTitle>
@@ -965,8 +1141,55 @@ export default function Recommendation() {
                   <ReactionButton>🧭 커리어 방향의 불일치</ReactionButton>
                 </ReactionContainer>
               </ButtonContainer>
-              <LeftArrow onClick={getPreviousPage} style={page === 0 ? { display: 'none' } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></LeftArrow>
-              <RightArrow onClick={getNextPage} style={page === endPage ? { display: 'none' } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></RightArrow>
+              <LeftArrow onClick={getPreviousPage} style={page === 0 ? { visibility: "hidden", pointerEvents: "none" } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></LeftArrow>
+              <RightArrow onClick={getNextPage} style={page === endPage ? { visibility: "hidden", pointerEvents: "none" } : {}}><img src={role === "company" ? arrowCompany : arrowTalent} alt="Arrow" width={45} height={45}></img></RightArrow>
+              {showPopup && (
+                <PopupOverlay onClick={() => setShowPopup(false)}>
+                  <PopupContainer onClick={(e) => e.stopPropagation()}>
+                    <CloseButton onClick={() => setShowPopup(false)}>✕</CloseButton>
+                    <PopupScrollArea>
+                      <PopupTitle>💡 매칭 분석 인사이트</PopupTitle>
+                      <PopupTable>
+                        <tbody>
+                          <tr>
+                            <th>💼 직무 적합성<br/>
+                              <MatchingTag>역할 수행력 <b>{matchingData[page]?.scores.roles}%</b></MatchingTag>
+                              <MatchingTag>역량 적합도 <b>{matchingData[page]?.scores.skills}%</b></MatchingTag>
+                            </th>
+                            <td>
+                              <b>매칭 근거</b><br/>보유 기술 스택이 공고 내 필수 요건과 85% 이상 일치<br/><br/>
+                              <b>검증 포인트</b><br/>대규모 모델 최적화 경험의 실제 적용 범위 확인<br/><br/>
+                              <b>추천 질문</b><br/>Q.
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>👥 문화 적합성<br/>
+                              <MatchingTag style={{'width': '110px', 'marginLeft': '3px'}}>조직/문화 적합도 <b>{matchingData[page]?.scores.culture}%</b></MatchingTag>
+                              <MatchingTag>협업 기여도 <b>{matchingData[page]?.scores.vision}%</b></MatchingTag>
+                            </th>
+                            <td>
+                              <b>매칭 근거</b><br/>협업 중심 태도 및 주도성 응답 패턴이 조직 문화와 유사<br/><br/>
+                              <b>검증 포인트</b><br/>초기 적응력, 빠른 피드백 순환에 대한 선호도 파악<br/><br/>
+                              <b>추천 질문</b><br/>Q.
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>📈 성장 가능성<br/>
+                              <MatchingTag>성장 가능성 <b>{matchingData[page]?.scores.growth}%</b></MatchingTag>
+                              <MatchingTag>커리어 방향 <b>{matchingData[page]?.scores.vision}%</b></MatchingTag>
+                            </th>
+                            <td>
+                              <b>매칭 근거</b><br/>최신 AI 프레임워크 학습 및 적용 경험 다수 보유<br/><br/>
+                              <b>검증 포인트</b><br/>리더십 포지션으로 확장 가능한 자기개발 역량 확인<br/><br/>
+                              <b>추천 질문</b><br/>Q.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </PopupTable>
+                    </PopupScrollArea>
+                  </PopupContainer>
+                </PopupOverlay>
+              )}
           </Container>
         );
     }
