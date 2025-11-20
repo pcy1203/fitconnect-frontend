@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 
-import { baseURL, aiURL, googleApiKey } from "../../env";
+import { baseURL, aiURL, googleApiKey, googleClientId } from "../../env";
 import { useAuth } from "../../components/AuthContext";
 import colors from "../../styles/colors";
 import axios from "axios";
@@ -10,6 +10,7 @@ import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
 import companyInterview from '../../assets/company-interview.jpg';
 import { set } from "date-fns";
+import { se } from "date-fns/locale";
 
 const Container = styled.div`
   width: 1200px;
@@ -752,7 +753,7 @@ const loginGoogle = async () => {
   return new Promise((resolve, reject) => {
     try {
       tokenClient = window.google.accounts.oauth2.initTokenClient({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '197209784534-srthfmmp0qnaocpak06m2ggj6inpnjng.apps.googleusercontent.com',
+        client_id: googleClientId,
         scope: 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets',
         callback: (response) => {
           if (response.error) {
@@ -774,11 +775,11 @@ const loginGoogle = async () => {
   });
 };
 
-const createSheetFromTemplate = async (templateId) => {
+const createSheetFromTemplate = async (templateId, profileName, jobTitle) => {
   if (!accessToken) {
     throw new Error('Not authenticated. Please login first.');
   }
-  const newName = "User Sheet - " + Date.now();
+  const newName = `[${profileName}] ${jobTitle} - 직무/문화 적합성 질문지 (팀원 공유)`;
   if (templateId) {
     const response = await fetch(
       `https://www.googleapis.com/drive/v3/files/${templateId}/copy`,
@@ -817,7 +818,46 @@ const createSheetFromTemplate = async (templateId) => {
   }
 };
 
-export const readSheet = async (sheetId, range = "A1:Z1000") => {
+const getCell = (values, cell) => {
+  const col = cell.charCodeAt(0) - "A".charCodeAt(0);
+  const row = parseInt(cell.slice(1), 10) - 1;
+  return values[row]?.[col] || "";
+};
+
+const buildStrings = (values, baseNum) => {
+  const BASE = [[
+    { q: "C6",  a: "C7"  },
+    { q: "C13", a: "C14" },
+    { q: "C20", a: "C21" },
+    { q: "C27", a: "C28" },
+    { q: "C34", a: "C35" },
+  ],
+  [
+    { q: "C42", a: "C43"  },
+    { q: "C49", a: "C50" },
+    { q: "C56", a: "C57" },
+    { q: "C63", a: "C64" },
+    { q: "C70", a: "C71" },
+  ]];
+  const results = [];
+  for (let i = 1; i <= 5; i++) {
+    let text = "";
+    BASE[baseNum].forEach(({ q, a }) => {
+      const q_val = getCell(values, q);
+      const col = a[0];
+      const row = parseInt(a.slice(1), 10) + i;
+      const a_cell = `${col}${row}`;
+      const a_val = getCell(values, a_cell);
+
+      text += `Q: ${q_val}\nA: ${a_val}\n\n`;
+    });
+    results.push(text.trim());
+  }
+  return results;
+};
+
+
+const readSheet = async (sheetId, range = "A1:Z1000") => {
   if (!accessToken) {
     throw new Error('Not authenticated. Please login first.');
   }
@@ -829,7 +869,6 @@ export const readSheet = async (sheetId, range = "A1:Z1000") => {
       },
     }
   );
-
   const result = await response.json();
   return result.values;
 };
@@ -1385,26 +1424,100 @@ ${response.data?.job_posting_data.competencies}` || "",
   const handleCreateSheet = async () => {
     try {
       setMaking(true);
+      setSending(true);
+      const res1 = await axios.post(`${aiURL}/api/company-interview/team-review/start`, {
+        access_token: token,
+      });
+      setSessionId(res1.data?.session_id);
+      const res2 = await axios.post(`${aiURL}/api/company-interview/team-review/general`, {
+        session_id: res1.data?.session_id,
+        general_answer: `Q: 우리 팀/회사의 핵심 가치는 무엇인가요?
+          A: ${jobInfo.Q1}
+
+          Q: 이 포지션에서 수행할 주요 업무는 무엇인가요?
+          A: ${jobInfo.Q2}
+
+          Q: 이 포지션에서 가장 중요하게 생각하는 인재상이나 가치관은 무엇인가요?
+          A: ${jobInfo.Q3}
+
+          Q: 팀의 업무 방식과 문화를 설명해주세요.
+          A: ${jobInfo.Q4}
+
+          Q: 회사나 팀이 최근 집중하고 있는 전략적 방향성이나 중장기 목표는 무엇인가요?
+          A: ${jobInfo.Q5}
+          `});
+      setSending(false);
+      getTutorial();
+
       await loginGoogle();
-      const newId = await createSheetFromTemplate("1zD2NoxwO2prTBbNZZTXhbUN-LcyIbO-i505gH1xk_cg");
+      const newId = await createSheetFromTemplate("1zD2NoxwO2prTBbNZZTXhbUN-LcyIbO-i505gH1xk_cg", profileName, jobTitle);
       setSheetId(newId);
       const url = "https://docs.google.com/spreadsheets/d/" + newId;
       setSheetUrl(url);
       window.open(url, "_blank");
       setMaking(false);
     } catch (error) {
-      console.error("Error in handleCreateSheet:", error);
-      alert("에러 발생: " + JSON.stringify(error));
+      console.error(error);
       setMaking(false);
     }
   };
 
   const handleReadSheet = async () => {
-    if (!sheetId) return alert("시트가 아직 없어요");
-    const data = await readSheet(sheetId);
-    console.log("Sheet Data", data);
-    alert(JSON.stringify(data));
-    // jobPosting 정보를 넣어야 함
+    if (!sheetId) return alert("스프레드시트를 먼저 생성해 주세요!");
+    setSending(true);
+    const values = await readSheet(sheetId);
+    const jobFit = buildStrings(values, 0);
+    const cultureFit = buildStrings(values, 1);
+
+    const memberReviews = jobFit.map((job, index) => ({
+      member_name: "",
+      role: "",
+      job_fit_answer: job || "",
+      culture_fit_answer: cultureFit[index] || ""
+    }));
+    console.log(memberReviews);
+    const res = await axios.post(`${aiURL}/api/company-interview/team-review/members`, {
+      session_id: sessionId,
+      member_reviews: memberReviews,
+    });
+
+    const jobId = new URLSearchParams(location.search).get("job");
+    const response = await axios.post(`${aiURL}/api/company-interview/situational/analysis`, {
+      session_id: sessionId,
+      access_token: token,
+      job_posting_id: Number(jobId),
+    });
+    setJobPosting(true);
+    const jobProfile = await axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } });
+    const originalJobPosting = jobProfile.data?.data.find(job => job.id === Number(jobId));
+    setAdditionalInfo({
+      role: `[ 기존에 작성한 내용 ]
+${originalJobPosting.responsibilities}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.responsibilities}` || "",
+      requirement: `[ 기존에 작성한 내용 ]
+${originalJobPosting.requirements_must}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.requirements_must}` || "",
+      preference: `[ 기존에 작성한 내용 ]
+${originalJobPosting.requirements_nice}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.requirements_nice}` || "",
+      capacity: `[ 기존에 작성한 내용 ]
+${originalJobPosting.competencies}
+
+=================================
+[ AI 추천 공고 내용 ]
+${response.data?.job_posting_data.competencies}` || "",
+    });
+    setSending(false);
+    getTutorial();
   };
 
     if (role === "talent") {
@@ -1719,7 +1832,7 @@ ${response.data?.job_posting_data.competencies}` || "",
                     <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="내용을 입력해주세요." value={jobInfo.Q5} onChange={(e) => setJobInfo((prev) => ({ ...prev, Q5: e.target.value }))} width="800px"></Textarea>
                   </InputContainer>
                 </Form>
-                <Button onClick={() => {getTutorial(); handleCreateSheet(); window.scrollTo({ top: 0, behavior: 'smooth' });}} role={role}>다음으로</Button>
+                <Button onClick={() => {handleCreateSheet(); window.scrollTo({ top: 0, behavior: 'smooth' });}} role={role}>다음으로</Button>
                 </>
               )}
             
@@ -1747,7 +1860,7 @@ ${response.data?.job_posting_data.competencies}` || "",
                     <LargeButton onClick={handleCreateSheet} role={role}>🔗 구글 스프레드시트 생성하기</LargeButton>
                   ))}
                 </Form>
-                <Button onClick={() => {getTutorial(); handleReadSheet();}} disabled={!sheetUrl} role={role}>{sheetUrl ? "시트 제출하기" : "시트 생성 필요"}</Button>
+                <Button onClick={() => {handleReadSheet();}} disabled={!sheetUrl} role={role}>{sheetUrl ? "시트 제출하기" : "시트 생성 필요"}</Button>
                 </>
               )}
 
@@ -1764,19 +1877,19 @@ ${response.data?.job_posting_data.competencies}` || "",
                     </FormParagraph>  
                   </FormContent>
                   <InputContainer width="1000px">
-                    <Label style={{ 'marginBottom': '30px' }}>업무 내용</Label>
+                    <Label style={{ 'marginBottom': '0px' }}>업무 내용</Label>
                     <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="담당하게 될 업무 내용을 소개해주세요." value={additionalInfo.role} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, role: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                   <InputContainer width="1000px">
-                    <Label style={{ 'marginBottom': '30px' }}>필수 요건</Label>
+                    <Label style={{ 'marginBottom': '0px' }}>필수 요건</Label>
                     <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="지원 자격/요건을 작성해주세요." value={additionalInfo.requirement} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, requirement: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                   <InputContainer width="1000px">
-                    <Label style={{ 'marginBottom': '30px' }}>우대 사항</Label>
+                    <Label style={{ 'marginBottom': '0px' }}>우대 사항</Label>
                     <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="우대 사항을 작성해주세요." value={additionalInfo.preference} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, preference: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                   <InputContainer width="1000px">
-                    <Label style={{ 'marginBottom': '30px' }}>요구 역량</Label>
+                    <Label style={{ 'marginBottom': '0px' }}>요구 역량</Label>
                     <Input style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="요구하는 역량을 선택해주세요." value={additionalInfo.capacity} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, capacity: e.target.value }))} width="800px"></Input>
                   </InputContainer>
                 </Form>
@@ -1807,7 +1920,7 @@ ${response.data?.job_posting_data.competencies}` || "",
               {sending &&
                 <LoadingOverlay>
                   <Spinner role={role} />
-                  <LoadingText>{tutorial ? `　페르소나 설정을 위한 질문을 생각 중이에요···　` : (page < totalQuestions ? "　다음 질문을 생각하고 있어요···　" : `　답변 내용을 바탕으로 ${jobTitle} 포지션을 분석하고 있어요···　`)}</LoadingText>
+                  <LoadingText>{tutorial ? `　작성하신 내용을 분석 중이에요···　` : `　답변 내용을 바탕으로 ${jobTitle} 포지션을 분석하고 있어요···　`}</LoadingText>
                 </LoadingOverlay>
               }
           </Container>
