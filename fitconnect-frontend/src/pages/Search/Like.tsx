@@ -8,7 +8,7 @@ import axios from "axios";
 import talent from '../../assets/talent.png';
 import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
-import { baseURL } from "../../env";
+import { baseURL, aiURL } from "../../env";
 
 import { CardFace, CardBack, ProfileContainer, ProfileImage, ProfileName, ProfileContent,
   Introduction, ContentContainer, Content, ContentTitle, ContentParagraph, Analysis, Tag, 
@@ -825,6 +825,16 @@ const PopupTitle = styled.h3`
   color: black;
 `;
 
+const PopupParagraph = styled.div`
+  width: 400px;
+  color: black;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 0px 100px 0px 100px;
+`;
+
 const PopupTable = styled.table`
   width: 100%;
   border-collapse: collapse;
@@ -902,6 +912,23 @@ const Memo = styled.textarea<{ role?: string }>`
   &:focus {
     outline: none;
   }
+`;
+
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const Spinner = styled.div<{ role?: string }>`
+  width: 60px;
+  height: 60px;
+  margin-left: 265px;
+  margin-top: 30px;
+  margin-bottom: 50px;
+  border: 10px solid #d1d5db;
+  border-top: 10px solid ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
 `;
 
 const formatYearMonth = (dateStr: string) => {
@@ -1019,6 +1046,8 @@ export default function Recommendation() {
     const [companyData, setCompanyData] = useState(null);
     const [isCardVisible, setIsCardVisible] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [xaiData, setXaiData] = useState(null);
+    const [analyzing, setAnalyzing] = useState(false);
 
     useEffect(() => {
         if (!token || !role) navigate("/auth/login");
@@ -1214,6 +1243,30 @@ export default function Recommendation() {
     useEffect(() => {
       loadData(idx);
     }, [idx]);
+    
+    const loadXaiData = (idx) => {
+      setAnalyzing(true);
+      setXaiData(null);
+      if (matchingData) {
+        // const talentId = matchingData[idx]?.talent_user_id;
+        axios.post(`${aiURL}/api/match/explain`, {
+          talent_user_id: idx,
+          job_posting_id: queryJobId,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setXaiData(response.data);
+          setAnalyzing(false);
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+          setAnalyzing(false);
+        });
+      }
+    };
     
     const handleSelect = (type: string) => {
       const searchParams = new URLSearchParams(location.search);
@@ -1526,13 +1579,15 @@ export default function Recommendation() {
                   </Card>
                 </CardContainer>
                 <CloseCardButton role={role} onClick={() => {setIsCardVisible(false); setCardData(null); setData(null); setIdx(null);}}>◀ 목록으로 돌아가기</CloseCardButton>
+                {queryJobId && (
                 <HexagonContainer>
                   <Hexagon score={[matchingData[idx]?.scores.roles, matchingData[idx]?.scores.growth, matchingData[idx]?.scores.career,
                     matchingData[idx]?.scores.culture, matchingData[idx]?.scores.vision, matchingData[idx]?.scores.skills]} role={role} />
-                  <BalloonButton onClick={() => setShowPopup(true)}>
+                  <BalloonButton onClick={() => {setShowPopup(true); loadXaiData(matchingData[idx].talent_user_id);}}>
                     🤔 매칭 분석
                   </BalloonButton>
                 </HexagonContainer>
+                )}
               <ButtonContainer>
                 <TwoButtonsWrapper>
                   <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>✖️ 삭제하기</span></Button>
@@ -1681,6 +1736,9 @@ export default function Recommendation() {
                     <CloseButton onClick={() => setShowPopup(false)}>✕</CloseButton>
                     <PopupScrollArea>
                       <PopupTitle>💡 매칭 분석 인사이트</PopupTitle>
+                      {analyzing && (<><div style={{"height": "80px"}}></div><Spinner role={role} /><PopupParagraph>분석에 시간이 다소 걸립니다. 잠시만 기다려 주세요···</PopupParagraph></>)}
+                      {!analyzing && !xaiData && (<PopupParagraph>분석에 실패했습니다. 다시 시도해 주세요.</PopupParagraph>)}
+                      {!analyzing && xaiData && (
                       <PopupTable>
                         <tbody>
                           <tr>
@@ -1689,9 +1747,9 @@ export default function Recommendation() {
                               <MatchingTag>역량 적합도 <b>{matchingData[idx]?.scores.skills}%</b></MatchingTag>
                             </th>
                             <td>
-                              <b>매칭 근거</b><br/>보유 기술 스택이 공고 내 필수 요건과 85% 이상 일치<br/><br/>
-                              <b>검증 포인트</b><br/>대규모 모델 최적화 경험의 실제 적용 범위 확인<br/><br/>
-                              <b>추천 질문</b><br/>Q.
+                              <b>매칭 근거</b><br/>{xaiData?.job_fit.matching_evidence}<br/><br/>
+                              <b>검증 포인트</b><br/>{xaiData?.job_fit.check_points?.split(/(?=\d+\.\s?)/).map((cp, i) => (<span key={i}>{cp.trim()} <br/></span>))}<br/><br/>
+                              <b>추천 질문</b><br/>{xaiData?.job_fit.suggested_questions.map((q, i) => (<span key={i}>Q. {q}<br/></span>))}
                             </td>
                           </tr>
                           <tr>
@@ -1700,9 +1758,9 @@ export default function Recommendation() {
                               <MatchingTag>협업 기여도 <b>{matchingData[idx]?.scores.vision}%</b></MatchingTag>
                             </th>
                             <td>
-                              <b>매칭 근거</b><br/>협업 중심 태도 및 주도성 응답 패턴이 조직 문화와 유사<br/><br/>
-                              <b>검증 포인트</b><br/>초기 적응력, 빠른 피드백 순환에 대한 선호도 파악<br/><br/>
-                              <b>추천 질문</b><br/>Q.
+                              <b>매칭 근거</b><br/>{xaiData?.culture_fit.matching_evidence}<br/><br/>
+                              <b>검증 포인트</b><br/>{xaiData?.culture_fit.check_points?.split(/(?=\d+\.\s?)/).map((cp, i) => (<span key={i}>{cp.trim()} <br/></span>))}<br/><br/>
+                              <b>추천 질문</b><br/>{xaiData?.culture_fit.suggested_questions.map((q, i) => (<span key={i}>Q. {q}<br/></span>))}
                             </td>
                           </tr>
                           <tr>
@@ -1711,13 +1769,14 @@ export default function Recommendation() {
                               <MatchingTag>커리어 방향 <b>{matchingData[idx]?.scores.vision}%</b></MatchingTag>
                             </th>
                             <td>
-                              <b>매칭 근거</b><br/>최신 AI 프레임워크 학습 및 적용 경험 다수 보유<br/><br/>
-                              <b>검증 포인트</b><br/>리더십 포지션으로 확장 가능한 자기개발 역량 확인<br/><br/>
-                              <b>추천 질문</b><br/>Q.
+                              <b>매칭 근거</b><br/>{xaiData?.growth_potential.matching_evidence}<br/><br/>
+                              <b>검증 포인트</b><br/>{xaiData?.growth_potential.check_points?.split(/(?=\d+\.\s?)/).map((cp, i) => (<span key={i}>{cp.trim()} <br/></span>))}<br/><br/>
+                              <b>추천 질문</b><br/>{xaiData?.growth_potential.suggested_questions.map((q, i) => (<span key={i}>Q. {q}<br/></span>))}
                             </td>
                           </tr>
                         </tbody>
                       </PopupTable>
+                      )}
                     </PopupScrollArea>
                   </PopupContainer>
                 </PopupOverlay>

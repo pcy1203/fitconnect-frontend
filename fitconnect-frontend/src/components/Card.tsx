@@ -90,6 +90,7 @@ const ProfileContent = styled.div`
 
 const Introduction = styled.div`
   width: 450px;
+  height: 30px;
   margin-top: 14px;
   margin-bottom: 2px;
   margin-left: 25px;
@@ -98,6 +99,7 @@ const Introduction = styled.div`
   font-size: 12px;
   line-height: 30px;
   text-align: center;
+  overflow: hidden;
 `;
 
 const ContentContainer = styled.div`
