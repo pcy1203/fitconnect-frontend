@@ -165,9 +165,316 @@ const Card = styled.div.withConfig({
 `;
 
 const HexagonContainer = styled.div`
+  position: relative;
+  margin-left: 60px;
+  overflow: hidden;
+`;
+
+const FilterContainer = styled.div`
+  margin-left: 85px;
+  margin-bottom: 20px;
+`;
+
+const FilterInput = styled.input`
+  margin-top: 8px;
+  padding: 6px 8px; 
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 5px;
+  font-size: 10px;
+  box-shadow: 1px 1px 3px rgba(160, 160, 160, 0.2);
+  color: black;
+  &:focus {
+    outline: none;
+    border-color: ${colors.company};
+    box-shadow: 0 0 6px ${colors.company};
+  }
+`;
+
+const FilterSelect = styled.select`
+  padding: 5px 4px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: white;
+  font-size: 10px;
+  color: black;
+  cursor: pointer;
+  box-shadow: 1px 1px 3px rgba(160, 160, 160, 0.2);
+  &:focus {
+    outline: none;
+    border-color: ${colors.company};
+    box-shadow: 0 0 6px ${colors.company};
+  }
+`;
+
+const FilterOption = styled.option`
+  font-size: 10px;
+  padding: 4px;
+  background: white;
+  color: black;
+`;
+
+const StatusSelect = styled.select`
+  width: 210px;
+  padding: 5px 0px;
+  margin-left: 13px;
+  border: 1px solid ${colors.company};
+  border-radius: 10px;
+  background: white;
+  text-align: center;
+  // background: linear-gradient(180deg, #ffffff 0%, #f4f4f4 100%);
+  font-size: 13px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  box-shadow: 1px 1px 3px rgba(160, 160, 160, 0.2);
+  &:hover {
+    box-shadow: 0 0 5px ${colors.company_light};
+  }
+  &:focus {
+    outline: none;
+    border-color: ${colors.company};
+    box-shadow: 0 0 6px ${colors.company};
+  }
+`;
+
+const StatusOption = styled.option`
+  font-size: 12px;
+  padding: 4px;
+  background: white;
+  color: black;
+`;
+
+const TwoButtonsWrapper = styled.div`
+  width: 210px;
+  margin-left: 13px;
+  margin-top: 3px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
+const Button = styled.button<{ role?: string }>`
+  all: unset;
+  width: 100px;
+  height: 20px;
+  background: #FFFFFF;
+  color: #000000;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid ${({ role }) => (role === "company" ? colors.company : colors.talent )};
+  border-radius: 20px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+  &:hover {
+    background-color: #f2f2f2ff;
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+  & > span {
     position: relative;
-    margin-left: 60px;
-    overflow: hidden;
+    top: -1px;
+  }
+`;
+
+const Table = styled.div`
+  width: 1000px;
+  margin-top: 22px;
+  margin-left: 95px;
+  overflow: hidden;
+  color: black;
+`;
+
+const HeaderRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr 1.2fr;
+  border-radius: 15px 15px 0 0;
+  border-bottom: 2px solid #b2b2b2ff;
+  background: ${colors.company_lighter};
+`;
+
+const HeaderCell = styled.div`
+  padding: 14px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 5px;
+  border-right: 1px solid #b2b2b2ff;
+
+  &:last-child {
+    border-right: none;
+  }
+`;
+
+const Row = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr 1.2fr;
+  border: 2px solid #b2b2b2ff;
+  background: #ffffff;
+  cursor: pointer;
+  margin-top: 10px;
+
+  &:hover {
+    background: rgba(247, 247, 247, 1);
+  }
+`;
+
+const Cell = styled.div`
+  padding: 14px;
+  border-right: 1px solid #b2b2b2ff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &:last-child {
+    border-right: none;
+  }
+`;
+
+const Name = styled.div`
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 18px;
+`;
+
+const Email = styled.div`
+  font-size: 10px;
+  color: #777;
+  line-height: 12px;
+`;
+
+const Phone = styled.div`
+  font-size: 10px;
+  color: #777;
+  line-height: 12px;
+`;
+
+const Company = styled.div`
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 18px;
+`;
+
+const Job = styled.div`
+  font-size: 10px;
+  color: #777;
+  line-height: 12px;
+`;
+
+const TotalWork = styled.div`
+  font-size: 10px;
+  color: #777;
+  line-height: 12px;
+`;
+
+const Action = styled.div`
+  font-size: 10px;
+  color: #4a7aff;
+`;
+
+const Tags = styled.span`
+  display: inline-block;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  margin-right: 4px;
+`;
+
+const TagWrapper = styled.div`
+  color: black;
+  width: 240px;
+  font-size: 10px;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+
+  // &:focus-within {
+  //   border-color: #8a8a8a;
+  //   box-shadow: 0 0 4px rgba(150, 150, 150, 0.2);
+  // }
+`;
+
+const TagItem = styled.div`
+  background: #f1f1f1;
+  border: 1px solid #d0d0d0;
+  padding: 4px 8px;
+  height: 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const RemoveBtn = styled.span`
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+  &:hover {
+    color: #333;
+  }
+`;
+
+const Input = styled.input`
+  border: none;
+  outline: none;
+  font-size: 10px;
+  height: 20px;
+  flex: 1;
+  min-width: 80px;
+  background-color: transparent;
+  color: #333;
+
+  &::placeholder {
+    color: #999;
+  }
+`;
+
+const Dropdown = styled.div`
+  position: absolute;
+  top: 48px;
+  left: 0;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(150, 150, 150, 0.15);
+  z-index: 5;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #fff;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+  }
+`;
+
+const DropdownItem = styled.div`
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background: #f7f7f7;
+  }
 `;
 
 export default function Recommendation() {
@@ -176,7 +483,64 @@ export default function Recommendation() {
     useEffect(() => {
         if (!token || !role) navigate("/auth/login");
     }, [loading, token]);
-    
+
+    const suggestions = [];
+    const [inputValue, setInputValue] = useState({});
+    const [tags, setTags] = useState({});
+
+    const getRowTags = (rowIndex) => tags[rowIndex] || [];
+    const getRowInput = (rowIndex) => inputValue[rowIndex] || "";
+
+    const filteredSuggestions = (rowIndex) => {
+      const rowTags = tags[rowIndex] || [];
+      const value = inputValue[rowIndex] || "";
+
+      return suggestions.filter(
+        (s) =>
+          s.toLowerCase().includes(value.toLowerCase()) &&
+          !rowTags.includes(s)
+      );
+    };
+
+    const addTag = (rowIndex, tag) => {
+      if (!tag) return;
+
+      const rowTags = tags[rowIndex] || [];
+      if (rowTags.includes(tag)) return;
+
+      setTags({
+        ...tags,
+        [rowIndex]: [...rowTags, tag]
+      });
+
+      setInputValue({
+        ...inputValue,
+        [rowIndex]: ""
+      });
+    };
+
+    const removeTag = (rowIndex, tag) => {
+      const rowTags = tags[rowIndex] || [];
+
+      setTags({
+        ...tags,
+        [rowIndex]: rowTags.filter((t) => t !== tag),
+      });
+    };
+
+    const handleKeyDown = (e, rowIndex) => {
+      const value = inputValue[rowIndex] || "";
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addTag(rowIndex, value);
+      }
+
+      if (e.key === "Backspace" && value === "" && (tags[rowIndex] || []).length > 0) {
+        removeTag(rowIndex, tags[rowIndex][tags[rowIndex].length - 1]);
+      }
+    };
+
     const [flipped, setFlipped] = useState(false);
     if (role === "talent") {
         return (
@@ -328,10 +692,200 @@ export default function Recommendation() {
           </Container>
         );
     } else if (role === "company") {
+      const rowIndex = null;
         return (
           <Container>
             <Title>♥️ 보관한 인재</Title>
-            <CardContainer>
+{/*             
+            <TopBar>
+              <SearchInput placeholder="이름 또는 이메일, 연락처로 검색" />
+              <FilterButton>필터</FilterButton>
+              <FilterButton>정렬: 최근 등록순</FilterButton>
+              <FilterButton>컬럼 순서 변경</FilterButton>
+              <FilterButton style={{ marginLeft: "auto", background: "#4a7aff", color: "white" }}>
+                + 후보자 추가
+              </FilterButton>
+            </TopBar> */}
+
+            {/* 탭 */}
+            {/* <Tabs>
+              <Tab active>전체 58</Tab>
+              <Tab>신규 31</Tab>
+              <Tab>스크리닝 17</Tab>
+              <Tab>제안 9</Tab>
+              <Tab>커피챗 진행 5</Tab>
+              <Tab>너처링 3</Tab>
+              <Tab>지원 완료 2</Tab>
+            </Tabs> */}
+            <Table>
+              <HeaderRow>
+                <HeaderCell>
+                  후보자명<br/>
+                  <FilterInput
+                    style={{ marginTop: "8px", width: "85%" }}
+                    placeholder="이름 검색"
+                  />
+                </HeaderCell>
+                <HeaderCell>
+                  최근 경력 (총 경력)<br/>
+                  <FilterSelect
+                    style={{ marginTop: "8px", width: "85%" }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FilterOption value="">경력 전체</FilterOption>
+                    <FilterOption value="1">1년 이상</FilterOption>
+                    <FilterOption value="3">3년 이상</FilterOption>
+                    <FilterOption value="5">5년 이상</FilterOption>
+                    <FilterOption value="10">10년 이상</FilterOption>
+                  </FilterSelect>
+                </HeaderCell>
+                <HeaderCell>
+                  태그<br/>
+                  <FilterInput
+                    placeholder="태그 검색"
+                    style={{ marginTop: "8px", width: "85%" }}
+                  />
+                </HeaderCell>
+                <HeaderCell>
+                  인재 관리 단계<br/>
+                  <FilterSelect
+                    style={{ marginTop: "8px", width: "85%" }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FilterOption value="">상태 전체</FilterOption>
+                    <FilterOption value="1">포지션 제안 전</FilterOption>
+                    <FilterOption value="2">포지션 제안 중</FilterOption>
+                    <FilterOption value="3">포지션 수락</FilterOption>
+                    <FilterOption value="4">포지션 거절</FilterOption>
+                    <FilterOption value="5">전형 진행 중</FilterOption>
+                    <FilterOption value="6">전형 진행 완료</FilterOption>
+                  </FilterSelect>
+              </HeaderCell>
+              </HeaderRow>
+              <Row key={0}>
+                <Cell>
+                  <Name>박진섭</Name>
+                  <Email>✉️ js.park@gmail.com</Email>
+                  <Phone>📞 010-1234-5678</Phone>
+                </Cell>
+                <Cell>
+                  <Company>삼성전자</Company>
+                  <Job>🧑‍💼 Machine Learning Engineer</Job>
+                  <TotalWork>💼 총 경력 1년</TotalWork>
+                </Cell>
+                <Cell>           
+                  <Company>데이터 엔지니어</Company>
+                  <div style={{borderBottom: '1px solid #ccc'}}/>  
+                  <TagWrapper>
+                    {getRowTags(rowIndex || 0).map((tag, i) => (
+                      <TagItem key={i}>
+                        {tag}
+                        <RemoveBtn onClick={() => removeTag(rowIndex || 0, tag)}>×</RemoveBtn>
+                      </TagItem>
+                    ))}
+
+                    <Input
+                      placeholder="태그 입력..."
+                      value={getRowInput(rowIndex || 0)}
+                      onChange={(e) =>
+                        setInputValue({
+                          ...inputValue,
+                          [rowIndex || 0]: e.target.value
+                        })
+                      }
+                      onKeyDown={(e) => handleKeyDown(e, rowIndex || 0)}
+                    />
+
+                    {getRowInput(rowIndex || 0).length > 0 &&
+                      filteredSuggestions(rowIndex || 0).length > 0 && (
+                        <Dropdown>
+                          {filteredSuggestions(rowIndex || 0).map((s, i) => (
+                            <DropdownItem key={i} onClick={() => addTag(rowIndex || 0, s)}>
+                              {s}
+                            </DropdownItem>
+                          ))}
+                        </Dropdown>
+                      )}
+                  </TagWrapper>
+                </Cell>
+                <Cell>
+                  <StatusSelect onClick={(e) => {e.stopPropagation();}}>
+                    <StatusOption value="1">포지션 제안 전</StatusOption>
+                    <StatusOption value="2">포지션 제안 중</StatusOption>
+                    <StatusOption value="3">포지션 수락</StatusOption>
+                    <StatusOption value="4">포지션 거절</StatusOption>
+                    <StatusOption value="5">전형 진행 중</StatusOption>
+                    <StatusOption value="6">전형 진행 완료</StatusOption>
+                  </StatusSelect>
+                  <TwoButtonsWrapper>
+                    <Button role="company" onClick={(e) => {e.stopPropagation();}}><span>✉️ 메일 보내기</span></Button>
+                    <Button role="company" onClick={(e) => {e.stopPropagation();}}><span>✖️ 삭제하기</span></Button>
+                  </TwoButtonsWrapper>
+                </Cell>
+              </Row>
+
+              <Row key={1}>
+                <Cell>
+                  <Name>하나래</Name>
+                  <Email>✉️ nr.ha@gmail.com</Email>
+                  <Phone>📞 010-1234-5678</Phone>
+                </Cell>
+                <Cell>
+                  <Company>카카오뱅크</Company>
+                  <Job>🧑‍💼 Machine Learning Engineer</Job>
+                  <TotalWork>💼 총 경력 1년</TotalWork>
+                </Cell>
+                <Cell>      
+                  <Company>데이터 엔지니어</Company>
+                  <div style={{borderBottom: '1px solid #ccc'}}/>                   <TagWrapper>
+                  {getRowTags(rowIndex || 1).map((tag, i) => (
+                    <TagItem key={i}>
+                      {tag}
+                      <RemoveBtn onClick={() => removeTag(rowIndex || 1, tag)}>×</RemoveBtn>
+                    </TagItem>
+                  ))}
+
+                  <Input
+                    placeholder="태그 입력..."
+                    value={getRowInput(rowIndex || 1)}
+                    onChange={(e) =>
+                      setInputValue({
+                        ...inputValue,
+                        [rowIndex || 1]: e.target.value
+                      })
+                    }
+                    onKeyDown={(e) => handleKeyDown(e, rowIndex || 1)}
+                  />
+
+                  {getRowInput(rowIndex || 1).length > 0 &&
+                    filteredSuggestions(rowIndex || 1).length > 0 && (
+                      <Dropdown>
+                        {filteredSuggestions(rowIndex || 1).map((s, i) => (
+                          <DropdownItem key={i} onClick={() => addTag(rowIndex || 1, s)}>
+                            {s}
+                          </DropdownItem>
+                        ))}
+                      </Dropdown>
+                    )}
+                </TagWrapper>
+                </Cell>
+                <Cell>
+                  <StatusSelect onClick={(e) => {e.stopPropagation();}}>
+                    <StatusOption value="1">포지션 제안 전</StatusOption>
+                    <StatusOption value="2">포지션 제안 중</StatusOption>
+                    <StatusOption value="3">포지션 수락</StatusOption>
+                    <StatusOption value="4">포지션 거절</StatusOption>
+                    <StatusOption value="5">전형 진행 중</StatusOption>
+                    <StatusOption value="6">전형 진행 완료</StatusOption>
+                  </StatusSelect>
+                  <TwoButtonsWrapper>
+                    <Button role="company" onClick={(e) => {e.stopPropagation();}}><span>✉️ 메일 보내기</span></Button>
+                    <Button role="company" onClick={(e) => {e.stopPropagation();}}><span>✖️ 삭제하기</span></Button>
+                  </TwoButtonsWrapper>
+                </Cell>
+              </Row>
+            </Table>
+            {/* <CardContainer>
               <Card role="talent" flipped={flipped} onClick={() => setFlipped(!flipped)}>
                 <CardFace>
                   <ProfileContainer role="talent">
@@ -432,7 +986,16 @@ export default function Recommendation() {
                   <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
                   <LikeTitle>김커넥 : FitConnect 재직 중</LikeTitle>
                   <LikeButton role="talent">삭제</LikeButton>
-                  <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
+                  <LikeContent>· 경력 3~5년차  |  직무 수행
+                    <StatusSelect onClick={(e) => {e.stopPropagation();}}>
+                      <StatusOption value="1">포지션 제안 전</StatusOption>
+                      <StatusOption value="2">포지션 제안 중</StatusOption>
+                      <StatusOption value="3">포지션 수락</StatusOption>
+                      <StatusOption value="4">포지션 거절</StatusOption>
+                      <StatusOption value="5">전형 진행 중</StatusOption>
+                      <StatusOption value="6">전형 진행 완료</StatusOption>
+                    </StatusSelect>
+                  </LikeContent>
                 </Like>
                 <Like>
                   <LikeImage><img src={role === "company" ? talent : company} alt="Logo" width={24*0.8} height={27*0.8}></img></LikeImage>
@@ -471,7 +1034,7 @@ export default function Recommendation() {
                   <LikeContent>· 경력 3~5년차  |  직무 수행<br/>· 안녕하세요, 백엔드 개발자입니다.</LikeContent>
                 </Like>
               </LikeRegion>
-            </LikeContainer>
+            </LikeContainer> */}
           </Container>
         );
     }
