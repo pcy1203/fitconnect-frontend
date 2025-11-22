@@ -615,7 +615,7 @@ export default function Recommendation() {
           .catch((error) => {
             console.error("데이터 불러오기 실패:", error);
           });
-        } else if (!matchingData && queryJobFit && queryCultureFit && queryGrowth) {
+        } else if (!matchingData && (true || ((queryJobFit && queryCultureFit && queryGrowth)))) {
           if (role === 'talent') {
             axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
@@ -742,7 +742,7 @@ export default function Recommendation() {
             </JobContainer>
         </Container>
       )
-    } else if (!queryJobFit || !queryCultureFit || !queryGrowth) {
+    } else if (false && (!queryJobFit || !queryCultureFit || !queryGrowth)) {
       return (
         <Container>
           <Title>🔮 {role === "talent" ? "공고" : "인재"} 탐색</Title>

@@ -499,6 +499,25 @@ export default function SetProfile() {
           } else if (role === 'company' && page >= 2) {
             try {
                 // POST /api/me/company/full
+                console.log({
+                    basic: {
+                        name: basicInfo.name,  // 필수
+                        industry: basicInfo.industry,
+                        size: basicInfo.size,
+                        location_city: basicInfo.location,
+                        homepage_url: basicInfo.homepage,  // URL 형식 준수
+                        career_page_url: basicInfo.recruit,  // URL 형식 준수
+                        one_liner: basicInfo.intro,
+                    },
+                    about: {
+                        vision_mission: additionalInfo.vision,
+                        business_domains: additionalInfo.business,
+                        ideal_talent: additionalInfo.talent,
+                        culture: additionalInfo.culture,
+                        benefits: additionalInfo.benefits,
+                    },
+                    submit: true,
+                });
                 const res = await axios.post(`${baseURL}/api/me/company/full`, {
                     basic: {
                         name: basicInfo.name,  // 필수
