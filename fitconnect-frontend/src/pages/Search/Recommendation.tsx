@@ -786,7 +786,7 @@ export default function Recommendation() {
     if (role === 'company' && !queryJobId) {
       return (
         <Container>
-          <Title style={{'marginBottom': '20px'}}>🔮 인재 탐색</Title>
+          <Title style={{'marginBottom': '20px'}}>🔮 인재 추천</Title>
             <Paragraph>공고를 선택해주세요.</Paragraph>
             <JobContainer>
               <JobRegion>
@@ -832,7 +832,7 @@ export default function Recommendation() {
     } else if (!matchingData || matchingData?.length === 0) {
         return (
           <Container>
-              <Title>🔮 {role === "talent" ? "공고" : "인재"} 탐색</Title>
+              <Title>🔮 {role === "talent" ? "공고" : "인재"} 추천</Title>
               <Paragraph style={{'marginTop': '50px'}}><b>카드를 불러오는 중이니 잠시만 기다려 주세요!</b><br/><br/><br/><br/>✔️ 인터뷰 완료 직후에는 추천까지 시간이 다소 걸리니, 새로고침을 시도해주세요.<br/><br/>✔️ 프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣</Paragraph>
           </Container>
         );

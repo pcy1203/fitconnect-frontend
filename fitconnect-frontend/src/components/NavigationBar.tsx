@@ -195,8 +195,8 @@ export default function NavigationBar() {
             <SubBar role={role}>
               {role === "company" ?
               <>
-                <SubMenu role={role}><Link to="/profile/myprofile">내 프로필</Link></SubMenu>
-                <SubMenu role={role}><Link to="/profile/myjobprofile">등록된 공고 목록</Link></SubMenu>
+                <SubMenu role={role}><Link to="/profile/myprofile">기업 프로필</Link></SubMenu>
+                <SubMenu role={role}><Link to="/profile/myjobprofile">채용 공고 목록</Link></SubMenu>
               </>
                 :
                 <SubMenu role={role}><Link to="/profile/myprofile">내 프로필</Link></SubMenu>

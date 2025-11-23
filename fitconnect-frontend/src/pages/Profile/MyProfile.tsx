@@ -354,134 +354,42 @@ export default function MyProfile() {
                 navigate("/profile/setprofile");
             }
         };
-        if (role === 'talent') fetchTalentProfile();
-    }, []);
+        const fetchCompanyProfile = async () => {
+            try {
 
-    // const getNextPage = async () => {
-    //     setSubmitPage(page);
-    //     if (role === 'talent' &&
-    //       (page == 1 && (!primaryInfo.name || !primaryInfo.birth || !primaryInfo.email || !primaryInfo.phone || errors.birth || errors.email || errors.phone))
-    //       || (page == 2 && (educationList.some(education => !education.school) || careerList.some(career => !career.company)))
-    //       || (page == 3 && (activityList.some(activity => !activity.name) || certificateList.some(certificate => !certificate.name || !certificate.date)))
-    //     ) {
-    //       alert("입력하신 정보를 다시 한 번 확인해주세요!");
-    //     } else if (role === 'talent' && page >= 5) {
-    //         try {
-    //             const res = await axios.post(`${baseURL}/api/me/talent/full`, {
-    //                 basic: {
-    //                     name: primaryInfo.name,
-    //                     email: primaryInfo.email,
-    //                     birth_date: primaryInfo.birth || null,
-    //                     phone: primaryInfo.phone,
-    //                     tagline: primaryInfo.intro,
-    //                     is_submitted: true,
-    //                     desired_role: desiredInfo.desiredRole,
-    //                     desired_salary: desiredInfo.desiredSalary,
-    //                     desired_industry: desiredInfo.desiredIndustry,
-    //                     desired_company_size: desiredInfo.desiredCompanySize,
-    //                     residence_location: desiredInfo.residence,
-    //                     desired_work_location: desiredInfo.desiredLocation
-    //                 },
-    //                 educations: educationList.filter(education => education.school).map((education) => ({
-    //                     school_name: education.school,  // 필수
-    //                     major: education.major,
-    //                     start_ym: education.entrance || null,
-    //                     end_ym: education.graduation || null,
-    //                     status: education.status,
-    //                 })),
-    //                 experiences: careerList.filter(career => career.company).map((career) => ({
-    //                     company_name: career.company,  // 필수
-    //                     title: career.role,
-    //                     start_ym: career.join || null,
-    //                     end_ym: career.leave || null,
-    //                     leave_reason: career.reason,
-    //                     summary: career.description,
-    //                 })),
-    //                 activities: activityList.filter(activity => activity.name).map((activity) => ({
-    //                     name: activity.name,  // 필수
-    //                     category: activity.type,
-    //                     description: activity.description,
-    //                 })),
-    //                 certifications: certificateList.filter(certificate => certificate.name && certificate.date).map((certificate) => ({
-    //                     name: certificate.name,  // 필수
-    //                     score_or_grade: certificate.score,
-    //                     acquired_ym: certificate.date,  // 필수
-    //                 })),
-    //                     documents: [], // 파일 업로드 구현 전
-    //                     submit: true,
-    //             }, {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             });
-    //             if (res.status === 201) {
-    //                 sessionStorage.setItem("name", primaryInfo.name);
-    //                 setProfileName(primaryInfo.name);
-    //                 navigate("/assessment/interview");
-    //             }
-    //         } catch (err) {
-    //             alert("프로필 설정에 실패했습니다.");
-    //             console.log(err);
-    //         }
-    //       } else if (role === 'company' && !basicInfo.name) {
-    //         alert("입력하신 정보를 다시 한 번 확인해주세요!");          
-    //       } else if (role === 'company' && page >= 2) {
-    //         try {
-    //             // POST /api/me/company/full
-    //             console.log({
-    //                 basic: {
-    //                     name: basicInfo.name,  // 필수
-    //                     industry: basicInfo.industry,
-    //                     size: basicInfo.size,
-    //                     location_city: basicInfo.location,
-    //                     homepage_url: basicInfo.homepage,  // URL 형식 준수
-    //                     career_page_url: basicInfo.recruit,  // URL 형식 준수
-    //                     one_liner: basicInfo.intro,
-    //                 },
-    //                 about: {
-    //                     vision_mission: additionalInfo.vision,
-    //                     business_domains: additionalInfo.business,
-    //                     ideal_talent: additionalInfo.talent,
-    //                     culture: additionalInfo.culture,
-    //                     benefits: additionalInfo.benefits,
-    //                 },
-    //                 submit: true,
-    //             });
-    //             const res = await axios.post(`${baseURL}/api/me/company/full`, {
-    //                 basic: {
-    //                     name: basicInfo.name,  // 필수
-    //                     industry: basicInfo.industry,
-    //                     size: basicInfo.size,
-    //                     location_city: basicInfo.location,
-    //                     homepage_url: basicInfo.homepage,  // URL 형식 준수
-    //                     career_page_url: basicInfo.recruit,  // URL 형식 준수
-    //                     one_liner: basicInfo.intro,
-    //                 },
-    //                 about: {
-    //                     vision_mission: additionalInfo.vision,
-    //                     business_domains: additionalInfo.business,
-    //                     ideal_talent: additionalInfo.talent,
-    //                     culture: additionalInfo.culture,
-    //                     benefits: additionalInfo.benefits,
-    //                 },
-    //                 submit: true,
-    //             }, {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             });
-    //             if (res.status === 201) {
-    //                 sessionStorage.setItem("name", basicInfo.name);
-    //                 setProfileName(basicInfo.name);
-    //                 navigate("/profile/jobprofile");
-    //             }
-    //         } catch (err) {
-    //             alert("프로필 설정에 실패했습니다.");
-    //         }
-    //     } else {
-    //         setPage(page + 1);
-    //     }
-    // };
+                const res = await axios.get(`${baseURL}/api/me/company`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const data = res.data.data;
+                setBasicInfo({
+                    name: data.basic?.name || "",
+                    industry: data.basic?.industry || "",
+                    size: data.basic?.size || "",
+                    location: data.basic?.location_city || "",
+                    homepage: data.basic?.homepage_url || "",
+                    recruit: data.basic?.career_page_url || "",
+                    intro: data.basic?.one_liner || "",
+                });
+                setAdditionalInfo({
+                    vision: data.about?.vision_mission || "",
+                    business: data.about?.business_domains || "",
+                    talent: data.about?.ideal_talent || "",
+                    culture: data.about?.culture || "",
+                    benefits: data.about?.benefits || "",
+                });
+            } catch (error) {
+                if (!alertOnce.current) {
+                  alert("프로필을 먼저 등록해 주세요!");
+                  alertOnce.current = true;
+                }
+                navigate("/profile/setprofile");
+            }
+        }
+        if (role === 'talent') fetchTalentProfile();
+        if (role === 'company') fetchCompanyProfile();
+    }, []);
 
     if (role === "talent" || !role) {
         return (
@@ -671,81 +579,67 @@ export default function MyProfile() {
     } else if (role === "company") {
         return (
           <Container>
-            <Title>✏️ 기업 정보 입력</Title>
-            <ProgressBarContainer>
-              <Progress progress={page * 50} role={role}></Progress>
-              <ProgressText>{page} / 2</ProgressText>
-            </ProgressBarContainer>
+            <Title>🗃️ 기업 프로필</Title>
+              <Padding style={{"height": "20px"}}></Padding>
 
-            {page == 1 && (
               <Form>
-                <FormTitle>기본정보 입력</FormTitle>
+                <FormTitle>기본정보</FormTitle>
                 <InputContainer>
                   <Label className="required">회사명</Label>
-                  <Input role={role} placeholder="회사명" value={basicInfo.name} onChange={(e) => setBasicInfo((prev) => ({ ...prev, name: e.target.value }))} hasError={!!errors.name}></Input>
+                  <Input readOnly role={role} placeholder="회사명" value={basicInfo.name} onChange={(e) => setBasicInfo((prev) => ({ ...prev, name: e.target.value }))} hasError={!!errors.name}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label className="required">업종</Label>
-                  <Select role={role} value={basicInfo.industry} onChange={(e) => setBasicInfo((prev) => ({ ...prev, industry: e.target.value }))}>
-                    {industry.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
-                  </Select>
+                  <Input readOnly role={role} value={basicInfo.industry} onChange={(e) => setBasicInfo((prev) => ({ ...prev, industry: e.target.value }))}>
+                  </Input>
                 </InputContainer>
                 <InputContainer>
                   <Label className="required">회사 규모</Label>
-                  <Select role={role} value={basicInfo.size} onChange={(e) => setBasicInfo((prev) => ({ ...prev, size: e.target.value }))}>
-                    {companySize.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
-                  </Select>
+                  <Input readOnly role={role} value={basicInfo.size} onChange={(e) => setBasicInfo((prev) => ({ ...prev, size: e.target.value }))}>
+                  </Input>
                 </InputContainer>
                 <InputContainer>
                   <Label className="required">회사 위치</Label>
-                  <Select role={role} value={basicInfo.location} onChange={(e) => setBasicInfo((prev) => ({ ...prev, location: e.target.value }))}>
-                    {residence.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
-                  </Select>
+                  <Input readOnly role={role} value={basicInfo.location} onChange={(e) => setBasicInfo((prev) => ({ ...prev, location: e.target.value }))}>
+                  </Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>대표 사이트</Label>
-                  <Input role={role} placeholder="https://fitconnect.com" value={basicInfo.homepage} onChange={(e) => setBasicInfo((prev) => ({ ...prev, homepage: e.target.value }))}></Input>
+                  <Input readOnly role={role} placeholder="https://fitconnect.com" value={basicInfo.homepage} onChange={(e) => setBasicInfo((prev) => ({ ...prev, homepage: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer>
                   <Label>채용 사이트</Label>
-                  <Input role={role} placeholder="https://fitconnect.com/recruit" value={basicInfo.recruit} onChange={(e) => setBasicInfo((prev) => ({ ...prev, recruit: e.target.value }))}></Input>
+                  <Input readOnly role={role} placeholder="https://fitconnect.com/recruit" value={basicInfo.recruit} onChange={(e) => setBasicInfo((prev) => ({ ...prev, recruit: e.target.value }))}></Input>
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>한 줄 소개</Label>
-                  <Input role={role} placeholder="회사를 한 줄로 소개해주세요!" value={basicInfo.intro} onChange={(e) => setBasicInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
+                  <Input readOnly role={role} placeholder="회사를 한 줄로 소개해주세요!" value={basicInfo.intro} onChange={(e) => setBasicInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
                 </InputContainer>
-              </Form>
-            )}
-            
-            {page == 2 && (
-              <Form>
-                <FormTitle style={{ 'marginBottom' : '20px' }}>회사 소개 입력</FormTitle>
+                <Padding></Padding>
+
+                <FormTitle style={{ 'marginBottom' : '20px' }}>회사 소개</FormTitle>
                   <InputContainer width="1000px">
                     <Label style={{ 'marginBottom': '30px' }}>비전/미션</Label>
-                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 비전, 미션 등을 자유롭게 소개해 주세요." value={additionalInfo.vision} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, vision: e.target.value }))} width="800px"></TextArea>
+                    <TextArea readOnly role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 비전, 미션 등을 자유롭게 소개해 주세요." value={additionalInfo.vision} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, vision: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label style={{ 'marginBottom': '30px' }}>사업 영역</Label>
-                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 핵심 사업 내용을 입력해 주세요." value={additionalInfo.business} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, business: e.target.value }))} width="800px"></TextArea>
+                    <TextArea readOnly role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 핵심 사업 내용을 입력해 주세요." value={additionalInfo.business} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, business: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label style={{ 'marginBottom': '30px' }}>인재상</Label>
-                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사가 추구하는 인재의 모습을 소개해 주세요." value={additionalInfo.talent} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, talent: e.target.value }))} width="800px"></TextArea>
+                    <TextArea readOnly role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사가 추구하는 인재의 모습을 소개해 주세요." value={additionalInfo.talent} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, talent: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label style={{ 'marginBottom': '30px' }}>조직문화</Label>
-                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 조직문화와 일하는 방식을 소개해 주세요." value={additionalInfo.culture} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, culture: e.target.value }))} width="800px"></TextArea>
+                    <TextArea readOnly role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 조직문화와 일하는 방식을 소개해 주세요." value={additionalInfo.culture} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, culture: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
                   <InputContainer width="1000px">
                     <Label style={{ 'marginBottom': '30px' }}>복리후생</Label>
-                    <TextArea role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 복리후생을 소개해 주세요." value={additionalInfo.benefits} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, benefits: e.target.value }))} width="800px"></TextArea>
+                    <TextArea readOnly role={role} style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="회사의 복리후생을 소개해 주세요." value={additionalInfo.benefits} onChange={(e) => setAdditionalInfo((prev) => ({ ...prev, benefits: e.target.value }))} width="800px"></TextArea>
                   </InputContainer>
               </Form>
-            )}
-            <ButtonContainer>
-              <Button onClick={() => {setPage(page - 1)}} role={role} style={page === 1 ? { display: 'none' } : {}}>이전으로</Button>
-              <Button onClick={getNextPage} role={role} style={page === 1 ? { marginLeft: '798px' } : {}}>{page <= 1 ? "다음으로" : "작성 완료"}</Button>
-            </ButtonContainer>
+              <Padding></Padding>
           </Container>
         )
     }
