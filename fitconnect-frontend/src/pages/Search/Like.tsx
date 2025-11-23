@@ -362,7 +362,7 @@ const Table = styled.div`
 
 const HeaderRow = styled.div<{ role?: string }>`
   display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr 1.2fr;
+  grid-template-columns: 1fr 1.2fr 1fr 1.2fr;
   border-radius: 15px 15px 0 0;
   border-bottom: 2px solid #b2b2b2ff;
   background: ${({ role }) => (role === "talent" ? colors.talent_lighter : colors.company_lighter )};
@@ -383,7 +383,7 @@ const HeaderCell = styled.div`
 
 const Row = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr 1.2fr;
+  grid-template-columns: 1fr 1.2fr 1fr 1.2fr;
   border: 2px solid #b2b2b2ff;
   background: #ffffff;
   cursor: pointer;
@@ -444,7 +444,7 @@ const TotalWork = styled.div`
 
 const TagWrapper = styled.div`
   color: black;
-  width: 240px;
+  width: 195px;
   font-size: 10px;
   background: transparent;
   border-radius: 8px;
@@ -893,113 +893,113 @@ const formatYearMonth = (dateStr: string) => {
   return dateStr.slice(0, 7).replace("-", ".");
 };
 
-const mockData = [
-  {
-    id: 1,
-    name: "박진섭",
-    email: "js.park@gmail.com",
-    phone: "010-1234-5678",
-    company: "삼성전자",
-    job: "Machine Learning Engineer",
-    totalWork: 1,
-    position: "데이터 엔지니어",
-    tags: ["Python", "ML"],
-    date: "2025.12.31",
-    work: "정규직",
-    status: 1,
-    isMatched: true,
-  },
-  {
-    id: 2,
-    name: "하나래",
-    email: "nr.ha@gmail.com",
-    phone: "010-1234-5678",
-    company: "카카오뱅크",
-    job: "Machine Learning Engineer",
-    totalWork: 1,
-    position: "데이터 엔지니어",
-    tags: ["Data", "SQL"],
-    date: "2025.12.31",
-    work: "정규직",
-    status: 2,
-    isMatched: false,
-  },
-  {
-    id: 3,
-    name: "김지후",
-    email: "jh.kim@gmail.com",
-    phone: "010-2345-6789",
-    company: "네이버",
-    job: "Backend Engineer",
-    totalWork: 3,
-    position: "서버 개발자",
-    tags: ["Java", "Spring"],
-    date: "2025.12.31",
-    work: "정규직",
-    status: 4,
-    isMatched: false,
-  },
-  {
-    id: 4,
-    name: "이서현",
-    email: "sh.lee@gmail.com",
-    phone: "010-3456-7890",
-    company: "라인플러스",
-    job: "Android Developer",
-    totalWork: 5,
-    position: "모바일 개발자",
-    tags: ["Kotlin", "Android"],
-    date: "2025.12.31",
-    work: "정규직",
-    status: 3,
-    isMatched: false,
-  },
-  {
-    id: 5,
-    name: "최유진",
-    email: "yj.choi@gmail.com",
-    phone: "010-4567-8901",
-    company: "쿠팡",
-    job: "Data Scientist",
-    totalWork: 7,
-    position: "데이터 사이언티스트",
-    tags: ["Python", "Pandas", "ML"],
-    date: "2025.12.31",
-    work: "정규직",
-    status: 5,
-    isMatched: false,
-  },
-  {
-    id: 6,
-    name: "정민우",
-    email: "mw.jung@gmail.com",
-    phone: "010-5678-9012",
-    company: "배민",
-    job: "Frontend Engineer",
-    totalWork: 2,
-    position: "프론트엔드 개발자",
-    tags: ["React", "TypeScript"],
-    date: "2025.12.31",
-    work: "정규직",
-    status: 6,
-    isMatched: false,
-  },
-  {
-    id: 7,
-    name: "오세아",
-    email: "sa.oh@gmail.com",
-    phone: "010-6789-0123",
-    company: "토스",
-    job: "Product Manager",
-    totalWork: 10,
-    position: "PM",
-    tags: ["Product", "UX", "Business"],
-    date: "2025.12.31",
-    work: "정규직",
-    status: 2,
-    isMatched: false,
-  },
-];
+// const mockData = [
+//   {
+//     id: 1,
+//     name: "박진섭",
+//     email: "js.park@gmail.com",
+//     phone: "010-1234-5678",
+//     company: "삼성전자",
+//     job: "Machine Learning Engineer",
+//     totalWork: 1,
+//     position: "데이터 엔지니어",
+//     tags: ["Python", "ML"],
+//     date: "2025.12.31",
+//     work: "정규직",
+//     status: 1,
+//     isMatched: true,
+//   },
+//   {
+//     id: 2,
+//     name: "하나래",
+//     email: "nr.ha@gmail.com",
+//     phone: "010-1234-5678",
+//     company: "카카오뱅크",
+//     job: "Machine Learning Engineer",
+//     totalWork: 1,
+//     position: "데이터 엔지니어",
+//     tags: ["Data", "SQL"],
+//     date: "2025.12.31",
+//     work: "정규직",
+//     status: 2,
+//     isMatched: false,
+//   },
+//   {
+//     id: 3,
+//     name: "김지후",
+//     email: "jh.kim@gmail.com",
+//     phone: "010-2345-6789",
+//     company: "네이버",
+//     job: "Backend Engineer",
+//     totalWork: 3,
+//     position: "서버 개발자",
+//     tags: ["Java", "Spring"],
+//     date: "2025.12.31",
+//     work: "정규직",
+//     status: 4,
+//     isMatched: false,
+//   },
+//   {
+//     id: 4,
+//     name: "이서현",
+//     email: "sh.lee@gmail.com",
+//     phone: "010-3456-7890",
+//     company: "라인플러스",
+//     job: "Android Developer",
+//     totalWork: 5,
+//     position: "모바일 개발자",
+//     tags: ["Kotlin", "Android"],
+//     date: "2025.12.31",
+//     work: "정규직",
+//     status: 3,
+//     isMatched: false,
+//   },
+//   {
+//     id: 5,
+//     name: "최유진",
+//     email: "yj.choi@gmail.com",
+//     phone: "010-4567-8901",
+//     company: "쿠팡",
+//     job: "Data Scientist",
+//     totalWork: 7,
+//     position: "데이터 사이언티스트",
+//     tags: ["Python", "Pandas", "ML"],
+//     date: "2025.12.31",
+//     work: "정규직",
+//     status: 5,
+//     isMatched: false,
+//   },
+//   {
+//     id: 6,
+//     name: "정민우",
+//     email: "mw.jung@gmail.com",
+//     phone: "010-5678-9012",
+//     company: "배민",
+//     job: "Frontend Engineer",
+//     totalWork: 2,
+//     position: "프론트엔드 개발자",
+//     tags: ["React", "TypeScript"],
+//     date: "2025.12.31",
+//     work: "정규직",
+//     status: 6,
+//     isMatched: false,
+//   },
+//   {
+//     id: 7,
+//     name: "오세아",
+//     email: "sa.oh@gmail.com",
+//     phone: "010-6789-0123",
+//     company: "토스",
+//     job: "Product Manager",
+//     totalWork: 10,
+//     position: "PM",
+//     tags: ["Product", "UX", "Business"],
+//     date: "2025.12.31",
+//     work: "정규직",
+//     status: 2,
+//     isMatched: false,
+//   },
+// ];
 
 export default function Recommendation() {
     const { token, setToken, role, setRole, loading, profileName } = useAuth();
@@ -1010,129 +1010,45 @@ export default function Recommendation() {
     const likeType = new URLSearchParams(location.search).get("type");
 
     const [jobList, setJobList] = useState(null);
+    const [likeList, setLikeList] = useState([]);
+    const [likeListChanged, setLikeListChanged] = useState(false);
+    const [rows, setRows] = useState(null);
+        
     const [data, setData] = useState(null);
     const [cardData, setCardData] = useState(null);
     const [matchingData, setMatchingData] = useState(null);
     const [jobTitle, setJobTitle] = useState("");
     const [companyData, setCompanyData] = useState(null);
+    const [scores, setScores] = useState({roles: 0, growth: 0, career: 0, culture: 0, vision: 0, skills: 0});
+
     const [isCardVisible, setIsCardVisible] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [xaiData, setXaiData] = useState(null);
     const [analyzing, setAnalyzing] = useState(false);
-    const [rows, setRows] = useState(mockData);
 
     useEffect(() => {
         if (!token || !role) navigate("/auth/login");
     }, [loading, token]);
     
+    // Query
+    const handleSelect = (type: string) => {
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set("type", type);
+      navigate(`${location.pathname}?${searchParams.toString()}`);
+    };
+
     const submitJobId = (id) => {
       const params = new URLSearchParams(location.search);
       params.set("job", id);
       navigate(`${location.pathname}?${params.toString()}`);
     }
 
-    const suggestions = [];
-    const [inputValue, setInputValue] = useState({});
-    const [tags, setTags] = useState({});
-    const [filters, setFilters] = useState({
-      name: "",
-      job: "",
-      minExp: "",
-      tag: "",
-      status: "",
-    });
 
-    const getRowTags = (rowIndex) => tags[rowIndex] || [];
-    const getRowInput = (rowIndex) => inputValue[rowIndex] || "";
-    const filteredSuggestions = (rowIndex) => {
-      const rowTags = tags[rowIndex] || [];
-      const value = inputValue[rowIndex] || "";
-
-      return suggestions.filter(
-        (s) =>
-          s.toLowerCase().includes(value.toLowerCase()) &&
-          !rowTags.includes(s)
-      );
-    };
-
-    const filterCandidates = rows.filter((c) => {
-      const matchName =
-        filters.name === "" ||
-        c.name.toLowerCase().includes(filters.name.toLowerCase());
-
-      const matchJob =
-        filters.job === "" ||
-        c.position.toLowerCase().includes(filters.job.toLowerCase());
-
-      const matchExp =
-        filters.minExp === "" || c.totalWork >= Number(filters.minExp);
-
-      const matchTag =
-        filters.tag === "" ||
-        c.tags.some((t) =>
-          t.toLowerCase().includes(filters.tag.toLowerCase())
-        );
-
-      const matchStatus =
-        filters.status === "" || String(c.status) === filters.status;
-
-      return matchName && matchJob && matchExp && matchTag && matchStatus;
-    });
-
-    const handleFilterChange = (key, value) => {
-      setFilters((prev) => ({ ...prev, [key]: value }));
-    };
-
-    const addTag = (rowIndex, tag) => {
-      if (!tag) return;
-      const rowTags = tags[rowIndex] || [];
-      if (rowTags.includes(tag)) return;
-      setTags({
-        ...tags,
-        [rowIndex]: [...rowTags, tag]
-      });
-      setInputValue({
-        ...inputValue,
-        [rowIndex]: ""
-      });
-    };
-
-    const removeTag = (rowIndex, tag) => {
-      const rowTags = tags[rowIndex] || [];
-      setTags({
-        ...tags,
-        [rowIndex]: rowTags.filter((t) => t !== tag),
-      });
-    };
-
-    const handleKeyDown = (e, rowIndex) => {
-      const value = inputValue[rowIndex] || "";
-      if (e.key === "Enter") {
-        e.preventDefault();
-        addTag(rowIndex, value);
-      }
-      if (e.key === "Backspace" && value === "" && (tags[rowIndex] || []).length > 0) {
-        removeTag(rowIndex, tags[rowIndex][tags[rowIndex].length - 1]);
-      }
-    };
-
-    useEffect(() => {
-      const initialTags = {};
-      mockData.forEach((item, index) => {
-        initialTags[index] = item.tags || [];
-      });
-      setTags(initialTags);
-    }, []);
-
-    const [flipped, setFlipped] = useState(false);
-
-    const showCard = (id) => {
-      setIdx(id);
-      setIsCardVisible(true);
-    };
-
+    
+    // Like Data
     useEffect(() => {
       if (role === 'company' && !queryJobId) {
+        // ================= [Company] Select Job Id =================
         axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
         .then((response) => {
           setJobList(response.data.data);
@@ -1140,10 +1056,13 @@ export default function Recommendation() {
         .catch((error) => {
           console.error("데이터 불러오기 실패:", error);
         });
-      } else if (!matchingData) {
+      } else if (!matchingData || likeListChanged) {
+        setLikeListChanged(false);
         if (role === 'talent') {
+          // ================= [Talent] Matching Results =================
           axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
+            // Matching Data
             axios.get(`${baseURL}/api/matching-results/talents/${response.data.data?.basic.user_id}/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
               setMatchingData(response.data.data.matches);
@@ -1155,7 +1074,22 @@ export default function Recommendation() {
           .catch((error) => {
             console.error("데이터 불러오기 실패:", error);
           });
+          // Like List
+          axios.get(`${baseURL}/api/me/talent/job-posting-bookmarks`, { headers: { Authorization: `Bearer ${token}` } })
+          .then((response) => {
+            const liked = response.data.data?.items.map((item) => item.job_posting_id);
+            setLikeList(liked);
+            setRows(response.data.data.items.map((item) => ({
+              ...item,
+              tags: item.tags ?? [],
+              status: item.status ?? 1,
+            })));
+          })
+          .catch((error) => {
+            console.error("데이터 불러오기 실패:", error);
+          });
         } else if (role === 'company') {
+          // ================= [Company] Matching Results =================
           const query = new URLSearchParams(location.search);
           const jobId = query.get("job");
           axios.get(`${baseURL}/api/matching-results/job-postings/${jobId}/talents`, { headers: { Authorization: `Bearer ${token}` } })
@@ -1167,15 +1101,40 @@ export default function Recommendation() {
           .catch((error) => {
             console.error("데이터 불러오기 실패:", error);
           });
+          // Like List
+          axios.get(`${baseURL}/api/me/company/job-postings/${jobId}/talent-bookmarks`, { headers: { Authorization: `Bearer ${token}` } })
+          .then((response) => {
+            const liked = response.data.data?.items.map((item) => item.talent_user_id);
+            setLikeList(liked);
+            setRows(response.data.data.items.map((item) => ({
+              ...item,
+              tags: item.tags ?? [],
+              status: item.status ?? 1,
+            })));
+          })
+          .catch((error) => {
+            console.error("데이터 불러오기 실패:", error);
+          });
         }
       }
-    }, [loading, location.search]);
-    
-    const loadData = (idx) => {
-      if (matchingData && idx) {
+    }, [loading, likeListChanged]);
+
+
+
+    // Card Data
+    const [flipped, setFlipped] = useState(false);
+    const showCard = (targetId) => {
+      setIdx(targetId);
+      setIsCardVisible(true);
+    };
+
+    const loadData = (targetId) => {
+      if (matchingData && targetId) {
         if (role === 'talent') {
-          const companyId = matchingData[idx]?.company_user_id;
-          const jobId = matchingData[idx]?.job_posting_id;
+          const match = matchingData.find(item => item.job_posting_id === targetId);
+          const companyId = match?.company_user_id;
+          const jobId = targetId;
+          setScores(match.scores);
           axios.get(`${baseURL}/api/companies/user/${companyId}`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
             setCompanyData(response.data.data);
@@ -1198,7 +1157,7 @@ export default function Recommendation() {
             console.error("데이터 불러오기 실패:", error);
           });
         } else if (role === 'company') {
-          const talentId = matchingData[idx]?.talent_user_id;
+          const talentId = matchingData[targetId]?.talent_user_id;
           axios.get(`${baseURL}/api/talents/${talentId}/profile`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
             setData(response.data.data);
@@ -1221,6 +1180,9 @@ export default function Recommendation() {
       loadData(idx);
     }, [idx]);
     
+
+
+    // XAI Data
     const loadXaiData = (idx) => {
       setAnalyzing(true);
       setXaiData(null);
@@ -1245,16 +1207,158 @@ export default function Recommendation() {
       }
     };
     
-    const handleSelect = (type: string) => {
-      const searchParams = new URLSearchParams(location.search);
-      searchParams.set("type", type);
-      navigate(`${location.pathname}?${searchParams.toString()}`);
+
+    
+    // Unlike
+    const cancelLike = (targetId) => {
+      const query = new URLSearchParams(location.search);
+      const jobId = query.get("job");
+      if (role === 'talent') {
+        axios.post(`${baseURL}/api/me/talent/job-posting-bookmarks`, {
+          jd_id: targetId,
+          action: "remove",
+        }, { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          setLikeList(prev => prev.filter(id => id !== targetId));
+          setLikeListChanged(true);
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+        });
+      } else if (role === 'company') {
+        axios.post(`${baseURL}/api/me/company/job-postings/${jobId}/talent-bookmarks`, {
+          talent_id: targetId,
+          action: "remove",
+        }, { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          setLikeList(prev => prev.filter(id => id !== targetId));
+          setLikeListChanged(true);
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+        });
+      } 
+    };
+    
+
+
+    // State    
+    const suggestions = [];
+    const [inputValue, setInputValue] = useState({});
+    const [tags, setTags] = useState({});
+    const [filters, setFilters] = useState({
+      name: "",
+      job: "",
+      minExp: "",
+      tag: "",
+      status: "",
+    });
+
+    const getRowId = (row) => row?.job_posting_id ?? row?.talent_id ?? row?.talent_user_id ?? row?.id ?? null;
+    const getRowTags = (rowId) => tags[rowId] || [];
+    const getRowInput = (rowId) => inputValue[rowId] || "";
+    const filteredSuggestions = (rowId) => {
+      const rowTags = getRowTags(rowId);
+      const value = getRowInput(rowId);
+      return suggestions.filter(
+        (s) => s.toLowerCase().includes(value.toLowerCase()) && !rowTags.includes(s)
+      );
     };
 
-    const handleStatusChange = (id, newStatus) => {
-      setRows(prev =>
-        prev.map(row =>
-          row.id === id ? { ...row, status: newStatus } : row
+    const filteredRows = rows?.filter((row) => {
+      if (!row) return false;
+      const id = getRowId(row);
+      if (role === "talent") {
+        const matchName =
+          filters.name === "" ||
+          row.company.name.toLowerCase().includes(filters.name.toLowerCase());
+        const matchJob =
+          filters.job === "" ||
+          row.title.toLowerCase().includes(filters.job.toLowerCase());
+        const matchTag =
+          filters.tag === "" ||
+          (row?.tags || []).some((tag) =>
+            tag.toLowerCase().includes(filters.tag.toLowerCase())
+          );
+        const matchStatus =
+          filters.status === "" || String(row?.status) === filters.status;
+        return matchName && matchJob && matchTag && matchStatus;
+      } else if (role === "company") {
+        const talentName =
+          row?.name ?? row?.full_name ?? row?.talent_name ?? row?.company?.name ?? "";
+        const matchName =
+          filters.name === "" ||
+          talentName.toLowerCase().includes(filters.name.toLowerCase());
+        const matchJob =
+          filters.job === "" ||
+          (row.title ?? "").toLowerCase().includes(filters.job.toLowerCase());
+        const matchExp =
+          filters.minExp === "" || (row.totalWork ?? 0) >= Number(filters.minExp);
+        const matchTag =
+          filters.tag === "" ||
+          (row?.tags || []).some((t) =>
+            t.toLowerCase().includes(filters.tag.toLowerCase())
+          );
+        const matchStatus =
+          filters.status === "" || String(row?.status) === filters.status;
+        return matchName && matchJob && matchExp && matchTag && matchStatus;
+      }
+      return false;
+    });
+
+    const handleFilterChange = (key, value) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const addTag = (rowId, tag) => {
+      if (!tag) return;
+      const currentTags = getRowTags(rowId);
+      if (currentTags.includes(tag)) return;
+      setTags((prev) => ({ ...prev, [rowId]: [...currentTags, tag] }));
+      setRows((prev) =>
+        prev.map((r) =>
+          getRowId(r) === rowId ? { ...r, tags: [...(r.tags || []), tag] } : r
+        )
+      );
+      setInputValue((prev) => ({ ...prev, [rowId]: "" }));
+    };
+
+    const removeTag = (rowId, tag) => {
+      const currentTags = getRowTags(rowId);
+      const newTags = currentTags.filter((t) => t !== tag);
+      setTags((prev) => ({ ...prev, [rowId]: newTags }));
+      setRows((prev) =>
+        prev.map((r) =>
+          getRowId(r) === rowId ? { ...r, tags: newTags } : r
+        )
+      );
+    };
+
+    const handleKeyDown = (e, rowId) => {
+      const value = getRowInput(rowId) || "";
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addTag(rowId, value);
+      }
+      if (e.key === "Backspace" && value === "" && (getRowTags(rowId) || []).length > 0) {
+        const last = getRowTags(rowId)[getRowTags(rowId).length - 1];
+        removeTag(rowId, last);
+      }
+    };
+
+    useEffect(() => {
+      const initialTags = {};
+      rows?.forEach((item) => {
+        const id = getRowId(item);
+        if (id != null) initialTags[id] = item.tags ?? [];
+      });
+      setTags(initialTags);
+    }, [rows]);
+
+    const handleStatusChange = (rowId, newStatus) => {
+      setRows((prev) =>
+        prev.map((r) =>
+          getRowId(r) === rowId ? { ...r, status: newStatus } : r
         )
       );
     };
@@ -1309,8 +1413,6 @@ export default function Recommendation() {
         return (
           <Container>
             <Title>💙 보관한 공고</Title>
-            
-            
             {(isCardVisible) ? (
               <>
               <CardContainer>
@@ -1419,12 +1521,12 @@ export default function Recommendation() {
               </CardContainer>
               <CloseCardButton role={role} onClick={() => {setIsCardVisible(false); setCardData(null); setData(null); setCompanyData(null); setIdx(null);}}>👈 목록으로 돌아가기</CloseCardButton>
               <HexagonContainer>
-                <Hexagon role={role} score={[matchingData[idx]?.scores.roles, matchingData[idx]?.scores.growth, matchingData[idx]?.scores.career,
-                matchingData[idx]?.scores.culture, matchingData[idx]?.scores.vision, matchingData[idx]?.scores.skills]} />
+                <Hexagon role={role} score={[scores?.roles, scores?.growth, scores?.career,
+                scores?.culture, scores?.vision, scores?.skills]} />
               </HexagonContainer>
               <ButtonContainer>
                 <TwoButtonsWrapper>
-                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>✖️ 삭제하기</span></Button>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}} onClick={() => {cancelLike(idx); setIsCardVisible(false); setCardData(null); setData(null); setCompanyData(null); setIdx(null);}}><span>✖️ 삭제하기</span></Button>
                   <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>🔗 공고 확인하기</span></Button>
                 </TwoButtonsWrapper>
                 <div style={{"color": "black", "fontSize": "17px", "fontWeight": "500"}}>📝 코멘트</div>
@@ -1480,43 +1582,40 @@ export default function Recommendation() {
                   </FilterSelect>
                 </HeaderCell>
               </HeaderRow>
-              {filterCandidates.map((row, rowIndex) => (
-                <Row key={row.id} onClick={() => {showCard(row.id);}}>
+              {filteredRows?.map((row) => (
+                <Row key={row.job_posting_id} onClick={() => {showCard(row.job_posting_id);}}>
                   <Cell>
-                    <Name>{row.name}{row.isMatched && <MatchedTag role={role}>Matched</MatchedTag>}</Name>
-                    <Email>✉️ {row.email}</Email>
-                    <Phone>📞 {row.phone}</Phone>
+                    <Name>{row.company.name}{row.isMatched && <MatchedTag role={role}>Matched</MatchedTag>}</Name>
+                    <Email>✉️ {row.contact_email}</Email>
+                    <Phone>📞 {row.contact_phone}</Phone>
                   </Cell>
                   <Cell>
-                    <Company>{row.position}</Company>
-                    <TotalWork>📆 마감일 <b>{row.date}</b></TotalWork>
-                    <Job>💼 {row.work}</Job>
+                    <Company>{row.title}</Company>
+                    <TotalWork>📆 마감일 <b>{row.deadline_date}</b></TotalWork>
+                    <Job>💼 {row.employment_type}</Job>
                   </Cell>
                   <Cell>
                     <TagWrapper>
-                      {getRowTags(rowIndex).map((tag, i) => (
+                      {getRowTags(row.job_posting_id).map((tag, i) => (
                         <TagItem key={i} onClick={(e) => e.stopPropagation()}>
                           {tag}
-                          <RemoveBtn onClick={(e) => {e.stopPropagation(); removeTag(rowIndex, tag);}}>×</RemoveBtn>
+                          <RemoveBtn onClick={(e) => {e.stopPropagation(); removeTag(row.job_posting_id, tag);}}>×</RemoveBtn>
                         </TagItem>
                       ))}
                       <Input
                         placeholder="태그 입력..."
-                        value={getRowInput(rowIndex)}
+                        value={getRowInput(row.job_posting_id)}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) =>
-                          setInputValue({
-                            ...inputValue,
-                            [rowIndex]: e.target.value,
-                          })
+                          setInputValue((prev) => ({ ...prev, [row.job_posting_id]: e.target.value }))
                         }
-                        onKeyDown={(e) => handleKeyDown(e, rowIndex)}
+                        onKeyDown={(e) => handleKeyDown(e, row.job_posting_id)}
                       />
-                      {getRowInput(rowIndex).length > 0 &&
-                        filteredSuggestions(rowIndex).length > 0 && (
+                      {getRowInput(row.job_posting_id).length > 0 &&
+                        filteredSuggestions(row.job_posting_id).length > 0 && (
                           <Dropdown>
-                            {filteredSuggestions(rowIndex).map((s, i) => (
-                              <DropdownItem key={i} onClick={() => addTag(rowIndex, s)}>
+                            {filteredSuggestions(row.job_posting_id).map((s, i) => (
+                              <DropdownItem key={i} onClick={() => addTag(row.job_posting_id, s)}>
                                 {s}
                               </DropdownItem>
                             ))}
@@ -1528,7 +1627,7 @@ export default function Recommendation() {
                     <StatusSelect role={role}
                       value={row.status}
                       onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handleStatusChange(row.id, e.target.value)}
+                      onChange={(e) => handleStatusChange(row.job_posting_id, e.target.value)}
                     >
                       <StatusOption value="1">🔴 지원서 작성 전</StatusOption>
                       <StatusOption value="2">🟡 지원서 작성 중</StatusOption>
@@ -1538,7 +1637,7 @@ export default function Recommendation() {
                       <StatusOption value="6">⚫ 마감</StatusOption>
                     </StatusSelect>
                     <PoolButtonsWrapper>
-                      <PoolButton role={role} onClick={(e) => e.stopPropagation()}><span>✖️ 삭제하기</span></PoolButton>
+                      <PoolButton role={role} onClick={(e) => {e.stopPropagation(); cancelLike(row.job_posting_id);}}><span>✖️ 삭제하기</span></PoolButton>
                       <PoolButton role={role} onClick={(e) => {e.stopPropagation();}}><span>🔗 공고 확인하기</span></PoolButton>
                     </PoolButtonsWrapper>
                   </Cell>
@@ -1759,7 +1858,7 @@ export default function Recommendation() {
                 <CloseCardButton role={role} onClick={() => {setIsCardVisible(false); setCardData(null); setData(null); setIdx(null);}}>👈 목록으로 돌아가기</CloseCardButton>
                 {queryJobId && (
                 <HexagonContainer>
-                  <Hexagon score={[matchingData[idx]?.scores.roles, matchingData[idx]?.scores.growth, matchingData[idx]?.scores.career,
+                  <Hexagon score={[[idx]?.scores.roles, matchingData[idx]?.scores.growth, matchingData[idx]?.scores.career,
                     matchingData[idx]?.scores.culture, matchingData[idx]?.scores.vision, matchingData[idx]?.scores.skills]} role={role} />
                   <BalloonButton onClick={() => {setShowPopup(true); loadXaiData(matchingData[idx].talent_user_id);}}>
                     🤔 매칭 분석
@@ -1835,7 +1934,7 @@ export default function Recommendation() {
                   </FilterSelect>
                 </HeaderCell>
               </HeaderRow>
-              {filterCandidates.map((row, rowIndex) => (
+              {filterCandidates?.map((row, rowIndex) => (
                 <Row key={row.id} onClick={() => {showCard(row.id);}}>
                   <Cell>
                     <Name>{row.name}{row.isMatched && <MatchedTag>Matched</MatchedTag>}</Name>
