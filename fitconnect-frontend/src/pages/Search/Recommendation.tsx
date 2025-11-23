@@ -616,8 +616,10 @@ export default function Recommendation() {
     const [showPopup, setShowPopup] = useState(false);
     const [xaiData, setXaiData] = useState(null);
     const [analyzing, setAnalyzing] = useState(false);
+    const [likeList, setLikeList] = useState([]);
     const alertOnce = useRef(false);
     
+    // Query
     const handleChange = (key: string, value: number) => {
       setWeights({ ...weights, [key]: value });
     };
@@ -636,8 +638,12 @@ export default function Recommendation() {
       navigate(`${location.pathname}?${params.toString()}`);
     }
 
+
+
+    // Matching Data
     useEffect(() => {
         if (role === 'company' && !queryJobId) {
+          // ================= [Company] Select Job Id =================
           axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
             setJobList(response.data.data);
@@ -647,6 +653,7 @@ export default function Recommendation() {
           });
         } else if (!matchingData && (true || ((queryJobFit && queryCultureFit && queryGrowth)))) {
           if (role === 'talent') {
+            // ================= [Talent] Matching Results =================
             axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
               if (!response.data.data.basic) {
@@ -656,6 +663,7 @@ export default function Recommendation() {
                 }
                 navigate("/profile/setprofile");
               }
+              // Matching Data
               axios.get(`${baseURL}/api/matching-results/talents/${response.data.data?.basic.user_id}/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
               .then((response) => {
                 setPage(0);
@@ -669,13 +677,17 @@ export default function Recommendation() {
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
             });
-            // axios.get(`${baseURL}/api/matching-results/talents/${1}/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
-            //   .then((response) => {
-            //     setPage(0);
-            //     setEndPage(response.data.data.matches.length - 1);
-            //     setMatchingData(response.data.data.matches);
-            //   })
+            // Like List
+            axios.get(`${baseURL}/api/me/talent/job-posting-bookmarks`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              const liked = response.data.data?.items.map((item) => item.job_posting_id);
+              setLikeList(liked);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
           } else if (role === 'company') {
+            // ================= [Company] Matching Results =================
             const query = new URLSearchParams(location.search);
             const jobId = query.get("job");
             axios.get(`${baseURL}/api/matching-results/job-postings/${jobId}/talents`, { headers: { Authorization: `Bearer ${token}` } })
@@ -689,13 +701,27 @@ export default function Recommendation() {
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
             });
+            // Like List
+            axios.get(`${baseURL}/api/me/company/job-postings/${jobId}/talent-bookmarks`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              const liked = response.data.data?.items.map((item) => item.talent_user_id);
+              setLikeList(liked);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
           }
         }
     }, [loading, location.search]);
 
+
+
+    // Card Data
+    const [flipped, setFlipped] = useState(false);
     const loadData = () => {
       if (matchingData) {
         if (role === 'talent') {
+          // ================= [Talent] Card Data =================
           const companyId = matchingData[page]?.company_user_id;
           const jobId = matchingData[page]?.job_posting_id;
           axios.get(`${baseURL}/api/companies/user/${companyId}`, { headers: { Authorization: `Bearer ${token}` } })
@@ -720,6 +746,7 @@ export default function Recommendation() {
             console.error("데이터 불러오기 실패:", error);
           });
         } else if (role === 'company') {
+          // ================= [Company] Card Data =================
           const talentId = matchingData[page]?.talent_user_id;
           axios.get(`${baseURL}/api/talents/${talentId}/profile`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
@@ -739,6 +766,13 @@ export default function Recommendation() {
       }
     };
 
+    useEffect(() => {
+      loadData();
+    }, [page, matchingData]);
+
+
+
+    // XAI Data
     const loadXaiData = () => {
       setAnalyzing(true);
       setXaiData(null);
@@ -763,10 +797,9 @@ export default function Recommendation() {
       }
     };
 
-    useEffect(() => {
-      loadData();
-    }, [page, matchingData]);
 
+    
+    // Page
     const getPreviousPage = () => {
       if (page > 0) {
         setCardData(null);
@@ -781,7 +814,66 @@ export default function Recommendation() {
       }
     };
 
-    const [flipped, setFlipped] = useState(false);
+
+
+    // Like / Unlike
+    const handleLike = (targetId, isLiked: boolean) => {
+      const query = new URLSearchParams(location.search);
+      const jobId = query.get("job");
+      if (role === 'talent' && !isLiked) {
+        axios.post(`${baseURL}/api/me/talent/job-posting-bookmarks`, {
+          jd_id: targetId,
+          action: "add",
+        }, { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          setLikeList((prev) => {
+            if (prev.includes(targetId)) return prev;  
+            return [...prev, targetId];
+          });
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+        });
+      } else if (role === 'talent' && isLiked) {
+        axios.post(`${baseURL}/api/me/talent/job-posting-bookmarks`, {
+          jd_id: targetId,
+          action: "remove",
+        }, { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          setLikeList(prev => prev.filter(id => id !== targetId));
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+        });
+      } else if (role === 'company' && !isLiked) {
+        axios.post(`${baseURL}/api/me/company/job-postings/${jobId}/talent-bookmarks`, {
+          talent_id: targetId,
+          action: "add",
+        }, { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          setLikeList((prev) => {
+            if (prev.includes(targetId)) return prev;  
+            return [...prev, targetId];
+          });
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+        });
+      } else if (role === 'company' && isLiked) {
+        axios.post(`${baseURL}/api/me/company/job-postings/${jobId}/talent-bookmarks`, {
+          talent_id: targetId,
+          action: "remove",
+        }, { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          setLikeList(prev => prev.filter(id => id !== targetId));
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+        });
+      } 
+    };
+
+
 
     if (role === 'company' && !queryJobId) {
       return (
@@ -1000,7 +1092,8 @@ export default function Recommendation() {
               )}
               <ButtonContainer>
                 <TwoButtonsWrapper>
-                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>💙 보관하기</span></Button>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}}
+                    onClick={() => {handleLike(data?.id, likeList.includes(data?.id));}}><span>{likeList.includes(data?.id) ? "✖️ 보관 취소" : "💙 보관하기"}</span></Button>
                   <Button role={role} style={{width: "48%", fontSize: "20px"}} 
                     onClick={() => {}}><span>🔗 공고 확인하기</span></Button>
                 </TwoButtonsWrapper>
@@ -1184,7 +1277,8 @@ export default function Recommendation() {
               )}
               <ButtonContainer>
                 <TwoButtonsWrapper>
-                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>❤️ 보관하기</span></Button>
+                  <Button role={role} style={{width: "48%", fontSize: "20px"}}
+                    onClick={() => {handleLike(data?.basic.user_id, likeList.includes(data?.basic.user_id));}}><span>{likeList.includes(data?.basic.user_id) ? "✖️ 보관 취소" : "❤️ 보관하기"}</span></Button>
                   <Button role={role} style={{width: "48%", fontSize: "20px"}} 
                     onClick={() => {
                       window.open(
@@ -1222,7 +1316,7 @@ export default function Recommendation() {
                               <MatchingTag>역량 적합도 <b>{matchingData[page]?.scores.skills}%</b></MatchingTag>
                             </th>
                             <td>
-                              <b>매칭 근거</b><br/>{xaiData?.job_fit.matching_evidence}<br/><br/>
+                              <b>매칭 근거</b><br/>{xaiData?.job_fit.matching_evidence}<br/><br/><br/>
                               <b>검증 포인트</b><br/>{xaiData?.job_fit.check_points?.split(/(?=\d+\.\s?)/).map((cp, i) => (<span key={i}>{cp.trim()} <br/></span>))}<br/><br/>
                               <b>추천 질문</b><br/>{xaiData?.job_fit.suggested_questions.map((q, i) => (<span key={i}>Q. {q}<br/></span>))}
                             </td>
@@ -1233,7 +1327,7 @@ export default function Recommendation() {
                               <MatchingTag>협업 기여도 <b>{matchingData[page]?.scores.vision}%</b></MatchingTag>
                             </th>
                             <td>
-                              <b>매칭 근거</b><br/>{xaiData?.culture_fit.matching_evidence}<br/><br/>
+                              <b>매칭 근거</b><br/>{xaiData?.culture_fit.matching_evidence}<br/><br/><br/>
                               <b>검증 포인트</b><br/>{xaiData?.culture_fit.check_points?.split(/(?=\d+\.\s?)/).map((cp, i) => (<span key={i}>{cp.trim()} <br/></span>))}<br/><br/>
                               <b>추천 질문</b><br/>{xaiData?.culture_fit.suggested_questions.map((q, i) => (<span key={i}>Q. {q}<br/></span>))}
                             </td>
@@ -1244,7 +1338,7 @@ export default function Recommendation() {
                               <MatchingTag>커리어 방향 <b>{matchingData[page]?.scores.vision}%</b></MatchingTag>
                             </th>
                             <td>
-                              <b>매칭 근거</b><br/>{xaiData?.growth_potential.matching_evidence}<br/><br/>
+                              <b>매칭 근거</b><br/>{xaiData?.growth_potential.matching_evidence}<br/><br/><br/>
                               <b>검증 포인트</b><br/>{xaiData?.growth_potential.check_points?.split(/(?=\d+\.\s?)/).map((cp, i) => (<span key={i}>{cp.trim()} <br/></span>))}<br/><br/>
                               <b>추천 질문</b><br/>{xaiData?.growth_potential.suggested_questions.map((q, i) => (<span key={i}>Q. {q}<br/></span>))}
                             </td>
