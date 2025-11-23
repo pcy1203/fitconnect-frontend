@@ -14,6 +14,7 @@ import Result from "./pages/Assessment/Result";
 
 import Recommendation from "./pages/Search/Recommendation";
 import Like from "./pages/Search/Like";
+import MyProfile from "./pages/Profile/MyProfile";
 
 function App() {
     return (
@@ -27,6 +28,7 @@ function App() {
 
               <Route path="/profile/setprofile" element={<SetProfile />} />
               <Route path="/profile/jobprofile" element={<JobProfile />} />
+              <Route path="/profile/myprofile" element={<MyProfile />} />
 
               <Route path="/assessment/interview" element={<Interview />} />
               <Route path="/assessment/result" element={<Result />} />

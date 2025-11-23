@@ -939,7 +939,7 @@ export default function Recommendation() {
                   </Card>
                 </CardContainer>
                 <HexagonContainer>
-                  <Hexagon role="company" score={[matchingData[page]?.scores.roles, matchingData[page]?.scores.growth, matchingData[page]?.scores.career,
+                  <Hexagon role={role} score={[matchingData[page]?.scores.roles, matchingData[page]?.scores.growth, matchingData[page]?.scores.career,
                   matchingData[page]?.scores.culture, matchingData[page]?.scores.vision, matchingData[page]?.scores.skills]} />
                 </HexagonContainer>
                 </>
