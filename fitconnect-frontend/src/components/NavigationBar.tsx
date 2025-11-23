@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -120,6 +120,55 @@ const ProfileMenu = styled.li<{ role?: string }>`
     }
 `;
 
+
+interface CustomLinkProps {
+  to?: string;
+  type?: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}
+
+const CustomLink = ({
+  to,
+  type,
+  children,
+  className = "",
+  onClick,
+}: CustomLinkProps) => {
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (onClick) onClick();
+
+    window.location.href = to;
+    
+    if (type) {
+      const params = new URLSearchParams(location.search);
+      params.set("type", type);
+
+      navigate(`${location.pathname}?${params.toString()}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (to) {
+      navigate(to);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <a href={to} onClick={handleClick} className={className}>
+      {children}
+    </a>
+  );
+}
+
 export default function NavigationBar() {
     const { token, setToken, role, setRole, loading, profileName, setProfileName } = useAuth();
     const navigate = useNavigate();
@@ -145,35 +194,35 @@ export default function NavigationBar() {
     <nav className="navigation">
       <MainBar className="navbar">
         {/* 로고 이미지 */}
-        <Link to="/"><Logo className="logo"><img src={logo} alt="Logo" width={200} height={55}></img></Logo></Link>
+        <CustomLink to="/"><Logo className="logo"><img src={logo} alt="Logo" width={200} height={55}></img></Logo></CustomLink>
         
         {/* 상단 메뉴 */}
-        <Menu role={role}><Link to="/profile/setprofile">프로필 설정</Link>
+        <Menu role={role}><CustomLink to="/profile/setprofile">프로필 설정</CustomLink>
           {role === "company" ? 
             <SubBar role={role}>
-              <SubMenu role={role}><Link to="/profile/setprofile">기업 정보 입력</Link></SubMenu>
-              <SubMenu role={role}><Link to="/profile/jobprofile">채용 공고 입력</Link></SubMenu>
+              <SubMenu role={role}><CustomLink to="/profile/setprofile">기업 정보 입력</CustomLink></SubMenu>
+              <SubMenu role={role}><CustomLink to="/profile/jobprofile">채용 공고 입력</CustomLink></SubMenu>
             </SubBar>
             :
             <SubBar role={role}>
-              <SubMenu role={role}><Link to="/profile/setprofile">인재 프로필 입력</Link></SubMenu>
+              <SubMenu role={role}><CustomLink to="/profile/setprofile">인재 프로필 입력</CustomLink></SubMenu>
             </SubBar>
           }
         </Menu>
-        <Menu role={role}><Link to="/assessment/interview">AI 분석 인터뷰</Link>
+        <Menu role={role}><CustomLink to="/assessment/interview">AI 분석 인터뷰</CustomLink>
           <SubBar role={role}>
-            <SubMenu role={role}><Link to="/assessment/interview">분석 인터뷰 진행</Link></SubMenu>
-            <SubMenu role={role}><Link to="/assessment/result">분석 결과 확인</Link></SubMenu>
+            <SubMenu role={role}><CustomLink to="/assessment/interview">분석 인터뷰 진행</CustomLink></SubMenu>
+            <SubMenu role={role}><CustomLink to="/assessment/result">분석 결과 확인</CustomLink></SubMenu>
           </SubBar>
         </Menu>
-        <Menu role={role}><Link to="/search/recommendation">{role === "company" ? "인재 탐색" : "공고 탐색"}</Link>
+        <Menu role={role}><CustomLink to="/search/recommendation">{role === "company" ? "인재 탐색" : "공고 탐색"}</CustomLink>
           <SubBar role={role}>
-            <SubMenu role={role}><Link to="/search/recommendation">{role === "company" ? "추천 인재 확인" : "추천 공고 확인"}</Link></SubMenu>
-            <SubMenu role={role}><Link to="/search/like">{role === "company" ? "인재 보관함" : "공고 보관함"}</Link></SubMenu>
+            <SubMenu role={role}><CustomLink to="/search/recommendation">{role === "company" ? "추천 인재 확인" : "추천 공고 확인"}</CustomLink></SubMenu>
+            <SubMenu role={role}><CustomLink to="/search/like">{role === "company" ? "인재 보관함" : "공고 보관함"}</CustomLink></SubMenu>
           </SubBar>
         </Menu>
         {/* <Menu role={role}><Link to="/jobinterview">면접 도우미</Link>*/}
-        <Menu role={role}><Link>면접 도우미</Link>
+        <Menu role={role}><CustomLink>면접 도우미</CustomLink>
           {role === "company" ? 
             <SubBar role={role}>
               <SubMenu role={role} style={{'backgroundColor': '#858585ff'}}>면접 준비/진행</SubMenu>
@@ -195,17 +244,17 @@ export default function NavigationBar() {
             <SubBar role={role}>
               {role === "company" ?
               <>
-                <SubMenu role={role}><Link to="/profile/myprofile">기업 프로필</Link></SubMenu>
-                <SubMenu role={role}><Link to="/profile/myjobprofile">채용 공고 목록</Link></SubMenu>
+                <SubMenu role={role}><CustomLink to="/profile/myprofile">기업 프로필</CustomLink></SubMenu>
+                <SubMenu role={role}><CustomLink to="/profile/myjobprofile">채용 공고 목록</CustomLink></SubMenu>
               </>
                 :
-                <SubMenu role={role}><Link to="/profile/myprofile">내 프로필</Link></SubMenu>
+                <SubMenu role={role}><CustomLink to="/profile/myprofile">내 프로필</CustomLink></SubMenu>
               }
-              <SubMenu role={role}><Link onClick={handleLogout}>로그아웃</Link></SubMenu>
+              <SubMenu role={role}><CustomLink onClick={handleLogout}>로그아웃</CustomLink></SubMenu>
             </SubBar>
           </Menu>
           :
-          <Menu role={role}><Link to="/auth/login">로그인</Link></Menu>}
+          <Menu role={role}><CustomLink to="/auth/login">로그인</CustomLink></Menu>}
       </MainBar>
     </nav>
   );
