@@ -71,12 +71,13 @@ const ProfileImage = styled.div`
 const ProfileName = styled.div`
   color: black;
   position: relative;
-  left: 92px;
-  top: -20px;
+  left: 96px;
+  top: -19px;
   width: 130px;
   text-align: center;
   font-size: 18.5px;
   font-weight: 600;
+  line-height: 30px;
 `;
 
 const ProfileContent = styled.div`
@@ -85,11 +86,13 @@ const ProfileContent = styled.div`
   font-weight: 500;
   position: relative;
   left: 256px;
-  top: -52px;
+  top: -55px;
+  line-height: 20px;
 `;
 
 const Introduction = styled.div`
   width: 450px;
+  height: 30px;
   margin-top: 14px;
   margin-bottom: 2px;
   margin-left: 25px;
@@ -98,6 +101,7 @@ const Introduction = styled.div`
   font-size: 12px;
   line-height: 30px;
   text-align: center;
+  overflow: hidden;
 `;
 
 const ContentContainer = styled.div`

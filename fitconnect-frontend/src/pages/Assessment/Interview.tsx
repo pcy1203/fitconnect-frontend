@@ -9,8 +9,6 @@ import axios from "axios";
 import company from '../../assets/company.png';
 import arrowCompany from '../../assets/arrow-company.png';
 import companyInterview from '../../assets/company-interview.jpg';
-import { set } from "date-fns";
-import { se } from "date-fns/locale";
 
 const Container = styled.div`
   width: 1200px;
@@ -732,7 +730,6 @@ const initGapi = () => {
           ],
         });
         gapiInited = true;
-        console.log('GAPI initialized');
         resolve();
       });
     };
@@ -743,7 +740,6 @@ const initGapi = () => {
     script2.async = true;
     script2.defer = true;
     script2.onload = () => {
-      console.log('GIS loaded');
     };
     document.body.appendChild(script2);
   });
@@ -882,9 +878,11 @@ export default function Interview() {
     const interviewType = new URLSearchParams(location.search).get("type");
     const [name, setName] = useState("$이름$");
     const [jobTitle, setJobTitle] = useState("$공고$");
+    const alertOnce = useRef(false);
 
     useEffect(() => {
         if (!loading && (!token || !role)) navigate("/auth/login");
+        setName(profileName);
     }, [loading, token]);
 
     useEffect(() => {
@@ -900,6 +898,20 @@ export default function Interview() {
             axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
               setJobTitle(response.data.data.find(job => job.id === Number(queryJobId))?.title);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+        } else if (name === "$이름$" && role === 'talent') {
+            axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((res) => {
+              if (!res.data.data.basic) {
+                if (!alertOnce.current) {
+                  alert("프로필을 먼저 등록해 주세요!");
+                  alertOnce.current = true;
+                }
+                navigate("/profile/setprofile");
+              }
             })
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
@@ -954,11 +966,11 @@ export default function Interview() {
     const [sheetId, setSheetId] = useState(null);
     const [sheetUrl, setSheetUrl] = useState(null);
     const [making, setMaking] = useState(false);
+    const [documentQuestion, setDocumentQuestion] = useState(null);
 
     useEffect(() => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       setIsBrowserSTTSupported(!!SpeechRecognition);
-      setName(profileName);
     }, []);
 
     useEffect(() => {
@@ -1157,29 +1169,29 @@ export default function Interview() {
                     const jobProfile = await axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } });
                     const originalJobPosting = jobProfile.data?.data.find(job => job.id === Number(jobId));
                     setAdditionalInfo({
-                      role: `[ 기존에 작성한 내용 ]
+                      role: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.responsibilities}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.responsibilities}` || "",
-                      requirement: `[ 기존에 작성한 내용 ]
+                      requirement: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.requirements_must}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.requirements_must}` || "",
-                      preference: `[ 기존에 작성한 내용 ]
+                      preference: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.requirements_nice}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.requirements_nice}` || "",
-                      capacity: `[ 기존에 작성한 내용 ]
+                      capacity: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.competencies}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.competencies}` || "",
                     });
                 }
@@ -1421,9 +1433,8 @@ ${response.data?.job_posting_data.competencies}` || "",
       navigate(`${location.pathname}?${searchParams.toString()}`);
     };
 
-  const handleCreateSheet = async () => {
+  const sendDocument = async () => {
     try {
-      setMaking(true);
       setSending(true);
       const res1 = await axios.post(`${aiURL}/api/company-interview/team-review/start`, {
         access_token: token,
@@ -1445,13 +1456,44 @@ ${response.data?.job_posting_data.competencies}` || "",
 
           Q: 회사나 팀이 최근 집중하고 있는 전략적 방향성이나 중장기 목표는 무엇인가요?
           A: ${jobInfo.Q5}
-          `});
+      `});
       setSending(false);
-      getTutorial();
+      setDocumentQuestion(res2.data.next_questions);
+    } catch (error) {
+      console.error(error);
+      setSending(false);
+    }
+  };
 
+  const writeCell = async (spreadsheetId, range, value) => {
+    return new Promise((resolve, reject) => {
+      const params = {
+        spreadsheetId,
+        range,
+        valueInputOption: "RAW"
+      };
+
+      const valueRangeBody = {
+        values: [[value]]
+      };
+
+      gapi.client.sheets.spreadsheets.values.update(params, valueRangeBody)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error));
+    });
+  }
+
+  const handleCreateSheet = async () => {
+    try {
+      setMaking(true);
       await loginGoogle();
       const newId = await createSheetFromTemplate("1zD2NoxwO2prTBbNZZTXhbUN-LcyIbO-i505gH1xk_cg", profileName, jobTitle);
       setSheetId(newId);
+      console.log(documentQuestion)
+      await writeCell(newId, "시트1!C27", documentQuestion.job_fit_questions[0].question);
+      await writeCell(newId, "시트1!C34", documentQuestion.job_fit_questions[1].question);
+      await writeCell(newId, "시트1!C63", documentQuestion.culture_fit_questions[0].question);
+      await writeCell(newId, "시트1!C70", documentQuestion.culture_fit_questions[1].question);
       const url = "https://docs.google.com/spreadsheets/d/" + newId;
       setSheetUrl(url);
       window.open(url, "_blank");
@@ -1808,7 +1850,7 @@ ${response.data?.job_posting_data.competencies}` || "",
                     <b>구조화 질문</b>은 고정된 질문을 통해 {jobTitle} 포지션의 전반적인 조건을 파악하는 단계예요.<br/>
                     업무, 인재상 등 포괄적인 주제를 중심으로 {jobTitle} 포지션의 <b>주요 역할</b>을 이해하여,<br/>
                     직무/문화 적합성 질문을 만들고 공고에 들어갈 내용을 작성하는 데 활용돼요.<br/><br/>
-                    📢 작성 완료 버튼을 누르면, **직무/문화 적합성 질문이 포함된 구글 스프레드시트**가 만들어져요! (로그인 필요)
+                    📢 작성 완료 버튼을 누르면, <b>직무/문화 적합성 질문이 포함된 구글 스프레드시트</b>가 만들어져요! (로그인 필요)
                     </FormParagraph>
                   </FormContent>
                   <InputContainer width="1000px">
@@ -1832,7 +1874,7 @@ ${response.data?.job_posting_data.competencies}` || "",
                     <Textarea style={{ 'height': '200px', 'marginBottom': '30px' }} placeholder="내용을 입력해주세요." value={jobInfo.Q5} onChange={(e) => setJobInfo((prev) => ({ ...prev, Q5: e.target.value }))} width="800px"></Textarea>
                   </InputContainer>
                 </Form>
-                <Button onClick={() => {handleCreateSheet(); window.scrollTo({ top: 0, behavior: 'smooth' });}} role={role}>다음으로</Button>
+                <Button onClick={async () => {await sendDocument(); getTutorial(); window.scrollTo({ top: 0, behavior: 'smooth' });}} role={role}>다음으로</Button>
                 </>
               )}
             
@@ -1855,7 +1897,7 @@ ${response.data?.job_posting_data.competencies}` || "",
                   {sheetUrl ? (
                     <LargeButton role={role} onClick={() => window.open(sheetUrl, "_blank")}>🔗 새 탭에서 스프레드시트 열기</LargeButton>
                   ) : (making ? (
-                    <LargeButton onClick={handleCreateSheet} style={{border: "2px solid #ccc"}} role={role}>🔗 스프레드시트 생성 중 <span style={{ "fontSize": "18px", "top": "-2px" }}>(클릭하여 생성)</span></LargeButton>
+                    <LargeButton onClick={handleCreateSheet} style={{border: "2px solid #ccc"}} role={role}>🔗 스프레드시트 생성 중 <span style={{ "fontSize": "18px", "top": "-2px" }}>(클릭하여 다시 만들기)</span></LargeButton>
                   ) : (
                     <LargeButton onClick={handleCreateSheet} role={role}>🔗 구글 스프레드시트 생성하기</LargeButton>
                   ))}

@@ -193,11 +193,14 @@ export default function NavigationBar() {
             <span><img src={role === "company" ? company : talent} alt="Logo" width={24} height={27}></img></span>
             <span style={{ paddingLeft: "8px", fontSize: "15px", lineHeight: "18px", color: "#000" }}>{profileName ? profileName + " 님" : "프로필 설정 필요"}</span>
             <SubBar role={role}>
-              {/* {role === "company" ?
-                <SubMenu role={role}><Link to="/jobs">등록된 공고 목록</Link></SubMenu>
+              {role === "company" ?
+              <>
+                <SubMenu role={role}><Link to="/profile/myprofile">기업 프로필</Link></SubMenu>
+                <SubMenu role={role}><Link to="/profile/myjobprofile">채용 공고 목록</Link></SubMenu>
+              </>
                 :
-                <SubMenu role={role}><Link to="/myprofile">내 프로필</Link></SubMenu>
-              } */}
+                <SubMenu role={role}><Link to="/profile/myprofile">내 프로필</Link></SubMenu>
+              }
               <SubMenu role={role}><Link onClick={handleLogout}>로그아웃</Link></SubMenu>
             </SubBar>
           </Menu>

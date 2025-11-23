@@ -588,7 +588,7 @@ export default function SetProfile() {
                 </InputContainer>
                 <InputContainer width="1000px">
                   <Label>한 줄 소개</Label>
-                  <Input placeholder="나를 한 줄로 표현해주세요!" value={primaryInfo.intro} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
+                  <Input placeholder="나를 한 줄로 표현해주세요!" maxLength={40} value={primaryInfo.intro} onChange={(e) => setPrimaryInfo((prev) => ({ ...prev, intro: e.target.value }))} width="800px"></Input>
                 </InputContainer>
               </Form>
             )}
@@ -752,20 +752,20 @@ export default function SetProfile() {
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label value={desiredInfo.desiredCompanySize} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredCompanySize: e.target.value }))}>희망 규모</Label>
-                  <Select>
+                  <Label>희망 규모</Label>
+                  <Select value={desiredInfo.desiredCompanySize} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredCompanySize: e.target.value }))}>
                     {companySize.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label value={desiredInfo.residence} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, residence: e.target.value }))}>주거지</Label>
-                  <Select>
+                  <Label>주거지</Label>
+                  <Select value={desiredInfo.residence} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, residence: e.target.value }))}>
                     {residence.slice(1).map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
                 <InputContainer>
-                  <Label value={desiredInfo.desiredLocation} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredLocation: e.target.value }))}>희망 근무지</Label>
-                  <Select>
+                  <Label>희망 근무지</Label>
+                  <Select value={desiredInfo.desiredLocation} onChange={(e) => setDesiredInfo((prev) => ({ ...prev, desiredLocation: e.target.value }))}>
                     {residence.map((value) => (<option key={value} value={value}>{value}</option>))}
                   </Select>
                 </InputContainer>
