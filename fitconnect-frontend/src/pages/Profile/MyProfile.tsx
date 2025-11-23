@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/AuthContext";
 import React from "react";
@@ -252,6 +252,7 @@ export default function MyProfile() {
     const [page, setPage] = useState(1);
     const [submitPage, setSubmitPage] = useState(0);
     const navigate = useNavigate();
+    const alertOnce = useRef(false);
     
     useEffect(() => {
         if (!loading && (!token || !role)) navigate("/auth/login");
@@ -346,7 +347,10 @@ export default function MyProfile() {
                 desiredLocation: data.basic.desired_work_location || "",
             });
             } catch (err) {
-                alert("프로필을 먼저 등록해 주세요!");
+                if (!alertOnce.current) {
+                  alert("프로필을 먼저 등록해 주세요!");
+                  alertOnce.current = true;
+                }
                 navigate("/profile/setprofile");
             }
         };
@@ -610,7 +614,7 @@ export default function MyProfile() {
                 ))}
                 <Padding></Padding>
 
-                <FormTitle>파일 업로드</FormTitle>
+                <FormTitle>업로드된 파일</FormTitle>
                 <InputContainer width="1000px">
                   <Label>경력기술서</Label>
                   <Input readOnly onChange={(e) => setResumeFile(e.target.files?.[0] || null)} width="800px"></Input>

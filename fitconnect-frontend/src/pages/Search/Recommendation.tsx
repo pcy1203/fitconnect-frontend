@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 
@@ -616,6 +616,7 @@ export default function Recommendation() {
     const [showPopup, setShowPopup] = useState(false);
     const [xaiData, setXaiData] = useState(null);
     const [analyzing, setAnalyzing] = useState(false);
+    const alertOnce = useRef(false);
     
     const handleChange = (key: string, value: number) => {
       setWeights({ ...weights, [key]: value });
@@ -648,6 +649,13 @@ export default function Recommendation() {
           if (role === 'talent') {
             axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
+              if (!response.data.data.basic) {
+                if (!alertOnce.current) {
+                  alert("프로필 등록 후 AI 인터뷰를 진행해 주세요!");
+                  alertOnce.current = true;
+                }
+                navigate("/profile/setprofile");
+              }
               axios.get(`${baseURL}/api/matching-results/talents/${response.data.data?.basic.user_id}/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
               .then((response) => {
                 setPage(0);
@@ -825,7 +833,7 @@ export default function Recommendation() {
         return (
           <Container>
               <Title>🔮 {role === "talent" ? "공고" : "인재"} 탐색</Title>
-              <Paragraph style={{'marginTop': '50px'}}>카드를 불러오는 중이니 잠시만 기다려 주세요!<br/><br/>(프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣)</Paragraph>
+              <Paragraph style={{'marginTop': '50px'}}><b>카드를 불러오는 중이니 잠시만 기다려 주세요!</b><br/><br/><br/><br/>✔️ 인터뷰 완료 직후에는 추천까지 시간이 다소 걸리니, 새로고침을 시도해주세요.<br/><br/>✔️ 프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣</Paragraph>
           </Container>
         );
     } else if (role === "talent") {
@@ -843,7 +851,7 @@ export default function Recommendation() {
                         <ProfileContent>🌠 {data?.title}</ProfileContent>
                         <ProfileContent>🗓️ {data?.deadline_date?.replace("-", ".").replace("-", ".")} 마감</ProfileContent>
                       </ProfileContainer>
-                      <Introduction>{companyData?.basic.tagline ? companyData?.basic.tagline : `${data?.title} 공고 지원자를 기다립니다.`}</Introduction>
+                      <Introduction>{companyData?.basic.tagline ? companyData?.basic.tagline : `${data?.title ? data?.title : ""} 공고 지원자를 기다립니다.`}</Introduction>
                       <ContentContainer>
                         <Content role="company" style={{ borderRadius: '20px 0 20px 0' }}>
                           <ContentTitle>📜 공고 정보</ContentTitle>

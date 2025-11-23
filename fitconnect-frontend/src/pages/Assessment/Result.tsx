@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -204,6 +204,7 @@ export default function Result() {
     const [jobList, setJobList] = useState(null);
     const navigate = useNavigate();
     const queryJobId = new URLSearchParams(location.search).get("job");
+    const alertOnce = useRef(false);
     
     const [data, setData] = useState(null);
     const [companyData, setCompanyData] = useState(null);
@@ -219,6 +220,13 @@ export default function Result() {
           if (role === 'talent') {
             axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
+              if (!response.data.data.basic) {
+                if (!alertOnce.current) {
+                  alert("프로필 등록 후 AI 인터뷰를 진행해 주세요!");
+                  alertOnce.current = true;
+                }
+                navigate("/profile/setprofile");
+              }
               setData(response.data.data);
               axios.get(`${baseURL}/api/talent_cards/${response.data.data?.basic.user_id}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then((response) => {
@@ -272,7 +280,7 @@ export default function Result() {
         return (
           <Container>
               <Title>📊 분석 결과: {role === "talent" ? "역량" : "공고"} 카드</Title>
-              <Paragraph style={{'marginTop': '50px'}}>카드를 불러오는 중이니 잠시만 기다려 주세요!<br/><br/>(프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣)</Paragraph>
+              <Paragraph style={{'marginTop': '50px'}}><b>카드를 불러오는 중이니 잠시만 기다려 주세요!</b><br/><br/><br/><br/>✔️ 인터뷰 완료 직후에는 카드 생성까지 시간이 다소 걸리니, 새로고침을 시도해주세요.<br/><br/>✔️ 프로필 설정/인터뷰를 진행하지 않은 경우 카드가 나타나지 않아요😣</Paragraph>
           </Container>
         );
     } else if (role === "talent") {

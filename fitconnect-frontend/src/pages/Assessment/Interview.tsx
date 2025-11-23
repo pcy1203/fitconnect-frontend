@@ -878,9 +878,11 @@ export default function Interview() {
     const interviewType = new URLSearchParams(location.search).get("type");
     const [name, setName] = useState("$이름$");
     const [jobTitle, setJobTitle] = useState("$공고$");
+    const alertOnce = useRef(false);
 
     useEffect(() => {
         if (!loading && (!token || !role)) navigate("/auth/login");
+        setName(profileName);
     }, [loading, token]);
 
     useEffect(() => {
@@ -896,6 +898,20 @@ export default function Interview() {
             axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
             .then((response) => {
               setJobTitle(response.data.data.find(job => job.id === Number(queryJobId))?.title);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+        } else if (name === "$이름$" && role === 'talent') {
+            axios.get(`${baseURL}/api/me/talent/full`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((res) => {
+              if (!res.data.data.basic) {
+                if (!alertOnce.current) {
+                  alert("프로필을 먼저 등록해 주세요!");
+                  alertOnce.current = true;
+                }
+                navigate("/profile/setprofile");
+              }
             })
             .catch((error) => {
               console.error("데이터 불러오기 실패:", error);
@@ -955,7 +971,6 @@ export default function Interview() {
     useEffect(() => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       setIsBrowserSTTSupported(!!SpeechRecognition);
-      setName(profileName);
     }, []);
 
     useEffect(() => {
@@ -1154,29 +1169,29 @@ export default function Interview() {
                     const jobProfile = await axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } });
                     const originalJobPosting = jobProfile.data?.data.find(job => job.id === Number(jobId));
                     setAdditionalInfo({
-                      role: `[ 기존에 작성한 내용 ]
+                      role: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.responsibilities}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.responsibilities}` || "",
-                      requirement: `[ 기존에 작성한 내용 ]
+                      requirement: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.requirements_must}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.requirements_must}` || "",
-                      preference: `[ 기존에 작성한 내용 ]
+                      preference: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.requirements_nice}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.requirements_nice}` || "",
-                      capacity: `[ 기존에 작성한 내용 ]
+                      capacity: `[ 📄 기존에 작성한 내용 ]
 ${originalJobPosting.competencies}
 
-=================================
-[ AI 추천 공고 내용 ]
+------------------------------
+[ 💻 AI 추천 공고 내용 ]
 ${response.data?.job_posting_data.competencies}` || "",
                     });
                 }
