@@ -1282,7 +1282,7 @@ export default function Recommendation() {
                   <Button role={role} style={{width: "48%", fontSize: "20px"}} 
                     onClick={() => {
                       window.open(
-                        `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(data?.basic.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + data?.basic.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n" + "채용 담당자 드림")}`,
+                        `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(data?.basic.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + data?.basic.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n편하신 시간에 회신 주시면 포지션 관련 안내를 드리겠습니다.\n\n" + "채용 담당자 드림")}`,
                         "_blank"
                       );}}><span>✉️ 이메일 보내기</span></Button>
                 </TwoButtonsWrapper>

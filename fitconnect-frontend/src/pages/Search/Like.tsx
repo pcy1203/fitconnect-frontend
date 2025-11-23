@@ -1047,7 +1047,7 @@ export default function Recommendation() {
     
     // Like Data
     useEffect(() => {
-      if (role === 'company' && !queryJobId) {
+      if (role === 'company' && likeType != "all" && !queryJobId) {
         // ================= [Company] Select Job Id =================
         axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
         .then((response) => {
@@ -1056,7 +1056,7 @@ export default function Recommendation() {
         .catch((error) => {
           console.error("데이터 불러오기 실패:", error);
         });
-      } else if (!matchingData || likeListChanged) {
+      } else if ((!matchingData || likeListChanged)) {
         setLikeListChanged(false);
         if (role === 'talent') {
           // ================= [Talent] Matching Results =================
@@ -1092,32 +1092,84 @@ export default function Recommendation() {
           // ================= [Company] Matching Results =================
           const query = new URLSearchParams(location.search);
           const jobId = query.get("job");
-          axios.get(`${baseURL}/api/matching-results/job-postings/${jobId}/talents`, { headers: { Authorization: `Bearer ${token}` } })
-          .then((response) => {
-            setMatchingData(response.data.data.matches);
-            axios.get(`${baseURL}/api/job-postings/${queryJobId}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(res => setJobTitle(res.data.data?.title));
-          })
-          .catch((error) => {
-            console.error("데이터 불러오기 실패:", error);
-          });
-          // Like List
-          axios.get(`${baseURL}/api/me/company/job-postings/${jobId}/talent-bookmarks`, { headers: { Authorization: `Bearer ${token}` } })
-          .then((response) => {
-            const liked = response.data.data?.items.map((item) => item.talent_user_id);
-            setLikeList(liked);
-            setRows(response.data.data.items.map((item) => ({
-              ...item,
-              tags: item.tags ?? [],
-              status: item.status ?? 1,
-            })));
-          })
-          .catch((error) => {
-            console.error("데이터 불러오기 실패:", error);
-          });
-        }
+          const likeType = query.get("type");
+          if (likeType !== "all") {
+            axios.get(`${baseURL}/api/matching-results/job-postings/${jobId}/talents`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              setMatchingData(response.data.data.matches);
+              axios.get(`${baseURL}/api/job-postings/${queryJobId}`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => setJobTitle(res.data.data?.title));
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+            // Like List
+            axios.get(`${baseURL}/api/me/company/job-postings/${jobId}/talent-bookmarks`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              const liked = response.data.data?.items.map((item) => item.talent_user_id);
+              setLikeList(liked);
+              setRows(response.data.data.items.map((item) => ({
+                ...item,
+                tags: item.tags ?? [],
+                status: item.status ?? 1,
+              })));
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+          } else {
+            axios.get(`${baseURL}/api/me/company/job-postings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(async (response) => {
+              const jobs = response.data.data;
+              setJobList(jobs);
+
+              let allRows = [];
+              let allLikeList = [];
+              const requests = jobs.map(job =>
+                axios.get(`${baseURL}/api/me/company/job-postings/${job.id}/talent-bookmarks`, {
+                  headers: { Authorization: `Bearer ${token}` }
+                }).then(res => ({ job, items: res.data.data.items }))
+              );
+              const results = await Promise.all(requests);
+
+              for (const { job, items } of results) {
+                for (const item of items) {
+                  const existingIndex = allRows.findIndex(
+                    (row) => row.talent_user_id === item.talent_user_id
+                  );
+                  if (existingIndex !== -1) {
+                    const existing = allRows[existingIndex];
+                    const titles = Array.isArray(existing.job_posting_title)
+                      ? existing.job_posting_title
+                      : [existing.job_posting_title];
+                    if (!titles.includes(job.title)) {
+                      titles.push(job.title);
+                    }
+                    allRows[existingIndex] = {
+                      ...existing,
+                      job_posting_title: titles,
+                    };
+                  } else {
+                    allRows.push({
+                      ...item,
+                      job_posting_title: [job.title],
+                      tags: item.tags ?? [],
+                      status: item.status ?? 1,
+                    });
+                  }
+                }
+                allLikeList.push(...items.map(i => i.talent_user_id));
+              }
+              setLikeList(allLikeList);
+              setRows(allRows);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+          }
+        } 
       }
-    }, [loading, likeListChanged]);
+    }, [loading, likeListChanged, location.search]);
 
 
 
@@ -1157,7 +1209,9 @@ export default function Recommendation() {
             console.error("데이터 불러오기 실패:", error);
           });
         } else if (role === 'company') {
-          const talentId = matchingData[targetId]?.talent_user_id;
+          const match = matchingData.find(item => item.talent_user_id === targetId);
+          const talentId = targetId;
+          setScores(match.scores);
           axios.get(`${baseURL}/api/talents/${talentId}/profile`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
             setData(response.data.data);
@@ -1173,6 +1227,22 @@ export default function Recommendation() {
             console.error("데이터 불러오기 실패:", error);
           });
         }
+      } else if (targetId && role === 'company') {
+        const talentId = targetId;
+        axios.get(`${baseURL}/api/talents/${talentId}/profile`, { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          setData(response.data.data);
+          axios.get(`${baseURL}/api/talent_cards/${talentId}`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+              setCardData(response.data.data);
+            })
+            .catch((error) => {
+              console.error("데이터 불러오기 실패:", error);
+            });
+        })
+        .catch((error) => {
+          console.error("데이터 불러오기 실패:", error);
+        });
       }
     };
 
@@ -1254,7 +1324,7 @@ export default function Recommendation() {
       status: "",
     });
 
-    const getRowId = (row) => row?.job_posting_id ?? row?.talent_id ?? row?.talent_user_id ?? row?.id ?? null;
+    const getRowId = (row) => row?.job_posting_id ?? row?.talent_user_id ?? row?.id ?? null;
     const getRowTags = (rowId) => tags[rowId] || [];
     const getRowInput = (rowId) => inputValue[rowId] || "";
     const filteredSuggestions = (rowId) => {
@@ -1367,7 +1437,7 @@ export default function Recommendation() {
       return (
         <Container>
           <Title style={{'marginBottom': '20px'}}>♥️ 보관한 인재</Title>
-          <Paragraph>진행 방식을 선택해주세요.</Paragraph>
+          <Paragraph>인재풀 확인 방식을 선택해주세요.</Paragraph>
           <SelectContainer>
             <Select onClick={() => handleSelect("all")}>
                 <div>👥</div>
@@ -1643,6 +1713,7 @@ export default function Recommendation() {
                   </Cell>
                 </Row>
               ))}
+              {filteredRows?.length === 0 && <div style={{"marginTop": "50px", "textAlign": "center", "position": "relative", "left": "7px"}}>아직 보관한 공고가 없어요 🤔</div>}
             </Table>
             <div style={{"height": "60px"}}></div>
             </>
@@ -1857,35 +1928,77 @@ export default function Recommendation() {
                 </CardContainer>
                 <CloseCardButton role={role} onClick={() => {setIsCardVisible(false); setCardData(null); setData(null); setIdx(null);}}>👈 목록으로 돌아가기</CloseCardButton>
                 {queryJobId && (
+                <>
                 <HexagonContainer>
-                  <Hexagon score={[[idx]?.scores.roles, matchingData[idx]?.scores.growth, matchingData[idx]?.scores.career,
-                    matchingData[idx]?.scores.culture, matchingData[idx]?.scores.vision, matchingData[idx]?.scores.skills]} role={role} />
-                  <BalloonButton onClick={() => {setShowPopup(true); loadXaiData(matchingData[idx].talent_user_id);}}>
+                  <Hexagon role={role} score={[scores?.roles, scores?.growth, scores?.career,
+                  scores?.culture, scores?.vision, scores?.skills]} />
+                  <BalloonButton onClick={() => {setShowPopup(true); loadXaiData(idx);}}>
                     🤔 매칭 분석
                   </BalloonButton>
                 </HexagonContainer>
+                <ButtonContainer>
+                  <TwoButtonsWrapper>
+                    <Button role={role} style={{width: "48%", fontSize: "20px"}} onClick={(e) => {cancelLike(idx); setIsCardVisible(false); setCardData(null); setData(null); setIdx(null);}}><span>✖️ 삭제하기</span></Button>
+                    <Button role={role} style={{width: "48%", fontSize: "20px"}} 
+                      onClick={() => {
+                        window.open(
+                          `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(data?.basic.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + data?.basic.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n편하신 시간에 회신 주시면 포지션 관련 안내를 드리겠습니다.\n\n" + "채용 담당자 드림")}`,
+                          "_blank"
+                        );}}><span>✉️ 이메일 보내기</span></Button>
+                  </TwoButtonsWrapper>
+                  <div style={{"color": "black", "fontSize": "17px", "fontWeight": "500"}}>📝 코멘트</div>
+                  <Memo></Memo>
+                </ButtonContainer>
+                </>
                 )}
-              <ButtonContainer>
-                <TwoButtonsWrapper>
-                  <Button role={role} style={{width: "48%", fontSize: "20px"}}><span>✖️ 삭제하기</span></Button>
-                  <Button role={role} style={{width: "48%", fontSize: "20px"}} 
-                    onClick={() => {
-                      window.open(
-                        `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(data?.basic.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + data?.basic.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n" + "채용 담당자 드림")}`,
-                        "_blank"
-                      );}}><span>✉️ 이메일 보내기</span></Button>
-                </TwoButtonsWrapper>
-                <div style={{"color": "black", "fontSize": "17px", "fontWeight": "500"}}>📝 코멘트</div>
-                <Memo></Memo>
-              </ButtonContainer>
+                {likeType === "all" && (
+                <>
+                <div style={{"position": "relative", "top": "-730px", "left": "679px", "height": "1px"}}>
+                  <div style={{"color": "black", "fontSize": "17px", "fontWeight": "500"}}>📝 코멘트</div>
+                  <Memo style={{"height": "480px"}}></Memo>
+                </div>
+                <ButtonContainer style={{"marginTop": "210px"}}>
+                  <TwoButtonsWrapper>
+                    <Button role={role} style={{width: "48%", fontSize: "20px"}} onClick={(e) => {setIsCardVisible(false); setCardData(null); setData(null); setIdx(null);}}><span>🔔 자동 포지션 제안</span></Button>
+                    <Button role={role} style={{width: "48%", fontSize: "20px"}} 
+                      onClick={() => {
+                        const bodyText =
+`${data?.basic.name} 님 안녕하세요,
+${profileName} 채용 담당자입니다.
+
+${data?.basic.name} 님의 FitConnect 프로필을 관심 있게 살펴보았습니다.
+역량과 경험이 매우 인상적이었으며, 저희가 지향하는 인재상과도 잘 맞는다고 판단했습니다.
+
+현재 적합한 포지션이 즉시 오픈된 상태는 아니지만,
+${data?.basic.name} 님을 인재풀(Talent Pool)에 등록하여 지속적으로 관심 있게 지켜보고자 합니다.
+
+추후 ${data?.basic.name} 님과 잘 맞는 포지션이 생길 경우
+가장 먼저 연락드려 정식 지원을 제안드리겠습니다.
+
+좋은 인연으로 이어지길 바라며,
+편하실 때 언제든 문의 주셔도 좋습니다.
+
+감사합니다.
+${profileName} 드림`;
+
+                        window.open(
+                          `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 관련 안내&body=${encodeURIComponent(bodyText)}`,
+                          "_blank"
+                        );
+                      }}
+                  ><span>✉️ 이메일 보내기</span></Button>
+                  </TwoButtonsWrapper>
+                </ButtonContainer>
+                </>
+                )}
               </>
             ) : (
             <>
             <Table>
-              <HeaderRow>
+              <HeaderRow role={role} style={likeType === "all" ? {"gridTemplateColumns": "1fr 1fr 1.2fr 1.2fr"} : {}}>
                 <HeaderCell>
                   후보자명<br />
-                  <FilterInput
+                  <FilterInput role={role}
                     style={{ marginTop: "8px", width: "85%" }}
                     placeholder="이름 검색"
                     value={filters.name}
@@ -1894,7 +2007,7 @@ export default function Recommendation() {
                 </HeaderCell>
                 <HeaderCell>
                   최근 경력 (총 경력)<br />
-                  <FilterSelect
+                  <FilterSelect role={role}
                     value={filters.minExp}
                     style={{ marginTop: "8px", width: "85%" }}
                     onChange={(e) => handleFilterChange("minExp", e.target.value)}
@@ -1902,14 +2015,16 @@ export default function Recommendation() {
                   >
                     <FilterOption value="">경력 전체</FilterOption>
                     <FilterOption value="1">1년 이상</FilterOption>
+                    <FilterOption value="2">2년 이상</FilterOption>
                     <FilterOption value="3">3년 이상</FilterOption>
                     <FilterOption value="5">5년 이상</FilterOption>
+                    <FilterOption value="7">7년 이상</FilterOption>
                     <FilterOption value="10">10년 이상</FilterOption>
                   </FilterSelect>
                 </HeaderCell>
                 <HeaderCell>
-                  등록 공고 · 태그<br />
-                  <FilterInput
+                  {likeType === "all" && "등록 공고 · "}태그<br />
+                  <FilterInput role={role}
                     value={filters.tag}
                     placeholder="태그 검색"
                     style={{ marginTop: "8px", width: "85%" }}
@@ -1918,7 +2033,7 @@ export default function Recommendation() {
                 </HeaderCell>
                 <HeaderCell>
                   인재 관리 단계<br />
-                  <FilterSelect
+                  <FilterSelect role={role}
                     value={filters.status}
                     style={{ marginTop: "8px", width: "85%" }}
                     onChange={(e) => handleFilterChange("status", e.target.value)}
@@ -1928,51 +2043,59 @@ export default function Recommendation() {
                     <FilterOption value="1">🔴 포지션 제안 전</FilterOption>
                     <FilterOption value="2">🟡 포지션 제안 중</FilterOption>
                     <FilterOption value="3">🟢 포지션 수락</FilterOption>
-                    <FilterOption value="4">⚫ 포지션 거절</FilterOption>
                     <FilterOption value="5">🔵 전형 진행 중</FilterOption>
+                    <FilterOption value="4">⚫ 포지션 거절</FilterOption>
                     <FilterOption value="6">⚫ 전형 진행 완료</FilterOption>
                   </FilterSelect>
                 </HeaderCell>
               </HeaderRow>
-              {filterCandidates?.map((row, rowIndex) => (
-                <Row key={row.id} onClick={() => {showCard(row.id);}}>
+              {filteredRows?.map((row) => (
+                <Row key={row.talent_user_id} onClick={() => {showCard(row.talent_user_id);}} style={likeType === "all" ? {"gridTemplateColumns": "1fr 1fr 1.2fr 1.2fr"} : {}}>
                   <Cell>
-                    <Name>{row.name}{row.isMatched && <MatchedTag>Matched</MatchedTag>}</Name>
-                    <Email>✉️ {row.email}</Email>
-                    <Phone>📞 {row.phone}</Phone>
+                    <Name>{row.basic.name}{row.isMatched && <MatchedTag>Matched</MatchedTag>}</Name>
+                    <Email>✉️ {row.basic.email}</Email>
+                    <Phone>📞 {row.basic.phone}</Phone>
                   </Cell>
                   <Cell>
-                    <Company>{row.company}</Company>
-                    <Job>🧑‍💼 {row.job}</Job>
-                    <TotalWork>💼 총 경력 {row.totalWork}년</TotalWork>
+                    <Company>{row.latest_experience.company_name}</Company>
+                    <Job>🧑‍💼 {row.latest_experience.title}</Job>
+                    <TotalWork>💼 총 경력 {row.experience_total_years}년</TotalWork>
                   </Cell>
                   <Cell>
-                    <Company>{row.position}</Company>
-                    <div style={{ borderBottom: "1px solid #ccc" }} />
+                    {likeType === "all" && (
+                      <>
+                        <Company style={{ whiteSpace: "pre-line" }}>
+                          {row.job_posting_title.map((title, idx) => (
+                            <span key={idx}>
+                              {title}
+                              {idx !== row.job_posting_title.length - 1 && <br />}
+                            </span>
+                          ))}
+                        </Company>
+                        <div style={{ borderBottom: "1px solid #ccc" }} />
+                      </>
+                    )}
                     <TagWrapper>
-                      {getRowTags(rowIndex).map((tag, i) => (
+                      {getRowTags(row.talent_user_id).map((tag, i) => (
                         <TagItem key={i} onClick={(e) => e.stopPropagation()}>
                           {tag}
-                          <RemoveBtn onClick={(e) => {e.stopPropagation(); removeTag(rowIndex, tag);}}>×</RemoveBtn>
+                          <RemoveBtn onClick={(e) => {e.stopPropagation(); removeTag(row.talent_user_id, tag);}}>×</RemoveBtn>
                         </TagItem>
                       ))}
                       <Input
                         placeholder="태그 입력..."
-                        value={getRowInput(rowIndex)}
+                        value={getRowInput(row.talent_user_id)}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) =>
-                          setInputValue({
-                            ...inputValue,
-                            [rowIndex]: e.target.value,
-                          })
+                          setInputValue((prev) => ({ ...prev, [row.talent_user_id]: e.target.value }))
                         }
-                        onKeyDown={(e) => handleKeyDown(e, rowIndex)}
+                        onKeyDown={(e) => handleKeyDown(e, row.talent_user_id)}
                       />
-                      {getRowInput(rowIndex).length > 0 &&
-                        filteredSuggestions(rowIndex).length > 0 && (
+                      {getRowInput(row.talent_user_id).length > 0 &&
+                        filteredSuggestions(row.talent_user_id).length > 0 && (
                           <Dropdown>
-                            {filteredSuggestions(rowIndex).map((s, i) => (
-                              <DropdownItem key={i} onClick={() => addTag(rowIndex, s)}>
+                            {filteredSuggestions(row.talent_user_id).map((s, i) => (
+                              <DropdownItem key={i} onClick={() => addTag(row.talent_user_id, s)}>
                                 {s}
                               </DropdownItem>
                             ))}
@@ -1984,25 +2107,59 @@ export default function Recommendation() {
                     <StatusSelect
                       value={row.status}
                       onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handleStatusChange(row.id, e.target.value)}
+                      onChange={(e) => handleStatusChange(row.talent_user_id, e.target.value)}
                     >
                       <StatusOption value="1">🔴 포지션 제안 전</StatusOption>
                       <StatusOption value="2">🟡 포지션 제안 중</StatusOption>
                       <StatusOption value="3">🟢 포지션 수락</StatusOption>
-                      <StatusOption value="4">⚫ 포지션 거절</StatusOption>
                       <StatusOption value="5">🔵 전형 진행 중</StatusOption>
+                      <StatusOption value="4">⚫ 포지션 거절</StatusOption>
                       <StatusOption value="6">⚫ 전형 진행 완료</StatusOption>
                     </StatusSelect>
                     <PoolButtonsWrapper>
-                      <PoolButton role={role} onClick={(e) => e.stopPropagation()}><span>✖️ 삭제하기</span></PoolButton>
-                      <PoolButton role={role} onClick={(e) => {e.stopPropagation(); window.open(
-                        `https://mail.google.com/mail/?view=cm&fs=1&to=${row.name}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(row.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + row.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n" + "채용 담당자 드림")}`,
-                        "_blank"
-                      );}}><span>✉️ 메일 보내기</span></PoolButton>
+                      {likeType === "all"
+                       ?
+                        <>
+                        <PoolButton role={role} onClick={(e) => {}}><span>🔔 자동 포지션 제안</span></PoolButton>
+                        <PoolButton role={role} 
+                      onClick={(e) => {e.stopPropagation(); const bodyText =
+`${row?.basic.name} 님 안녕하세요,
+${profileName} 채용 담당자입니다.
+
+${row?.basic.name} 님의 FitConnect 프로필을 관심 있게 살펴보았습니다.
+역량과 경험이 매우 인상적이었으며, 저희가 지향하는 인재상과도 잘 맞는다고 판단했습니다.
+
+현재 적합한 포지션이 즉시 오픈된 상태는 아니지만,
+${row?.basic.name} 님을 인재풀(Talent Pool)에 등록하여 지속적으로 관심 있게 지켜보고자 합니다.
+
+추후 ${row?.basic.name} 님과 잘 맞는 포지션이 생길 경우
+가장 먼저 연락드려 정식 지원을 제안드리겠습니다.
+
+좋은 인연으로 이어지길 바라며,
+편하실 때 언제든 문의 주셔도 좋습니다.
+
+감사합니다.
+${profileName} 드림`;
+                        window.open(
+                          `https://mail.google.com/mail/?view=cm&fs=1&to=${data?.basic.email}&su=[${profileName}] ${jobTitle} 관련 안내&body=${encodeURIComponent(bodyText)}`,
+                          "_blank"
+                        );
+                      }}><span>✉️ 메일 보내기</span></PoolButton>
+                        </>
+                       :
+                        <>
+                        <PoolButton role={role} onClick={(e) => {e.stopPropagation(); cancelLike(row.talent_user_id);}}><span>✖️ 삭제하기</span></PoolButton>
+                        <PoolButton role={role} onClick={(e) => {e.stopPropagation(); window.open(
+                          `https://mail.google.com/mail/?view=cm&fs=1&to=${row.basic.name}&su=[${profileName}] ${jobTitle} 포지션 제안 안내&body=${encodeURIComponent(row.basic.name + " 님 안녕하세요, " + profileName + " 채용 담당자입니다.\n\n" + row.basic.name + " 님의 FitConnect 프로필을 검토한 결과,\n역량이 적합하다고 판단되어 " + jobTitle + " 포지션을 제안드리게 되었습니다.\n\n편하신 시간에 회신 주시면 포지션 관련 안내를 드리겠습니다.\n\n" + "채용 담당자 드림")}`,
+                          "_blank"
+                        );}}><span>✉️ 메일 보내기</span></PoolButton>
+                        </>
+                      }
                     </PoolButtonsWrapper>
                   </Cell>
                 </Row>
               ))}
+              {filteredRows?.length === 0 && <div style={{"marginTop": "50px", "textAlign": "center", "position": "relative", "left": "7px"}}>아직 보관한 인재가 없어요 🤔</div>}
             </Table>
             <div style={{"height": "60px"}}></div>
             </>
