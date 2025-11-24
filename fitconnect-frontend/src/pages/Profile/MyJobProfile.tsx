@@ -321,7 +321,7 @@ const JobImage = styled.div`
 `;
 
 const JobTitle = styled.div`
-    width: 300px;
+    width: 500px;
     font-size: 14px;
     font-weight: 600;
     color: #242424ff;
@@ -458,7 +458,7 @@ export default function MyJobProfile() {
                     <JobImage><img src={company} alt="Logo" width={24*0.8} height={27*0.8}></img></JobImage>
                     <JobTitle>{job.title}</JobTitle>
                     <JobButton role="company">
-                      추천 인재 확인<img src={arrowCompany} alt="Logo" style={{'transform': 'rotate(180deg)', 'position': 'absolute', 'marginLeft': '5px', 'marginTop': '3px'}} width={24*0.8} height={24*0.8}></img>
+                      공고 내용 확인<img src={arrowCompany} alt="Logo" style={{'transform': 'rotate(180deg)', 'position': 'absolute', 'marginLeft': '5px', 'marginTop': '3px'}} width={24*0.8} height={24*0.8}></img>
                     </JobButton>
                     <JobContent>· {job?.employment_type}  |  {job?.career_level}<br/>· {job?.department} | {job?.deadline_date.replace("-", ".").replace("-", ".")} 마감</JobContent>
                   </JobPosting>

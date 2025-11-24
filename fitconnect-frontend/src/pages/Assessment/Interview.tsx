@@ -393,7 +393,7 @@ const JobImage = styled.div`
 `;
 
 const JobTitle = styled.div`
-  width: 300px;
+  width: 500px;
   font-size: 14px;
   font-weight: 600;
   color: #242424ff;
