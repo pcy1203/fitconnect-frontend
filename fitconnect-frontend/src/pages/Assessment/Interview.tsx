@@ -917,7 +917,7 @@ export default function Interview() {
               console.error("데이터 불러오기 실패:", error);
             });
         }
-    }, [location.search]);
+    }, [loading, location.search]);
 
     const GENERAL = 1;
     const TECHNICAL = 2;

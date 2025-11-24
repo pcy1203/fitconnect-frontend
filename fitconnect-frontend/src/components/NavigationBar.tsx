@@ -145,6 +145,8 @@ const CustomLink = ({
 
     if (onClick) onClick();
 
+    if (!to) return;
+
     window.location.href = to;
     
     if (type) {
@@ -250,7 +252,7 @@ export default function NavigationBar() {
                 :
                 <SubMenu role={role}><CustomLink to="/profile/myprofile">내 프로필</CustomLink></SubMenu>
               }
-              <SubMenu role={role}><CustomLink onClick={handleLogout}>로그아웃</CustomLink></SubMenu>
+              <SubMenu role={role}><Link onClick={handleLogout}>로그아웃</Link></SubMenu>
             </SubBar>
           </Menu>
           :
